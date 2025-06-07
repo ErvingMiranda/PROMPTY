@@ -1,0 +1,7 @@
+{
+  "usuarios": [
+    { "cif": "25010330", "nombre": "Erving", "rol": "admin", "contrasena": "clave123" },
+    { "cif": "25110440", "nombre": "Justin", "rol": "colaborador", "contrasena": "tareas456" },
+    { "cif": "24090821", "nombre": "Carlos", "rol": "usuario", "contrasena": "programa789" }
+  ]
+}
