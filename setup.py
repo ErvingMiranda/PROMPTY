@@ -5,7 +5,7 @@ setup(
     version='2.5.0',
     packages=find_packages(include=['prompty', 'prompty.*']),
     install_requires=[
-        'speech_recognition',
+        'SpeechRecognition',
         'pyttsx3',
         'colorama'
     ],
