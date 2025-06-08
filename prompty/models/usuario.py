@@ -1,4 +1,4 @@
-from services.permisos import Permisos
+from prompty.services.permisos import Permisos
 
 
 class Usuario:

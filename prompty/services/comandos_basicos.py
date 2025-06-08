@@ -6,7 +6,7 @@ import webbrowser
 import shutil
 from tkinter import Tk, filedialog
 from random import choice
-from utils.helpers import quitar_colores
+from prompty.utils.helpers import quitar_colores
 import re
 
 class ComandosBasicos:

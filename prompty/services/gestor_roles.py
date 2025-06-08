@@ -1,6 +1,6 @@
 import os
 import json
-from models.usuario import Usuario
+from prompty.models.usuario import Usuario
 
 class GestorRoles:
     def __init__(self, ruta_archivo=None):

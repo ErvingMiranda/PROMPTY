@@ -1,8 +1,8 @@
-from services.gestor_comandos import GestorComandos
-from services.asistente_voz import ServicioVoz
-from services.gestor_roles import GestorRoles
-from services.interpretador import interpretar
-from utils.helpers import quitar_colores
+from prompty.services.gestor_comandos import GestorComandos
+from prompty.services.asistente_voz import ServicioVoz
+from prompty.services.gestor_roles import GestorRoles
+from prompty.services.interpretador import interpretar
+from prompty.utils.helpers import quitar_colores
 from colorama import Fore, Style
 
 class VistaTerminal:

@@ -1,5 +1,5 @@
 from colorama import Fore, Style
-from utils.helpers import leer_datos, guardar_datos, ruta_absoluta
+from prompty.utils.helpers import leer_datos, guardar_datos, ruta_absoluta
 
 import random
 

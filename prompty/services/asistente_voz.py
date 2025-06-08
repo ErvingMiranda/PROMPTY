@@ -1,7 +1,7 @@
 import speech_recognition as sr
 import pyttsx3
-from services.permisos import Permisos
-from utils.helpers import quitar_colores, limpiar_emoji
+from prompty.services.permisos import Permisos
+from prompty.utils.helpers import quitar_colores, limpiar_emoji
 
 class ServicioVoz:
     def __init__(self, usuario, verificar_admin_callback=None):
