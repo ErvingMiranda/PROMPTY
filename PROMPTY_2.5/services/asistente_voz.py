@@ -22,22 +22,20 @@ class ServicioVoz:
         self.engine.say(texto)
         self.engine.runAndWait()
 
-def escuchar(self):
-    """
-    Escucha desde el micrófono y devuelve el texto reconocido.
-    Devuelve None si no se entiende.
-    Devuelve '__error_red' si ocurre un error de conexión con el servicio.
-    """
-    with sr.Microphone() as source:
-        print("🎙️ Escuchando...")
-        audio = self.recognizer.listen(source)
-    try:
-        texto = self.recognizer.recognize_google(audio, language="es-ES")
-        return texto
-    except sr.UnknownValueError:
-        return None
-    except sr.RequestError:
-        return "__error_red"
+    def escuchar(self):
+        """Escucha desde el micrófono y devuelve el texto reconocido.
+        Devuelve ``None`` si no se entiende o ``"__error_red"`` si ocurre un
+        problema de conexión."""
+        with sr.Microphone() as source:
+            print("🎙️ Escuchando...")
+            audio = self.recognizer.listen(source)
+        try:
+            texto = self.recognizer.recognize_google(audio, language="es-ES")
+            return texto
+        except sr.UnknownValueError:
+            return None
+        except sr.RequestError:
+            return "__error_red"
 
     def listar_voces_disponibles(self):
         voces = self.engine.getProperty("voices")

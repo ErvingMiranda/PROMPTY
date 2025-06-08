@@ -8,12 +8,14 @@ class Permisos:
                 "agregar_comando",
                 "eliminar_comando",
                 "registrar_usuario",
-                "asignar_rol"
+                "asignar_rol",
+                "agregar_datos_curiosos"
             ],
             "colaborador": [
                 "ver_comandos",
                 "editar_voz",  # Tiene acceso a cambiar voz/volumen/velocidad
-                "agregar_comando"
+                "agregar_comando",
+                "agregar_datos_curiosos"
             ],
             "usuario": [
                 "ver_comandos"
