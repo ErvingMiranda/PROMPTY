@@ -1,4 +1,4 @@
-from services.comandos_basicos import ComandosBasicos
+from prompty.services.comandos_basicos import ComandosBasicos
 
 class GestorComandos:
     def __init__(self, usuario_actual=None):
