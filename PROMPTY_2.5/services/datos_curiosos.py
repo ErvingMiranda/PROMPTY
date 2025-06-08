@@ -3,7 +3,7 @@ from utils.helpers import leer_datos, guardar_datos, ruta_absoluta
 
 import random
 
-RUTA_DATOS = ruta_absoluta("datos/datos_curiosos.txt")
+RUTA_DATOS = ruta_absoluta("data/datos_curiosos.txt")
 
 def mostrar_curiosidad():
     datos = leer_datos(RUTA_DATOS)

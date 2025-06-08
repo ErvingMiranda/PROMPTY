@@ -1,9 +1,13 @@
+from services.permisos import Permisos
+
+
 class Usuario:
     def __init__(self, cif, nombre, rol, contrasena):
         self.cif = cif
         self.nombre = nombre
         self.rol = rol.lower()
         self.contrasena = contrasena
+        self._permisos = Permisos()
 
     def es_admin(self):
         return self.rol == "admin"
@@ -13,6 +17,10 @@ class Usuario:
 
     def es_usuario(self):
         return self.rol == "usuario"
+
+    def tiene_permiso(self, accion):
+        """Determina si el usuario puede realizar la ``accion`` indicada."""
+        return self._permisos.tiene_permiso(self.rol, accion)
 
     def verificar_contrasena(self, clave_ingresada):
         return self.contrasena == clave_ingresada
