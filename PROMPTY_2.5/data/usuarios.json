@@ -1,7 +1,34 @@
 {
   "usuarios": [
-    { "cif": "25010330", "nombre": "Erving", "rol": "admin", "contrasena": "clave123" },
-    { "cif": "25110440", "nombre": "Justin", "rol": "colaborador", "contrasena": "tareas456" },
-    { "cif": "24090821", "nombre": "Carlos", "rol": "usuario", "contrasena": "programa789" }
+    {
+      "cif": "25010330",
+      "nombre": "Erving",
+      "rol": "admin",
+      "contrasena": "clave123"
+    },
+    {
+      "cif": "25120411",
+      "nombre": "Owen",
+      "rol": "colaborador",
+      "contrasena": "owen456"
+    },
+    {
+      "cif": "25120412",
+      "nombre": "Liang",
+      "rol": "colaborador",
+      "contrasena": "liang456"
+    },
+    {
+      "cif": "25120413",
+      "nombre": "María",
+      "rol": "colaborador",
+      "contrasena": "maria456"
+    },
+    {
+      "cif": "20250001",
+      "nombre": "Carlos Iván Argüello",
+      "rol": "usuario",
+      "contrasena": "profesor2025"
+    }
   ]
 }

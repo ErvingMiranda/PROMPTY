@@ -1,8 +1,13 @@
+import os
 import json
-from models.usuario import Usuario  # <- Importación necesaria
+from models.usuario import Usuario
 
 class GestorRoles:
-    def __init__(self, ruta_archivo="data/usuarios.json"):
+    def __init__(self, ruta_archivo=None):
+        if ruta_archivo is None:
+            ruta_archivo = os.path.join(os.path.dirname(__file__), '..', 'data', 'usuarios.json')
+        ruta_archivo = os.path.abspath(ruta_archivo)
+
         self.usuarios = []
         self.cargar_usuarios(ruta_archivo)
 
