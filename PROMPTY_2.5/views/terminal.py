@@ -122,6 +122,7 @@ class VistaTerminal:
 5. Te hable sobre el programa y sus creadores.
 6. Salir del programa.
 7. Acceder al modo administrador (con contraseña).
+8. Configurar la voz de PROMPTY (di "configurar voz").
 """)
 
     def menu_configuracion_voz(self):

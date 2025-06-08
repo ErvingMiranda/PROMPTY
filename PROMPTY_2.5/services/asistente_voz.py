@@ -49,7 +49,7 @@ class ServicioVoz:
         voces = self.engine.getProperty("voices")
         if 0 <= indice < len(voces):
             self.engine.setProperty("voice", voces[indice].id)
-            self.engine.say("Esta es una muestra de voz.")
+            self.engine.say("Esta es mi voz, ¿te gustaría que hablara así?")
             self.engine.runAndWait()
 
     def establecer_voz_por_indice(self, indice):
