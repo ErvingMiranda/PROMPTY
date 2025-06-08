@@ -1,6 +1,7 @@
 import speech_recognition as sr
 import pyttsx3
 from services.permisos import Permisos
+from utils.helpers import quitar_colores, limpiar_emoji
 
 class ServicioVoz:
     def __init__(self, usuario, verificar_admin_callback=None):
@@ -19,8 +20,11 @@ class ServicioVoz:
         self.engine.setProperty("volume", self.volumen)
 
     def hablar(self, texto):
-        self.engine.say(texto)
+        texto_sin_colores = quitar_colores(texto)
+        texto_limpio = limpiar_emoji(texto_sin_colores)
+        self.engine.say(texto_limpio)
         self.engine.runAndWait()
+        return texto_limpio
 
     def escuchar(self):
         """Escucha desde el micrófono y devuelve el texto reconocido.

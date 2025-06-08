@@ -32,3 +32,7 @@ def guardar_datos(ruta, lista):
     with open(ruta, "w", encoding="utf-8") as f:
         for linea in lista:
             f.write(f"{linea}\n")
+
+def limpiar_emoji(texto):
+    """Elimina emojis u otros caracteres no alfanuméricos para reproducir por voz."""
+    return re.sub(r'[^\w\s.,;:!?()\'\"-]', '', texto or "")
