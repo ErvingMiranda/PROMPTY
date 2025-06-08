@@ -19,7 +19,18 @@ Asegúrate de usar Python 3.13
    ```bash
    pip install -r requirements.txt
    ```
-3. (Opcional) instala el paquete en modo desarrollo para poder ejecutarlo desde cualquier lugar:
+3. Instala **PyAudio** para habilitar el reconocimiento por micrófono. Según tu sistema:
+   - **Windows**
+     ```bash
+     pip install pipwin
+     pipwin install pyaudio
+     ```
+   - **Linux**
+     ```bash
+     sudo apt-get install portaudio19-dev
+     pip install pyaudio
+     ```
+4. (Opcional) instala el paquete en modo desarrollo para poder ejecutarlo desde cualquier lugar:
    ```bash
    pip install -e .
    ```
