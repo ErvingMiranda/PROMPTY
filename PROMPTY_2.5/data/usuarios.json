@@ -4,31 +4,31 @@
       "cif": "25010330",
       "nombre": "Erving",
       "rol": "admin",
-      "contrasena": "clave123"
+      "contrasena": "5ac0852e770506dcd80f1a36d20ba7878bf82244b836d9324593bd14bc56dcb5"
     },
     {
       "cif": "25120411",
       "nombre": "Owen",
       "rol": "colaborador",
-      "contrasena": "owen456"
+      "contrasena": "040b8d73d9705d09346d273ac7e354ca930310ecc8e04388f11af00e3ce9c29e"
     },
     {
       "cif": "25120412",
       "nombre": "Liang",
       "rol": "colaborador",
-      "contrasena": "liang456"
+      "contrasena": "905ff601eea58014369895e3b9177e62ec97002d57422a505adac3462de4c585"
     },
     {
       "cif": "25120413",
       "nombre": "María",
       "rol": "colaborador",
-      "contrasena": "maria456"
+      "contrasena": "7428557649a482e5ae23a41b2264c7605bc19d389558b2cf26c2640eca59c7b7"
     },
     {
       "cif": "20250001",
       "nombre": "Carlos Iván Argüello",
       "rol": "usuario",
-      "contrasena": "profesor2025"
+      "contrasena": "8cde75a32ddaea3834f981092e64efa171103a1c044e3accb1346fac9f8c4eed"
     }
   ]
 }

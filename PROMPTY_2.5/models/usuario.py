@@ -1,4 +1,5 @@
 from services.permisos import Permisos
+from utils.helpers import hash_password
 
 
 class Usuario:
@@ -23,7 +24,8 @@ class Usuario:
         return self._permisos.tiene_permiso(self.rol, accion)
 
     def verificar_contrasena(self, clave_ingresada):
-        return self.contrasena == clave_ingresada
+        """Verifica la contraseña comparando hashes."""
+        return self.contrasena == hash_password(clave_ingresada)
 
     def __str__(self):
         rol_formateado = {

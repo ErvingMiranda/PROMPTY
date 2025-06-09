@@ -1,5 +1,8 @@
 import os
 import re
+import hashlib
+import logging
+from pathlib import Path
 
 def quitar_colores(texto):
     """
@@ -14,10 +17,21 @@ def limpiar_pantalla():
     """
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def ruta_absoluta(relativa):
+def ruta_absoluta(relativa: str) -> str:
     """Convierte una ruta relativa (desde la raíz del proyecto) a una ruta absoluta."""
-    base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base, relativa)
+    base = Path(__file__).resolve().parents[1]
+    return str(base / relativa)
+
+
+def hash_password(clave: str) -> str:
+    """Devuelve el hash SHA-256 de la contraseña proporcionada."""
+    return hashlib.sha256(clave.encode()).hexdigest()
+
+
+def obtener_logger(nombre: str) -> logging.Logger:
+    """Devuelve un logger configurado con un formato simple."""
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+    return logging.getLogger(nombre)
 
 def leer_datos(ruta):
     """Lee un archivo de texto y devuelve una lista de líneas sin saltos."""
