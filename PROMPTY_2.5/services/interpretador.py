@@ -9,6 +9,7 @@ def interpretar(texto):
         ("5", "cinco"): "info_programa",
         ("6", "seis", "salir", "cerrar"): "salir",
         ("7", "siete", "administrador", "modo admin"): "modo_admin",
+        ("8", "ocho"): "configurar_voz",
         ("ayuda", "menu", "opciones"): "ayuda",
     }
 

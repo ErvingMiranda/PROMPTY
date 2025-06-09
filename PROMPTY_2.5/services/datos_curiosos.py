@@ -38,5 +38,24 @@ def eliminar_dato(usuario, indice):
     guardar_datos(RUTA_DATOS, datos)
     return f"{Fore.GREEN}✔ Dato eliminado:{Style.RESET_ALL} {eliminado}"
 
+def modificar_dato(usuario, indice, nuevo_dato):
+    """Modifica un dato curioso existente."""
+    if not usuario.tiene_permiso("agregar_datos_curiosos"):
+        return f"{Fore.RED}❌ No tienes permiso para modificar datos.{Style.RESET_ALL}"
+
+    datos = leer_datos(RUTA_DATOS)
+    if not datos:
+        return f"{Fore.RED}❌ No hay datos para modificar.{Style.RESET_ALL}"
+
+    if not (0 <= indice < len(datos)):
+        return f"{Fore.RED}❌ Número fuera de rango.{Style.RESET_ALL}"
+
+    if not nuevo_dato.strip():
+        return f"{Fore.RED}❌ El nuevo dato no puede estar vacío.{Style.RESET_ALL}"
+
+    datos[indice] = nuevo_dato.strip()
+    guardar_datos(RUTA_DATOS, datos)
+    return f"{Fore.GREEN}✔ Dato modificado con éxito.{Style.RESET_ALL}"
+
 def obtener_lista_datos():
     return leer_datos(RUTA_DATOS)
