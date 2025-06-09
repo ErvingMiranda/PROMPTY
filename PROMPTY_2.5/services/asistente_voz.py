@@ -2,6 +2,7 @@ import speech_recognition as sr
 import pyttsx3
 from services.permisos import Permisos
 from utils.helpers import quitar_colores, limpiar_emoji
+from data import config
 
 class ServicioVoz:
     def __init__(self, usuario, verificar_admin_callback=None):
@@ -11,13 +12,19 @@ class ServicioVoz:
         self.permisos = Permisos()
         self.verificar_admin = verificar_admin_callback
 
-        # Valores por defecto
+        # Valores por defecto obtenidos de la configuración
         self.voz_actual = None
-        self.velocidad = 150
-        self.volumen = 0.9
+        self.velocidad = config.VELOCIDAD_POR_DEFECTO
+        self.volumen = config.VOLUMEN_POR_DEFECTO
 
         self.engine.setProperty("rate", self.velocidad)
         self.engine.setProperty("volume", self.volumen)
+
+        # Establecer la voz configurada si existe
+        try:
+            self.establecer_voz_por_indice(config.VOZ_POR_DEFECTO)
+        except Exception:
+            pass
 
     def hablar(self, texto):
         texto_sin_colores = quitar_colores(texto)
