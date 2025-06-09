@@ -32,6 +32,10 @@ class VistaTerminal:
                 self.menu_editar_usuario()
                 continue
 
+            if comando == "modo_admin":
+                self.menu_admin()
+                continue
+
             if comando == "salir":
                 mensaje = "👋 Hasta luego. Fue un placer ayudarte."
                 print(mensaje)
@@ -194,6 +198,7 @@ class VistaTerminal:
             print("3. Listar usuarios")
             print("4. Volver")
 
+
             opcion = input("Selecciona una opción (1-4): ").strip()
 
             if opcion == "1":
@@ -220,6 +225,7 @@ class VistaTerminal:
             elif opcion == "3":
                 for u in self.gestor_roles.listar_usuarios():
                     print(f"{u.cif}: {u.nombre} ({u.rol})")
+
             elif opcion == "4":
                 break
             else:
