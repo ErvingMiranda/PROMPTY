@@ -2,7 +2,7 @@ from services.gestor_comandos import GestorComandos
 from services.asistente_voz import ServicioVoz
 from services.gestor_roles import GestorRoles
 from services.interpretador import interpretar
-from utils.helpers import quitar_colores
+from utils.helpers import quitar_colores, limpiar_pantalla
 from colorama import Fore, Style
 
 class VistaTerminal:
@@ -67,6 +67,7 @@ class VistaTerminal:
                 self.asistente_voz.hablar(quitar_colores(respuesta))
 
             input("\nPresiona Enter para continuar...")
+            limpiar_pantalla()
             self.mostrar_bienvenida()
 
     def elegir_modo_respuesta(self):
