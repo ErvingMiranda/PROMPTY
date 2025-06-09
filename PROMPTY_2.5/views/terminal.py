@@ -28,6 +28,10 @@ class VistaTerminal:
                 self.menu_configuracion_voz()
                 continue
 
+            if comando == "modo_admin":
+                self.menu_admin()
+                continue
+
             if comando == "salir":
                 mensaje = "👋 Hasta luego. Fue un placer ayudarte."
                 print(mensaje)
@@ -128,6 +132,45 @@ class VistaTerminal:
     def menu_configuracion_voz(self):
         while True:
             print("\n🎚️ CONFIGURACIÓN DE VOZ")
+            print("1. Cambiar voz")
+            print("2. Cambiar volumen")
+            print("3. Cambiar velocidad")
+            print("4. Volver al menú principal")
+
+            opcion = input("Selecciona una opción (1-4): ").strip()
+
+            if opcion == "1":
+                self.asistente_voz.seleccionar_voz()
+            elif opcion == "2":
+                try:
+                    valor = float(input("Nuevo volumen (0.0 a 1.0): "))
+                    resultado = self.asistente_voz.cambiar_volumen(valor)
+                    print(resultado)
+                except ValueError:
+                    print("❌ Entrada inválida.")
+            elif opcion == "3":
+                try:
+                    valor = int(input("Nueva velocidad (100 a 250): "))
+                    resultado = self.asistente_voz.cambiar_velocidad(valor)
+                    print(resultado)
+                except ValueError:
+                    print("❌ Entrada inválida.")
+            elif opcion == "4":
+                break
+            else:
+                print("❌ Opción no válida.")
+
+    def menu_admin(self):
+        print("\n🔐 MODO ADMINISTRADOR")
+        cif = input("CIF del administrador: ").strip()
+        clave = input("Contraseña: ").strip()
+        admin = self.gestor_roles.autenticar(cif, clave)
+        if not admin or not admin.es_admin():
+            print("❌ Credenciales incorrectas.")
+            return
+        print("🔓 Acceso concedido.")
+        while True:
+            print("\n🎚️ CONFIGURACIÓN DE VOZ (ADMIN)")
             print("1. Cambiar voz")
             print("2. Cambiar volumen")
             print("3. Cambiar velocidad")
