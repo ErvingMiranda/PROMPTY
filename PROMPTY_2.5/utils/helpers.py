@@ -2,6 +2,8 @@ import os
 import re
 import hashlib
 import logging
+import random
+import string
 from pathlib import Path
 
 def quitar_colores(texto):
@@ -50,3 +52,18 @@ def guardar_datos(ruta, lista):
 def limpiar_emoji(texto):
     """Elimina emojis u otros caracteres no alfanuméricos para reproducir por voz."""
     return re.sub(r'[^\w\s.,;:!?()\'\"-]', '', texto or "")
+
+
+def generar_cif(existentes=None):
+    """Genera un nuevo CIF de 8 dígitos que no esté en ``existentes``."""
+    existentes = set(existentes or [])
+    while True:
+        cif = ''.join(random.choices(string.digits, k=8))
+        if cif not in existentes:
+            return cif
+
+
+def generar_contrasena(longitud=8):
+    """Genera una contraseña aleatoria alfanumérica."""
+    caracteres = string.ascii_letters + string.digits
+    return ''.join(random.choices(caracteres, k=longitud))
