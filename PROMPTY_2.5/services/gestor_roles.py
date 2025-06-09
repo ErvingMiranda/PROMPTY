@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-import logging
 from models.usuario import Usuario
 from utils.helpers import obtener_logger
 
