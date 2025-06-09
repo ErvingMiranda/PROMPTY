@@ -122,14 +122,20 @@ class ComandosBasicos:
         return self.abrir_url(url)
 
     def mostrar_dato_curioso(self):
-        datos = [
-            "Los pulpos tienen tres corazones.",
-            "Una cucharada de miel representa el trabajo de toda la vida de 12 abejas.",
-            "La Torre Eiffel puede ser 15 cm más alta en verano.",
-            "El sol representa el 99.86% de la masa del sistema solar.",
-            "El cerebro humano puede generar unos 20 vatios de energía, lo suficiente para encender una bombilla pequeña."
-        ]
-        return f"🤔 Dato curioso: {choice(datos)}"
+        """Muestra un dato curioso leyendo primero del archivo externo."""
+        from services import datos_curiosos
+
+        resultado = datos_curiosos.mostrar_curiosidad()
+        if "❌" in quitar_colores(resultado):
+            datos = [
+                "Los pulpos tienen tres corazones.",
+                "Una cucharada de miel representa el trabajo de toda la vida de 12 abejas.",
+                "La Torre Eiffel puede ser 15 cm más alta en verano.",
+                "El sol representa el 99.86% de la masa del sistema solar.",
+                "El cerebro humano puede generar unos 20 vatios de energía, lo suficiente para encender una bombilla pequeña."
+            ]
+            return f"🤔 Dato curioso: {choice(datos)}"
+        return resultado
 
     def info_sistema(self, ruta=None):
         if ruta is None:
