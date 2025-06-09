@@ -24,8 +24,12 @@ class VistaTerminal:
         while True:
             comando, argumentos = self.obtener_instruccion()
 
-            if comando == "configurar_voz":
-                self.menu_configuracion_voz()
+            if comando == "modo_admin":
+                self.menu_admin()
+                continue
+
+            if comando == "editar_usuario":
+                self.menu_editar_usuario()
                 continue
 
             if comando == "salir":
@@ -122,7 +126,7 @@ class VistaTerminal:
 5. Te hable sobre el programa y sus creadores.
 6. Salir del programa.
 7. Acceder al modo administrador (con contraseña).
-8. Configurar la voz de PROMPTY (di "configurar voz").
+8. Modificar tus datos de usuario.
 """)
 
     def menu_configuracion_voz(self):
@@ -152,6 +156,96 @@ class VistaTerminal:
                 except ValueError:
                     print("❌ Entrada inválida.")
             elif opcion == "4":
+                break
+            else:
+                print("❌ Opción no válida.")
+
+    def menu_admin(self):
+        print("\n🔐 MODO ADMINISTRADOR")
+        cif = input("CIF del administrador: ").strip()
+        clave = input("Contraseña: ").strip()
+        admin = self.gestor_roles.autenticar(cif, clave)
+        if not admin or not admin.es_admin():
+            print("❌ Credenciales incorrectas.")
+            return
+        print("🔓 Acceso concedido.")
+        while True:
+            print("\n⚙️ OPCIONES DE ADMINISTRADOR")
+            print("1. Configurar voz")
+            print("2. Gestionar usuarios")
+            print("3. Volver al menú principal")
+
+            opcion = input("Selecciona una opción (1-3): ").strip()
+
+            if opcion == "1":
+                self.menu_configuracion_voz()
+            elif opcion == "2":
+                self.menu_gestion_usuarios()
+            elif opcion == "3":
+                break
+            else:
+                print("❌ Opción no válida.")
+
+    def menu_gestion_usuarios(self):
+        while True:
+            print("\n👥 GESTIÓN DE USUARIOS")
+            print("1. Crear nuevo usuario")
+            print("2. Modificar un usuario existente")
+            print("3. Listar usuarios")
+            print("4. Volver")
+
+            opcion = input("Selecciona una opción (1-4): ").strip()
+
+            if opcion == "1":
+                nombre = input("Nombre del nuevo usuario: ").strip()
+                rol = input("Rol (usuario/colaborador/admin): ").strip().lower()
+                cif, clave = self.gestor_roles.registrar_usuario(nombre, rol)
+                print(f"✔ Usuario creado. CIF: {cif} Contraseña: {clave}")
+            elif opcion == "2":
+                cif = input("CIF del usuario a modificar: ").strip()
+                usuario = self.gestor_roles.obtener_usuario_por_cif(cif)
+                if not usuario:
+                    print("❌ Usuario no encontrado.")
+                    continue
+                nuevo_nombre = input(f"Nuevo nombre [{usuario.nombre}]: ").strip()
+                nueva_clave = input("Nueva contraseña (dejar vacío para no cambiar): ").strip()
+                nuevo_rol = input(f"Nuevo rol [{usuario.rol}] (usuario/colaborador/admin): ").strip().lower()
+                self.gestor_roles.actualizar_usuario(
+                    cif,
+                    nombre=nuevo_nombre or None,
+                    contrasena=nueva_clave or None,
+                    rol=nuevo_rol or None,
+                )
+                print("✔ Usuario actualizado.")
+            elif opcion == "3":
+                for u in self.gestor_roles.listar_usuarios():
+                    print(f"{u.cif}: {u.nombre} ({u.rol})")
+            elif opcion == "4":
+                break
+            else:
+                print("❌ Opción no válida.")
+
+    def menu_editar_usuario(self):
+        while True:
+            print("\n✏️ MODIFICAR MIS DATOS")
+            print("1. Cambiar nombre")
+            print("2. Cambiar contraseña")
+            print("3. Volver")
+
+            opcion = input("Selecciona una opción (1-3): ").strip()
+
+            if opcion == "1":
+                nuevo = input("Nuevo nombre: ").strip()
+                if nuevo:
+                    self.gestor_roles.actualizar_usuario(self.usuario.cif, nombre=nuevo)
+                    self.usuario.nombre = nuevo
+                    print("✔ Nombre actualizado.")
+            elif opcion == "2":
+                nueva = input("Nueva contraseña: ").strip()
+                if nueva:
+                    self.gestor_roles.actualizar_usuario(self.usuario.cif, contrasena=nueva)
+                    print("✔ Contraseña actualizada.")
+            elif opcion == "3":
                 break
             else:
                 print("❌ Opción no válida.")

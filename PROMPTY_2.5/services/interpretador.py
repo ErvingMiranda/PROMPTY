@@ -9,6 +9,7 @@ def interpretar(texto):
         ("5", "cinco"): "info_programa",
         ("6", "seis", "salir", "cerrar"): "salir",
         ("7", "siete", "administrador", "modo admin"): "modo_admin",
+        ("8", "ocho"): "editar_usuario",
         ("ayuda", "menu", "opciones"): "ayuda",
     }
 
@@ -23,7 +24,7 @@ def interpretar(texto):
         ("navegador", "buscar"): "buscar_en_navegador",
         ("curioso", "dato"): "dato_curioso",
         ("programa", "creador", "información"): "info_programa",
-        ("configurar", "voz"): "configurar_voz",
+        ("usuario", "perfil"): "editar_usuario",
         ("salir", "cerrar"): "salir",
     }
 
