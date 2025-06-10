@@ -10,8 +10,7 @@ def interpretar(texto):
         ("6", "seis", "administrador", "modo admin"): "modo_admin",
         ("7", "siete"): "editar_usuario",
         ("8", "ocho", "cerrar sesión", "cerrar sesion", "logout"): "cerrar_sesion",
-        ("9", "nueve", "ayuda", "menu", "opciones"): "ayuda",
-        ("10", "diez", "salir", "cerrar"): "salir",
+        ("9", "nueve", "salir", "cerrar"): "salir",
     }
 
     for claves, comando in numero_comandos.items():

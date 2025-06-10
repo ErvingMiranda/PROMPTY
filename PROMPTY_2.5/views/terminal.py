@@ -141,8 +141,7 @@ class VistaTerminal:
 6. Acceder al modo administrador (con contraseña).
 7. Modificar tus datos de usuario.
 8. Cerrar sesión para iniciar con otro usuario.
-9. Ver nuevamente este menú de ayuda.
-10. Salir del programa.
+9. Salir del programa.
 """)
 
     def menu_configuracion_voz(self):
