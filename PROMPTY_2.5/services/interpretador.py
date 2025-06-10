@@ -7,11 +7,10 @@ def interpretar(texto):
         ("3", "tres"): "buscar_en_navegador",
         ("4", "cuatro"): "dato_curioso",
         ("5", "cinco"): "info_programa",
-        ("6", "seis", "salir", "cerrar"): "salir",
-        ("7", "siete", "administrador", "modo admin"): "modo_admin",
-        ("8", "ocho"): "editar_usuario",
-        ("9", "nueve", "cerrar sesión", "cerrar sesion", "logout"): "cerrar_sesion",
-        ("ayuda", "menu", "opciones"): "ayuda",
+        ("6", "seis", "administrador", "modo admin"): "modo_admin",
+        ("7", "siete"): "editar_usuario",
+        ("8", "ocho", "cerrar sesión", "cerrar sesion", "logout"): "cerrar_sesion",
+        ("10", "diez", "salir", "cerrar"): "salir",
     }
 
     for claves, comando in numero_comandos.items():
@@ -26,6 +25,7 @@ def interpretar(texto):
         ("curioso", "dato"): "dato_curioso",
         ("programa", "creador", "información"): "info_programa",
         ("usuario", "perfil"): "editar_usuario",
+        ("ayuda", "opciones", "menu"): "ayuda",
         ("salir", "cerrar"): "salir",
         ("cerrar sesión", "cerrar sesion", "logout"): "cerrar_sesion",
     }
