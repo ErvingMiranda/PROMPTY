@@ -2,7 +2,7 @@ from services.gestor_comandos import GestorComandos
 from services.asistente_voz import ServicioVoz
 from services.gestor_roles import GestorRoles
 from services.interpretador import interpretar
-from utils.helpers import quitar_colores
+from utils.helpers import quitar_colores, limpiar_pantalla
 from colorama import Fore, Style
 
 class VistaTerminal:
@@ -14,6 +14,7 @@ class VistaTerminal:
         self.modo_respuesta = "texto"
 
     def iniciar(self):
+        limpiar_pantalla()
         self.elegir_modo_respuesta()
         print(f"\n✅ Bienvenido {self.usuario.nombre} ({self.usuario.rol})")
         self.mostrar_bienvenida()
@@ -32,16 +33,17 @@ class VistaTerminal:
                 self.menu_editar_usuario()
                 continue
 
-            if comando == "modo_admin":
-                self.menu_admin()
-                continue
 
-            if comando == "salir":
-                mensaje = "👋 Hasta luego. Fue un placer ayudarte."
+            if comando == "cerrar_sesion":
+                mensaje = "🔒 Sesión cerrada."
                 print(mensaje)
                 if self.modo_respuesta in ["voz", "ambos"]:
                     self.asistente_voz.hablar(quitar_colores(mensaje))
-                break
+                limpiar_pantalla()
+                return "logout"
+
+            if comando == "salir":
+                return self.salir_programa()
 
             if comando == "ayuda":
                 self.mostrar_bienvenida()
@@ -67,6 +69,7 @@ class VistaTerminal:
                 self.asistente_voz.hablar(quitar_colores(respuesta))
 
             input("\nPresiona Enter para continuar...")
+            limpiar_pantalla()
             self.mostrar_bienvenida()
 
     def elegir_modo_respuesta(self):
@@ -89,7 +92,7 @@ class VistaTerminal:
             else:
                 print("❌ Opción no válida. Intenta con 1, 2 o 3.")
 
-        if self.modo_respuesta in ["voz", "ambos"]:
+        if self.modo_respuesta in ["voz", "ambos"] and self.asistente_voz.voz_actual is None:
             self.asistente_voz.seleccionar_voz()
 
     def obtener_instruccion(self):
@@ -117,6 +120,13 @@ class VistaTerminal:
 
         return interpretar(entrada)
 
+    def salir_programa(self):
+        mensaje = "👋 Hasta luego. Fue un placer ayudarte."
+        print(mensaje)
+        if self.modo_respuesta in ["voz", "ambos"]:
+            self.asistente_voz.hablar(quitar_colores(mensaje))
+        return "exit"
+
     def mostrar_bienvenida(self):
         print(f"""{Fore.CYAN}
 ¡Hola! Soy PROMPTY 2.5, tu asistente virtual de escritorio.
@@ -131,6 +141,7 @@ class VistaTerminal:
 6. Salir del programa.
 7. Acceder al modo administrador (con contraseña).
 8. Modificar tus datos de usuario.
+9. Cerrar sesión para iniciar con otro usuario.
 """)
 
     def menu_configuracion_voz(self):

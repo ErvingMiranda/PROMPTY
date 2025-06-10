@@ -10,6 +10,7 @@ def interpretar(texto):
         ("6", "seis", "salir", "cerrar"): "salir",
         ("7", "siete", "administrador", "modo admin"): "modo_admin",
         ("8", "ocho"): "editar_usuario",
+        ("9", "nueve", "cerrar sesión", "cerrar sesion", "logout"): "cerrar_sesion",
         ("ayuda", "menu", "opciones"): "ayuda",
     }
 
@@ -26,6 +27,7 @@ def interpretar(texto):
         ("programa", "creador", "información"): "info_programa",
         ("usuario", "perfil"): "editar_usuario",
         ("salir", "cerrar"): "salir",
+        ("cerrar sesión", "cerrar sesion", "logout"): "cerrar_sesion",
     }
 
     for palabras, comando in palabras_clave.items():
