@@ -149,15 +149,17 @@ class ComandosBasicos:
             "4": "LICENCIA DE USO Y DERECHOS",
         }
 
-        print("\n¿Sobre qué deseas saber?")
-        print("1. Sobre los creadores")
-        print("2. Sobre el programa")
-        print("3. Sobre el desarrollo")
-        print("4. Sobre la licencia de uso")
-        opcion = input("Selecciona una opción (1-4): ").strip()
-        titulo = secciones.get(opcion)
-        if not titulo:
-            return "❌ Opción inválida."
+        while True:
+            print("\n¿Sobre qué deseas saber?")
+            print("1. Sobre los creadores")
+            print("2. Sobre el programa")
+            print("3. Sobre el desarrollo")
+            print("4. Sobre la licencia de uso")
+            opcion = input("Selecciona una opción (1-4): ").strip()
+            titulo = secciones.get(opcion)
+            if titulo:
+                break
+            print("❌ Opción inválida.")
 
         try:
             with open(ruta, "r", encoding="utf-8") as archivo:

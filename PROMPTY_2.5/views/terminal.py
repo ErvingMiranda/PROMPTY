@@ -235,13 +235,21 @@ class VistaTerminal:
                 )
                 print("✔ Usuario actualizado.")
             elif opcion == "3":
-                for u in self.gestor_roles.listar_usuarios():
-                    print(f"{u.cif}: {u.nombre} ({u.rol})")
+                self.mostrar_tabla_usuarios()
 
             elif opcion == "4":
                 break
             else:
                 print("❌ Opción no válida.")
+
+    def mostrar_tabla_usuarios(self):
+        usuarios = self.gestor_roles.listar_usuarios()
+        encabezado = f"{'CIF':<10} {'Nombre':<20} {'Contraseña':<64} Permisos"
+        print(encabezado)
+        print("-" * len(encabezado))
+        for u in usuarios:
+            permisos = ", ".join(u._permisos.listar_permisos(u.rol))
+            print(f"{u.cif:<10} {u.nombre:<20} {u.contrasena:<64} {permisos}")
 
     def menu_editar_usuario(self):
         while True:
