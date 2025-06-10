@@ -12,6 +12,7 @@ class VistaLogin:
 
     def iniciar(self):
         while True:
+            limpiar_pantalla()
             print(f"{Fore.CYAN}🔐 Iniciar sesión en PROMPTY{Style.RESET_ALL}")
             cif = input(f"{Fore.YELLOW}CIF:{Style.RESET_ALL} ").strip()
             clave = input(f"{Fore.YELLOW}Contraseña:{Style.RESET_ALL} ").strip()
