@@ -141,8 +141,42 @@ class ComandosBasicos:
         if ruta is None:
             ruta = os.path.join(os.path.dirname(__file__), '..', 'data', 'info_programa.txt')
         ruta = os.path.abspath(ruta)
+
+        secciones = {
+            "1": "SOBRE LOS CREADORES DE PROMPTY",
+            "2": "SOBRE EL PROGRAMA",
+            "3": "PROCESO DE DESARROLLO",
+            "4": "LICENCIA DE USO Y DERECHOS",
+        }
+
         try:
             with open(ruta, "r", encoding="utf-8") as archivo:
-                return archivo.read()
+                lineas = archivo.readlines()
         except Exception as e:
             return f"❌ No se pudo acceder a la información del programa: {e}"
+
+        while True:
+            print("\n¿Sobre qué deseas saber?")
+            print("1. Sobre los creadores")
+            print("2. Sobre el programa")
+            print("3. Sobre el desarrollo")
+            print("4. Sobre la licencia de uso")
+            opcion = input("Selecciona una opción (1-4): ").strip()
+            titulo = secciones.get(opcion)
+            if titulo:
+                break
+            print("❌ Opción inválida.")
+
+        contenido = []
+        capturar = False
+        for linea in lineas:
+            cabecera = linea.strip()
+            if cabecera in secciones.values():
+                capturar = cabecera == titulo
+                continue
+            if capturar:
+                if cabecera in secciones.values():
+                    break
+                contenido.append(linea.rstrip())
+
+        return "\n".join(contenido).strip()
