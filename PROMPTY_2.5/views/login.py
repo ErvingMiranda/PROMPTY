@@ -1,6 +1,7 @@
 from services.gestor_roles import GestorRoles
 from views.terminal import VistaTerminal
 from utils.helpers import limpiar_pantalla
+from colorama import Fore, Style
 
 
 class VistaLogin:
@@ -11,9 +12,9 @@ class VistaLogin:
 
     def iniciar(self):
         while True:
-            print("🔐 Iniciar sesión en PROMPTY")
-            cif = input("CIF: ").strip()
-            clave = input("Contraseña: ").strip()
+            print(f"{Fore.CYAN}🔐 Iniciar sesión en PROMPTY{Style.RESET_ALL}")
+            cif = input(f"{Fore.YELLOW}CIF:{Style.RESET_ALL} ").strip()
+            clave = input(f"{Fore.YELLOW}Contraseña:{Style.RESET_ALL} ").strip()
 
             usuario = self.gestor_roles.autenticar(cif, clave)
 
@@ -25,5 +26,5 @@ class VistaLogin:
                     continue
                 break
             else:
-                print("❌ CIF o contraseña incorrectos.")
+                print(f"{Fore.RED}❌ CIF o contraseña incorrectos.{Style.RESET_ALL}")
 
