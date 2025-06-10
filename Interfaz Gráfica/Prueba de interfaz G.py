@@ -145,7 +145,7 @@ class PROMPTYWindow(QMainWindow):
                 background-color: #ea8278;
             }
         """)
-        directorio_actual = os.path.dirname(os.path.abspath(__file__))
+        directorio_actual = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources")
         ruta_icono_mic = os.path.join(directorio_actual, "microphone_icon.png")
         if os.path.exists(ruta_icono_mic):
             self.button_microfono.setIcon(QIcon(ruta_icono_mic))
@@ -175,7 +175,7 @@ class PROMPTYWindow(QMainWindow):
         button.setToolTip(tooltip)
         button.setFixedSize(40, 40)
         button.setStyleSheet("border: none; background-color: transparent;")
-        directorio_actual = os.path.dirname(os.path.abspath(__file__))
+        directorio_actual = os.path.join(os.path.dirname(os.path.abspath(__file__)), "resources")
         ruta_icono = os.path.join(directorio_actual, icon_file)
         if os.path.exists(ruta_icono):
             button.setIcon(QIcon(ruta_icono))
