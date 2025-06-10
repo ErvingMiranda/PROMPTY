@@ -14,8 +14,8 @@ class VistaTerminal:
         self.modo_respuesta = "texto"
 
     def iniciar(self):
-        limpiar_pantalla()
         self.elegir_modo_respuesta()
+        limpiar_pantalla()
         print(f"\n✅ Bienvenido {self.usuario.nombre} ({self.usuario.rol})")
         self.mostrar_bienvenida()
 
@@ -138,10 +138,11 @@ class VistaTerminal:
 3. Busque algo en YouTube o en tu navegador preferido (puedes usar un término o ingresar una URL).
 4. Te comparta un dato curioso.
 5. Te hable sobre el programa y sus creadores.
-6. Salir del programa.
-7. Acceder al modo administrador (con contraseña).
-8. Modificar tus datos de usuario.
-9. Cerrar sesión para iniciar con otro usuario.
+6. Acceder al modo administrador (con contraseña).
+7. Modificar tus datos de usuario.
+8. Cerrar sesión para iniciar con otro usuario.
+9. Ver nuevamente este menú de ayuda.
+10. Salir del programa.
 """)
 
     def menu_configuracion_voz(self):
