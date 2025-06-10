@@ -149,12 +149,6 @@ class ComandosBasicos:
             "4": "LICENCIA DE USO Y DERECHOS",
         }
 
-        try:
-            with open(ruta, "r", encoding="utf-8") as archivo:
-                lineas = archivo.readlines()
-        except Exception as e:
-            return f"❌ No se pudo acceder a la información del programa: {e}"
-
         while True:
             print("\n¿Sobre qué deseas saber?")
             print("1. Sobre los creadores")
@@ -166,6 +160,12 @@ class ComandosBasicos:
             if titulo:
                 break
             print("❌ Opción inválida.")
+
+        try:
+            with open(ruta, "r", encoding="utf-8") as archivo:
+                lineas = archivo.readlines()
+        except Exception as e:
+            return f"❌ No se pudo acceder a la información del programa: {e}"
 
         contenido = []
         capturar = False
