@@ -214,7 +214,7 @@ class AyudaWindow(QWidget):
             "Te hable sobre el programa y sus creadores.",
         ]
         if usuario.es_admin():
-            items.append("Funciones admin.")
+            items.append("Realizar tareas de administración.")
         else:
             items.append("Acceder al modo admin (requerirá credenciales de un administrador).")
 
@@ -239,7 +239,7 @@ class AdminWindow(QWidget):
         self.parent = parent
         self.servicio_voz = servicio_voz
         self.gestor_roles = gestor_roles
-        self.setWindowTitle("Funciones admin")
+        self.setWindowTitle("Panel de administración")
         self.setGeometry(200, 200, 260, 150)
         layout = QVBoxLayout()
 
@@ -257,9 +257,16 @@ class AdminWindow(QWidget):
 
         self.setLayout(layout)
 
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        gradient = QLinearGradient(0, 0, self.width(), self.height())
+        gradient.setColorAt(0, Qt.GlobalColor.blue)
+        gradient.setColorAt(1, Qt.GlobalColor.white)
+        brush = QBrush(gradient)
+        painter.fillRect(self.rect(), brush)
+
     def no_implementado(self):
         QMessageBox.information(self, "Admin", "Función no implementada en la interfaz")
-
         
 class PROMPTYWindow(QMainWindow):
     def __init__(self, usuario, logout_callback=None):

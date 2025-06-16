@@ -140,7 +140,7 @@ class VistaTerminal:
         print("4. Te comparta un dato curioso.")
         print("5. Te hable sobre el programa y sus creadores.")
         if self.usuario.es_admin():
-            print("6. Funciones admin.")
+            print("6. Realizar tareas de administración.")
         else:
             print("6. Acceder al modo admin (requerirá credenciales de un administrador).")
         print("7. Modificar tus datos de usuario.")
