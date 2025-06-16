@@ -5,12 +5,12 @@ import sys
 from views.login import VistaLogin
 from views.gui import LoginWindow
 from PyQt6.QtWidgets import QApplication
-from utils.helpers import preguntar_modo_interfaz
 
 
 def main():
-    """Inicia PROMPTY usando la interfaz elegida por el usuario."""
-    if preguntar_modo_interfaz():
+    """Pregunta si se usará la interfaz de terminal o la gráfica."""
+    modo = input("¿Usar interfaz gráfica? [S/N]: ").strip().lower()
+    if modo in {"s", "y", "si", "sí"}:
         app = QApplication(sys.argv)
         login = LoginWindow()
         login.show()
