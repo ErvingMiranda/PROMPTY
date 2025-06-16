@@ -8,7 +8,7 @@ Cada versión cuenta con su propio archivo principal:
 
 - **Prompty1.0**: scripts iniciales ubicados en `Prompty1.0`. Ejecuta por ejemplo `python Prompty1.0.py` o `Prompty1.2.py` según el script que quieras probar.
 - **PROMPTY_2.0**: versión modularizada. Corre `python PROMPTY_2.0/main.py`.
-- **PROMPTY_2.5**: prototipo con estructura de modelos y servicios. Corre `python PROMPTY_2.5/main.py`.
+- **PROMPTY_2.5**: prototipo con estructura de modelos y servicios. Al correr `python PROMPTY_2.5/main.py` podrás elegir entre la terminal o una interfaz gráfica.
 
 Asegúrate de usar Python 3.13
 
