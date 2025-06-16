@@ -67,3 +67,9 @@ def generar_contrasena(longitud=8):
     """Genera una contraseña aleatoria alfanumérica."""
     caracteres = string.ascii_letters + string.digits
     return ''.join(random.choices(caracteres, k=longitud))
+
+
+def preguntar_modo_interfaz():
+    """Pregunta al usuario si desea iniciar la interfaz gráfica."""
+    respuesta = input("¿Usar interfaz gráfica? [S/N]: ").strip().lower()
+    return respuesta in {"s", "y", "si", "sí"}

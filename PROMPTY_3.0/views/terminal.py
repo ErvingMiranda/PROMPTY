@@ -50,7 +50,10 @@ class VistaTerminal:
                 continue
 
             if comando == "comando_no_reconocido":
-                mensaje = "❌ Comando no reconocido. Intenta de nuevo."
+                mensaje = (
+                    "❌ Comando no reconocido. "
+                    "Puedes consultar las opciones disponibles escribiendo 'ayuda'."
+                )
                 print(mensaje)
                 if self.modo_respuesta in ["voz", "ambos"]:
                     self.asistente_voz.hablar(quitar_colores(mensaje))
