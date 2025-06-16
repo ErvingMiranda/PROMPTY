@@ -30,6 +30,7 @@ from services.gestor_roles import GestorRoles
 from services.gestor_comandos import GestorComandos
 from services.interpretador import interpretar
 from services.asistente_voz import ServicioVoz
+from utils.helpers import quitar_colores
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RESOURCES_DIR = os.path.normpath(
@@ -107,16 +108,21 @@ class ConfiguracionWindow(QWidget):
         QMessageBox.information(self, "Configuración", "Ajustes guardados")
 
 class UsuarioWindow(QWidget):
-    """Permite modificar los datos del usuario actual."""
+    """Muestra y permite modificar los datos del usuario actual."""
 
-    def __init__(self, usuario, gestor_roles):
+    def __init__(self, usuario, gestor_roles, logout_callback=None):
         super().__init__()
         self.usuario = usuario
         self.gestor_roles = gestor_roles
+        self.logout_callback = logout_callback
         self.setWindowTitle("Mi cuenta")
-        self.setGeometry(200, 200, 300, 200)
+        self.setGeometry(200, 200, 300, 250)
 
         layout = QVBoxLayout()
+        layout.addWidget(
+            QLabel(f"Usuario: {self.usuario.nombre} ({self.usuario.cif}) - {self.usuario.rol}")
+        )
+
         self.nombre_edit = QLineEdit(self.usuario.nombre)
         self.pass_edit = QLineEdit()
         self.pass_edit.setPlaceholderText("Nueva contraseña")
@@ -130,6 +136,11 @@ class UsuarioWindow(QWidget):
         boton_guardar = QPushButton("Guardar")
         boton_guardar.clicked.connect(self.guardar)
         layout.addWidget(boton_guardar)
+
+        if self.logout_callback:
+            boton_logout = QPushButton("Cerrar sesión")
+            boton_logout.clicked.connect(self.logout_callback)
+            layout.addWidget(boton_logout)
 
         boton_cerrar = QPushButton("Cerrar")
         boton_cerrar.clicked.connect(self.close)
@@ -150,7 +161,7 @@ class UsuarioWindow(QWidget):
         QMessageBox.information(self, "Usuario", "Datos actualizados")
 
 class AyudaWindow(QWidget):
-    """Ventana de ayuda que muestra las opciones disponibles para el usuario."""
+    """Ventana que muestra las opciones y comandos disponibles."""
 
     def __init__(self, usuario, editar_callback=None, logout_callback=None):
         super().__init__()
@@ -322,7 +333,9 @@ class PROMPTYWindow(QMainWindow):
 
     def ver_usuario(self):
         if self.ventana_usuario is None:
-            self.ventana_usuario = UsuarioWindow(self.usuario, self.gestor_roles)
+            self.ventana_usuario = UsuarioWindow(
+                self.usuario, self.gestor_roles, logout_callback=self.cerrar_sesion
+            )
         self.ventana_usuario.show()
 
     def ver_ayuda(self):
@@ -345,6 +358,7 @@ class PROMPTYWindow(QMainWindow):
         self.label.setText(mensaje_original)
         if not texto:
             self.text_output.append("\u274c No se entendió el comando")
+            self.servicio_voz.hablar("No se entendió el comando")
             return
         self.text_output.append(f"\ud83d\udde3\ufe0f {texto}")
         self.ejecutar_comando_desde_texto(texto)
@@ -363,6 +377,7 @@ class PROMPTYWindow(QMainWindow):
         else:
             respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos)
         self.text_output.append(respuesta)
+        self.servicio_voz.hablar(quitar_colores(respuesta))
 
     def preguntar(self, mensaje):
         texto, ok = QInputDialog.getText(self, "PROMPTY", mensaje)
