@@ -217,6 +217,7 @@ class AyudaWindow(QWidget):
             items.append("Realizar tareas de administración.")
         else:
             items.append("Acceder al modo admin (requerirá credenciales de un administrador).")
+
         items.append("Modificar tus datos de usuario.")
         items.append("Cerrar sesión para iniciar con otro usuario.")
         items.append("Salir del programa.")
@@ -229,7 +230,6 @@ class AyudaWindow(QWidget):
             f"<ol>{lista}</ol>"
             "<p>Si PROMPTY no reconoce un comando, verás un mensaje recordándote que puedes abrir esta ayuda.</p>"
         )
-
 
 class AdminWindow(QWidget):
     """Opciones básicas de administración."""
