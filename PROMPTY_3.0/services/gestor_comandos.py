@@ -16,7 +16,7 @@ class GestorComandos:
             "abrir_con_opcion": lambda a, e: self.basicos.abrir_con_opcion(entrada_manual_func=e),
             "buscar_en_youtube": lambda a, e: self.basicos.buscar_en_navegador_con_opcion(destino_predefinido="youtube", entrada_manual_func=e if not a else None),
             "buscar_en_navegador": lambda a, e: self.basicos.buscar_en_navegador_con_opcion(entrada_manual_func=e),
-            "buscar_general": lambda a, e: self.basicos.buscar_en_navegador_con_opcion(entrada_manual_func=e),
+            "buscar_general": lambda a, e: self.basicos.buscar_en_navegador_con_opcion(destino_predefinido="navegador", entrada_manual_func=e),
             "dato_curioso": lambda a, e: self.basicos.mostrar_dato_curioso(),
             "info_programa": lambda a, e: self.basicos.info_sistema(entrada_manual_func=e),
         }

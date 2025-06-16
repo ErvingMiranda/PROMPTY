@@ -420,14 +420,18 @@ class PROMPTYWindow(QMainWindow):
     def activate_voice(self):
         mensaje_original = self.label.text()
         self.label.setText("\ud83c\udf99\ufe0f Escuchando...")
-        self.text_output.append("\ud83c\udf99\ufe0f Escuchando...")
-        texto = self.servicio_voz.escuchar()
+
+        def notify_gui(msg):
+            self.text_output.append(msg)
+            QApplication.processEvents()
+
+        texto = self.servicio_voz.escuchar(notify=notify_gui)
         self.label.setText(mensaje_original)
         if not texto:
             self.text_output.append("\u274c No se entendió el comando")
             self.servicio_voz.hablar("No se entendió el comando")
             return
-        self.text_output.append(f"\ud83d\udde3\ufe0f {texto}")
+        self.text_output.append(f"\ud83d\udde3\ufe0f Entendí: {texto}")
         self.ejecutar_comando_desde_texto(texto)
 
     def process_command(self):

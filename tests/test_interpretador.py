@@ -17,6 +17,11 @@ class TestInterpretador(unittest.TestCase):
         self.assertEqual(interpretar('quiero un dato curioso')[0], 'dato_curioso')
         self.assertEqual(interpretar('cerrar sesion')[0], 'cerrar_sesion')
 
+    def test_busquedas(self):
+        self.assertEqual(interpretar('buscar receta en youtube')[0], 'buscar_en_youtube')
+        self.assertEqual(interpretar('buscar fotos en google')[0], 'buscar_general')
+        self.assertEqual(interpretar('buscar un archivo')[0], 'buscar_en_navegador')
+
     def test_desconocido(self):
         self.assertEqual(interpretar('xyz')[0], 'comando_no_reconocido')
 

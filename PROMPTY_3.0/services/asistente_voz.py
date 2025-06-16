@@ -33,12 +33,16 @@ class ServicioVoz:
         self.engine.runAndWait()
         return texto_limpio
 
-    def escuchar(self):
+    def escuchar(self, notify=None):
         """Escucha desde el micrófono y devuelve el texto reconocido.
-        Devuelve ``None`` si no se entiende o ``"__error_red"`` si ocurre un
-        problema de conexión."""
+        Si se proporciona ``notify`` se llamará con el mensaje de escucha en
+        lugar de imprimirlo en la terminal. Devuelve ``None`` si no se entiende
+        o ``"__error_red"`` si ocurre un problema de conexión."""
         with sr.Microphone() as source:
-            print("🎙️ Escuchando...")
+            if notify:
+                notify("🎙️ Escuchando...")
+            else:
+                print("🎙️ Escuchando...")
             audio = self.recognizer.listen(source)
         try:
             texto = self.recognizer.recognize_google(audio, language="es-ES")
