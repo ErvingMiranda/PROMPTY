@@ -1,3 +1,5 @@
 speech_recognition
 pyttsx3
 colorama
+PyQt6
+pytest
