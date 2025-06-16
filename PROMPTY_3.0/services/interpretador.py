@@ -11,9 +11,13 @@ def interpretar(texto):
         if "youtube" in texto:
             return "buscar_en_youtube", None
         elif "google" in texto or "navegador" in texto:
-            return "buscar_en_navegador", None
-        else:
+            # Si el usuario especifica google o navegador, ya sabemos el destino
+            # por lo que sólo se debe preguntar si quiere buscar un término o
+            # ingresar una URL.
             return "buscar_general", None
+        else:
+            # El usuario dijo "buscar" pero no indicó destino; se pregunta dónde.
+            return "buscar_en_navegador", None
 
     numero_comandos = {
         ("1", "uno"): "fecha_hora",
