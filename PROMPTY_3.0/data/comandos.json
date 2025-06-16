@@ -1,0 +1,34 @@
+{
+  "comandos": [
+    {
+      "clave": "mostrar_hora",
+      "accion": "ver_comandos",
+      "respuesta": "La hora actual es {hora}"
+    },
+    {
+      "clave": "mostrar_fecha",
+      "accion": "ver_comandos",
+      "respuesta": "La fecha de hoy es {fecha}"
+    },
+    {
+      "clave": "abrir_youtube",
+      "accion": "ver_comandos",
+      "respuesta": "Abriendo YouTube..."
+    },
+    {
+      "clave": "cambiar_voz",
+      "accion": "editar_voz",
+      "respuesta": "Configurando una nueva voz para PROMPTY..."
+    },
+    {
+      "clave": "agregar_comando",
+      "accion": "agregar_comando",
+      "respuesta": "Modo de agregar comando activado."
+    },
+    {
+      "clave": "crear_usuario",
+      "accion": "registrar_usuario",
+      "respuesta": "Panel de creación de nuevos usuarios."
+    }
+  ]
+}
