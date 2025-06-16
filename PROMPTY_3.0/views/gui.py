@@ -217,6 +217,7 @@ class AyudaWindow(QWidget):
             items.append("Funciones admin.")
         else:
             items.append("Acceder al modo admin (requerirá credenciales de un administrador).")
+
         items.append("Modificar tus datos de usuario.")
         items.append("Cerrar sesión para iniciar con otro usuario.")
         items.append("Salir del programa.")
@@ -229,7 +230,6 @@ class AyudaWindow(QWidget):
             f"<ol>{lista}</ol>"
             "<p>Si PROMPTY no reconoce un comando, verás un mensaje recordándote que puedes abrir esta ayuda.</p>"
         )
-
 
 class AdminWindow(QWidget):
     """Opciones básicas de administración."""
@@ -259,6 +259,7 @@ class AdminWindow(QWidget):
 
     def no_implementado(self):
         QMessageBox.information(self, "Admin", "Función no implementada en la interfaz")
+
         
 class PROMPTYWindow(QMainWindow):
     def __init__(self, usuario, logout_callback=None):
