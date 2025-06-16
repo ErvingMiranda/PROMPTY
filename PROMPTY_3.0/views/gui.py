@@ -194,8 +194,9 @@ class AyudaWindow(QWidget):
         self.setGeometry(250, 250, 400, 350)
         layout = QVBoxLayout()
 
-        ayuda = QTextEdit(self._generar_texto(usuario))
+        ayuda = QTextEdit()
         ayuda.setReadOnly(True)
+        ayuda.setHtml(self._generar_texto(usuario))
         layout.addWidget(ayuda)
 
         boton_cerrar = QPushButton("Cerrar")
@@ -205,33 +206,29 @@ class AyudaWindow(QWidget):
         self.setLayout(layout)
 
     def _generar_texto(self, usuario):
-        lineas = [
-            "¡Hola! Soy PROMPTY 3.0, tu asistente virtual de escritorio.",
-            "Estoy listo para ayudarte con tareas básicas usando tu voz o el teclado.",
-            "",
-            "Puedes pedirme que:",
-            "1. Te diga la fecha y hora actual.",
-            "2. Abra un archivo o carpeta (puedes escribir la ruta o buscarla).",
-            "3. Busque algo en YouTube o en tu navegador preferido (puedes usar un término o ingresar una URL).",
-            "4. Te comparta un dato curioso.",
-            "5. Te hable sobre el programa y sus creadores.",
+        items = [
+            "Te diga la fecha y hora actual.",
+            "Abra un archivo o carpeta (puedes escribir la ruta o buscarla).",
+            "Busque algo en YouTube o en tu navegador preferido (puedes usar un término o ingresar una URL).",
+            "Te comparta un dato curioso.",
+            "Te hable sobre el programa y sus creadores.",
         ]
         if usuario.es_admin():
-            lineas.append("6. Acceder al modo administrador.")
+            items.append("Acceder al modo administrador.")
         else:
-            lineas.append(
-                "6. Acceder a funciones admin (requerirá credenciales de un administrador)."
-            )
-        lineas.extend(
-            [
-                "7. Cerrar sesión para iniciar con otro usuario.",
-                "8. Salir del programa.",
-            ]
+            items.append("Acceder a funciones admin (requerirá credenciales de un administrador).")
+        items.append("Modificar tus datos de usuario.")
+        items.append("Cerrar sesión para iniciar con otro usuario.")
+        items.append("Salir del programa.")
+
+        lista = "".join(f"<li>{it}</li>" for it in items)
+        return (
+            "<h3>¡Hola! Soy PROMPTY 3.0, tu asistente virtual de escritorio.</h3>"
+            "<p>Estoy listo para ayudarte con tareas básicas usando tu voz o el teclado.</p>"
+            "<p>Puedes pedirme que:</p>"
+            f"<ol>{lista}</ol>"
+            "<p>Si PROMPTY no reconoce un comando, verás un mensaje recordándote que puedes abrir esta ayuda.</p>"
         )
-        lineas.append(
-            "\nSi PROMPTY no reconoce un comando, verás un mensaje recordándote que puedes abrir esta ayuda."
-        )
-        return "\n".join(lineas)
         
 class PROMPTYWindow(QMainWindow):
     def __init__(self, usuario, logout_callback=None):
