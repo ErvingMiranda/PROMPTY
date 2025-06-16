@@ -214,9 +214,10 @@ class AyudaWindow(QWidget):
             "Te hable sobre el programa y sus creadores.",
         ]
         if usuario.es_admin():
-            items.append("Acceder al modo administrador.")
+            items.append("Funciones admin.")
         else:
-            items.append("Acceder a funciones admin (requerirá credenciales de un administrador).")
+            items.append("Acceder al modo admin (requerirá credenciales de un administrador).")
+
         items.append("Modificar tus datos de usuario.")
         items.append("Cerrar sesión para iniciar con otro usuario.")
         items.append("Salir del programa.")
@@ -229,6 +230,36 @@ class AyudaWindow(QWidget):
             f"<ol>{lista}</ol>"
             "<p>Si PROMPTY no reconoce un comando, verás un mensaje recordándote que puedes abrir esta ayuda.</p>"
         )
+
+class AdminWindow(QWidget):
+    """Opciones básicas de administración."""
+
+    def __init__(self, parent, servicio_voz, gestor_roles):
+        super().__init__(parent)
+        self.parent = parent
+        self.servicio_voz = servicio_voz
+        self.gestor_roles = gestor_roles
+        self.setWindowTitle("Funciones admin")
+        self.setGeometry(200, 200, 260, 150)
+        layout = QVBoxLayout()
+
+        btn_voz = QPushButton("Configurar voz")
+        btn_voz.clicked.connect(parent.ver_configuracion)
+        layout.addWidget(btn_voz)
+
+        btn_users = QPushButton("Gestionar usuarios")
+        btn_users.clicked.connect(self.no_implementado)
+        layout.addWidget(btn_users)
+
+        btn_cerrar = QPushButton("Cerrar")
+        btn_cerrar.clicked.connect(self.close)
+        layout.addWidget(btn_cerrar)
+
+        self.setLayout(layout)
+
+    def no_implementado(self):
+        QMessageBox.information(self, "Admin", "Función no implementada en la interfaz")
+
         
 class PROMPTYWindow(QMainWindow):
     def __init__(self, usuario, logout_callback=None):
@@ -244,6 +275,7 @@ class PROMPTYWindow(QMainWindow):
         self.ventana_usuario = None
         self.ventana_editor_usuario = None
         self.ventana_ayuda = None
+        self.ventana_admin = None
         self.dark_mode_enabled = False
         self.setup_ui()
 
@@ -366,6 +398,24 @@ class PROMPTYWindow(QMainWindow):
             self.ventana_configuracion = ConfiguracionWindow(self.servicio_voz)
         self.ventana_configuracion.show()
 
+    def ver_admin(self):
+        if not self.usuario.es_admin():
+            cif, ok = QInputDialog.getText(self, "Modo admin", "CIF del administrador:")
+            if not ok:
+                return
+            clave, ok2 = QInputDialog.getText(
+                self, "Modo admin", "Contraseña:", QLineEdit.EchoMode.Password
+            )
+            if not ok2:
+                return
+            admin = self.gestor_roles.autenticar(cif.strip(), clave.strip())
+            if not admin or not admin.es_admin():
+                QMessageBox.warning(self, "Error", "Credenciales incorrectas")
+                return
+        if self.ventana_admin is None:
+            self.ventana_admin = AdminWindow(self, self.servicio_voz, self.gestor_roles)
+        self.ventana_admin.show()
+
     def activate_voice(self):
         mensaje_original = self.label.text()
         self.label.setText("\ud83c\udf99\ufe0f Escuchando...")
@@ -392,6 +442,9 @@ class PROMPTYWindow(QMainWindow):
         if comando == "editar_usuario":
             self.mostrar_editor_usuario()
             respuesta = "Abriendo editor de usuario..."
+        elif comando == "modo_admin":
+            self.ver_admin()
+            respuesta = "Abriendo funciones de administrador..."
         else:
             interactivos = {"abrir_carpeta", "abrir_con_opcion", "buscar_en_navegador", "buscar_en_youtube"}
             if comando in interactivos:
