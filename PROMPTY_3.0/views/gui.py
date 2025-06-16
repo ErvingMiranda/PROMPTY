@@ -224,9 +224,8 @@ class AyudaWindow(QWidget):
             )
         lineas.extend(
             [
-                "7. Modificar tus datos de usuario.",
-                "8. Cerrar sesión para iniciar con otro usuario.",
-                "9. Salir del programa.",
+                "7. Cerrar sesión para iniciar con otro usuario.",
+                "8. Salir del programa.",
             ]
         )
         lineas.append(
@@ -391,11 +390,18 @@ class PROMPTYWindow(QMainWindow):
 
     def ejecutar_comando_desde_texto(self, texto):
         comando, argumentos = interpretar(texto)
-        interactivos = {"abrir_carpeta", "abrir_con_opcion", "buscar_en_navegador", "buscar_en_youtube"}
-        if comando in interactivos:
-            respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos, self.preguntar)
+        self.text_output.clear()
+
+        if comando == "editar_usuario":
+            self.mostrar_editor_usuario()
+            respuesta = "Abriendo editor de usuario..."
         else:
-            respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos)
+            interactivos = {"abrir_carpeta", "abrir_con_opcion", "buscar_en_navegador", "buscar_en_youtube"}
+            if comando in interactivos:
+                respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos, self.preguntar)
+            else:
+                respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos)
+
         self.text_output.append(respuesta)
         self.servicio_voz.hablar(quitar_colores(respuesta))
 
