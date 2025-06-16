@@ -23,6 +23,8 @@ from PyQt6.QtGui import (
 )
 from PyQt6.QtCore import Qt, QSize
 from services.gestor_roles import GestorRoles
+from services.gestor_comandos import GestorComandos
+from services.interpretador import interpretar
 
 def get_colored_icon(icon_path, color):
     """
@@ -92,8 +94,11 @@ class AyudaWindow(QWidget):
 
 class PROMPTYWindow(QMainWindow):
     """Ventana principal con botones interactivos y una caja de texto para salida."""
-    def __init__(self):
+
+    def __init__(self, usuario):
         super().__init__()
+        self.usuario = usuario
+        self.gestor_comandos = GestorComandos(usuario)
         self.setWindowTitle("PROMPTY - Asistente de Voz")
         self.setGeometry(100, 100, 400, 600)
         
@@ -151,6 +156,12 @@ class PROMPTYWindow(QMainWindow):
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.label.setFont(QFont("Roboto", 16))
         main_layout.addWidget(self.label)
+
+        # Entrada para comandos de texto
+        self.command_input = QLineEdit()
+        self.command_input.setPlaceholderText("Escribe un comando y presiona Enter")
+        self.command_input.returnPressed.connect(self.process_command)
+        main_layout.addWidget(self.command_input)
 
         # Botón de micrófono centrado
         self.button_microfono = QPushButton("")
@@ -225,10 +236,18 @@ class PROMPTYWindow(QMainWindow):
         self.ventana_configuracion.show()
 
     def activate_voice(self):
-        """Simula la activación de reconocimiento de voz y muestra un mensaje en la caja de texto."""
-        self.label.setText("Escuchando...")
-        self.text_output.setText("El asistente de voz ha comenzado a escuchar.")
-        print("Se activó el reconocimiento de voz.")
+        """Procesa el comando escrito en la caja de texto."""
+        self.process_command()
+
+    def process_command(self):
+        """Interpreta lo escrito y ejecuta la acción correspondiente."""
+        texto = self.command_input.text().strip()
+        if not texto:
+            return
+        comando, argumentos = interpretar(texto)
+        respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos)
+        self.text_output.append(respuesta)
+        self.command_input.clear()
 
     def activar_modo_oscuro(self):
         """Alterna entre modo oscuro y modo claro y actualiza el color de los iconos."""
@@ -288,7 +307,7 @@ class LoginWindow(QWidget):
         )
         if usuario:
             self.hide()
-            self.main = PROMPTYWindow()
+            self.main = PROMPTYWindow(usuario)
             self.main.show()
         else:
             QMessageBox.warning(self, "Error", "CIF o contraseña incorrectos")
