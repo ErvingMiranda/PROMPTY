@@ -1,4 +1,13 @@
+"""Traduce la instrucción recibida a un comando del asistente."""
+
+
 def interpretar(texto):
+    """Devuelve ``(comando, argumentos)`` a partir de una cadena.
+
+    Si no se reconoce la orden, el comando será ``"comando_no_reconocido"`` y
+    los argumentos ``None``.
+    """
+
     texto = texto.lower().strip()
 
     numero_comandos = {

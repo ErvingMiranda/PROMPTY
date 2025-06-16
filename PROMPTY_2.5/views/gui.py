@@ -11,6 +11,10 @@ from PyQt6.QtWidgets import (
     QTextEdit,
     QLineEdit,
     QMessageBox,
+    QInputDialog,
+    QComboBox,
+    QSlider,
+    QFormLayout,
 )
 from PyQt6.QtGui import (
     QIcon,
@@ -23,6 +27,9 @@ from PyQt6.QtGui import (
 )
 from PyQt6.QtCore import Qt, QSize
 from services.gestor_roles import GestorRoles
+from services.gestor_comandos import GestorComandos
+from services.interpretador import interpretar
+from services.asistente_voz import ServicioVoz
 
 def get_colored_icon(icon_path, color):
     """
@@ -49,42 +56,114 @@ def get_colored_icon(icon_path, color):
 
 
 class ConfiguracionWindow(QWidget):
-    """Ventana secundaria para configuración."""
-    def __init__(self):
+    """Permite ajustar la voz de PROMPTY."""
+
+    def __init__(self, servicio_voz):
         super().__init__()
-        self.setWindowTitle("Configuración")
-        self.setGeometry(150, 150, 300, 200)
+        self.servicio_voz = servicio_voz
+        self.setWindowTitle("Configuración de voz")
+        self.setGeometry(150, 150, 350, 220)
+
         layout = QVBoxLayout()
-        label = QLabel("Opciones de configuración en desarrollo...")
-        layout.addWidget(label)
+        form = QFormLayout()
+
+        self.voz_combo = QComboBox()
+        for idx, nombre in self.servicio_voz.listar_voces_disponibles():
+            self.voz_combo.addItem(f"{idx} - {nombre}", idx)
+        form.addRow("Voz", self.voz_combo)
+
+        self.volumen_slider = QSlider(Qt.Orientation.Horizontal)
+        self.volumen_slider.setRange(0, 100)
+        self.volumen_slider.setValue(int(self.servicio_voz.volumen * 100))
+        form.addRow("Volumen", self.volumen_slider)
+
+        self.velocidad_slider = QSlider(Qt.Orientation.Horizontal)
+        self.velocidad_slider.setRange(100, 250)
+        self.velocidad_slider.setValue(self.servicio_voz.velocidad)
+        form.addRow("Velocidad", self.velocidad_slider)
+
+        layout.addLayout(form)
+
+        boton_guardar = QPushButton("Guardar")
+        boton_guardar.clicked.connect(self.guardar)
+        layout.addWidget(boton_guardar)
+
         boton_cerrar = QPushButton("Cerrar")
         boton_cerrar.clicked.connect(self.close)
         layout.addWidget(boton_cerrar)
+
         self.setLayout(layout)
+
+    def guardar(self):
+        indice = self.voz_combo.currentData()
+        self.servicio_voz.cambiar_voz(int(indice))
+        self.servicio_voz.cambiar_volumen(self.volumen_slider.value() / 100)
+        self.servicio_voz.cambiar_velocidad(self.velocidad_slider.value())
+        QMessageBox.information(self, "Configuración", "Ajustes guardados")
 
 class UsuarioWindow(QWidget):
-    """Ventana secundaria para usuario."""
-    def __init__(self):
+    """Permite modificar los datos del usuario actual."""
+
+    def __init__(self, usuario, gestor_roles):
         super().__init__()
-        self.setWindowTitle("Usuario")
+        self.usuario = usuario
+        self.gestor_roles = gestor_roles
+        self.setWindowTitle("Mi cuenta")
         self.setGeometry(200, 200, 300, 200)
+
         layout = QVBoxLayout()
-        label = QLabel("Opciones de usuario en desarrollo...")
-        layout.addWidget(label)
+        self.nombre_edit = QLineEdit(self.usuario.nombre)
+        self.pass_edit = QLineEdit()
+        self.pass_edit.setPlaceholderText("Nueva contraseña")
+        self.pass_edit.setEchoMode(QLineEdit.EchoMode.Password)
+
+        layout.addWidget(QLabel("Nombre"))
+        layout.addWidget(self.nombre_edit)
+        layout.addWidget(QLabel("Contraseña"))
+        layout.addWidget(self.pass_edit)
+
+        boton_guardar = QPushButton("Guardar")
+        boton_guardar.clicked.connect(self.guardar)
+        layout.addWidget(boton_guardar)
+
         boton_cerrar = QPushButton("Cerrar")
         boton_cerrar.clicked.connect(self.close)
         layout.addWidget(boton_cerrar)
+
         self.setLayout(layout)
 
+    def guardar(self):
+        nombre = self.nombre_edit.text().strip()
+        clave = self.pass_edit.text().strip()
+        self.gestor_roles.actualizar_usuario(
+            self.usuario.cif,
+            nombre=nombre or None,
+            contrasena=clave or None,
+        )
+        if nombre:
+            self.usuario.nombre = nombre
+        QMessageBox.information(self, "Usuario", "Datos actualizados")
+
 class AyudaWindow(QWidget):
-    """Ventana secundaria para ayuda."""
+    """Muestra información de ayuda básica."""
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Ayuda")
-        self.setGeometry(250, 250, 300, 200)
+        self.setGeometry(250, 250, 400, 300)
         layout = QVBoxLayout()
-        label = QLabel("Opciones de ayuda en desarrollo...")
-        layout.addWidget(label)
+
+        ruta = os.path.join(os.path.dirname(__file__), "..", "data", "info_programa.txt")
+        try:
+            with open(ruta, "r", encoding="utf-8") as f:
+                texto = f.read()
+        except Exception:
+            texto = "No se encontró la información de ayuda."
+
+        ayuda = QTextEdit(texto)
+        ayuda.setReadOnly(True)
+        layout.addWidget(ayuda)
+
         boton_cerrar = QPushButton("Cerrar")
         boton_cerrar.clicked.connect(self.close)
         layout.addWidget(boton_cerrar)
@@ -92,8 +171,13 @@ class AyudaWindow(QWidget):
 
 class PROMPTYWindow(QMainWindow):
     """Ventana principal con botones interactivos y una caja de texto para salida."""
-    def __init__(self):
+
+    def __init__(self, usuario):
         super().__init__()
+        self.usuario = usuario
+        self.gestor_roles = GestorRoles()
+        self.servicio_voz = ServicioVoz(usuario, verificar_admin_callback=self.gestor_roles.autenticar)
+        self.gestor_comandos = GestorComandos(usuario)
         self.setWindowTitle("PROMPTY - Asistente de Voz")
         self.setGeometry(100, 100, 400, 600)
         
@@ -152,6 +236,12 @@ class PROMPTYWindow(QMainWindow):
         self.label.setFont(QFont("Roboto", 16))
         main_layout.addWidget(self.label)
 
+        # Entrada para comandos de texto
+        self.command_input = QLineEdit()
+        self.command_input.setPlaceholderText("Escribe un comando y presiona Enter")
+        self.command_input.returnPressed.connect(self.process_command)
+        main_layout.addWidget(self.command_input)
+
         # Botón de micrófono centrado
         self.button_microfono = QPushButton("")
         self.button_microfono.setFixedSize(100, 100)
@@ -209,7 +299,7 @@ class PROMPTYWindow(QMainWindow):
     def ver_usuario(self):
         """Abre la ventana de usuario."""
         if self.ventana_usuario is None:
-            self.ventana_usuario = UsuarioWindow()
+            self.ventana_usuario = UsuarioWindow(self.usuario, self.gestor_roles)
         self.ventana_usuario.show()
 
     def ver_ayuda(self):
@@ -221,14 +311,38 @@ class PROMPTYWindow(QMainWindow):
     def ver_configuracion(self):
         """Abre la ventana de configuración."""
         if self.ventana_configuracion is None:
-            self.ventana_configuracion = ConfiguracionWindow()
+            self.ventana_configuracion = ConfiguracionWindow(self.servicio_voz)
         self.ventana_configuracion.show()
 
     def activate_voice(self):
-        """Simula la activación de reconocimiento de voz y muestra un mensaje en la caja de texto."""
-        self.label.setText("Escuchando...")
-        self.text_output.setText("El asistente de voz ha comenzado a escuchar.")
-        print("Se activó el reconocimiento de voz.")
+        """Escucha desde el micrófono e interpreta la orden."""
+        self.text_output.append("🎙️ Escuchando...")
+        texto = self.servicio_voz.escuchar()
+        if not texto:
+            self.text_output.append("❌ No se entendió el comando")
+            return
+        self.text_output.append(f"🗣️ {texto}")
+        self.ejecutar_comando_desde_texto(texto)
+
+    def process_command(self):
+        """Interpreta lo escrito y ejecuta la acción correspondiente."""
+        texto = self.command_input.text().strip()
+        if texto:
+            self.ejecutar_comando_desde_texto(texto)
+            self.command_input.clear()
+
+    def ejecutar_comando_desde_texto(self, texto):
+        comando, argumentos = interpretar(texto)
+        interactivos = {"abrir_carpeta", "abrir_con_opcion", "buscar_en_navegador", "buscar_en_youtube"}
+        if comando in interactivos:
+            respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos, self.preguntar)
+        else:
+            respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos)
+        self.text_output.append(respuesta)
+
+    def preguntar(self, mensaje):
+        texto, ok = QInputDialog.getText(self, "PROMPTY", mensaje)
+        return texto if ok else ""
 
     def activar_modo_oscuro(self):
         """Alterna entre modo oscuro y modo claro y actualiza el color de los iconos."""
@@ -288,7 +402,7 @@ class LoginWindow(QWidget):
         )
         if usuario:
             self.hide()
-            self.main = PROMPTYWindow()
+            self.main = PROMPTYWindow(usuario)
             self.main.show()
         else:
             QMessageBox.warning(self, "Error", "CIF o contraseña incorrectos")

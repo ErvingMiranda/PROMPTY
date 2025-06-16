@@ -1,7 +1,10 @@
 from services.comandos_basicos import ComandosBasicos
 
+
 class GestorComandos:
+    """Encapsula la lógica para ejecutar los comandos del asistente."""
     def __init__(self, usuario_actual=None):
+        """Inicializa el gestor con el usuario autenticado."""
         self.basicos = ComandosBasicos()
         self.usuario_actual = usuario_actual
         self._acciones = {
@@ -22,9 +25,11 @@ class GestorComandos:
         self.usuario_actual = usuario
 
     def ejecutar_comando(self, clave_comando, argumentos=None, entrada_manual_func=None):
+        """Ejecuta el comando indicado y devuelve el mensaje de respuesta."""
         return self.ejecutar_logica(clave_comando, argumentos, entrada_manual_func)
 
     def ejecutar_logica(self, clave, argumentos=None, entrada_manual_func=None):
+        """Devuelve el resultado de la función asociada al comando."""
         accion = self._acciones.get(clave)
         if accion:
             return accion(argumentos, entrada_manual_func)
