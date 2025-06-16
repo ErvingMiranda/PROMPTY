@@ -459,7 +459,7 @@ class PROMPTYWindow(QMainWindow):
             self.close()
             return
         else:
-            interactivos = {"abrir_carpeta", "abrir_con_opcion", "buscar_en_navegador", "buscar_en_youtube"}
+            interactivos = {"abrir_carpeta", "abrir_con_opcion", "buscar_en_navegador", "buscar_en_youtube", "info_programa"}
             if comando in interactivos:
                 respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos, self.preguntar)
             else:
