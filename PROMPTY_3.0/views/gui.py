@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import (
     QInputDialog,
     QComboBox,
     QSlider,
+    QListWidget,
     QFormLayout,
 )
 from PyQt6.QtGui import (
@@ -234,13 +235,14 @@ class AyudaWindow(QWidget):
 class AdminWindow(QWidget):
     """Opciones básicas de administración."""
 
-    def __init__(self, parent, servicio_voz, gestor_roles):
+    def __init__(self, parent, servicio_voz, gestor_roles, usuario):
         super().__init__(parent)
         self.parent = parent
         self.servicio_voz = servicio_voz
         self.gestor_roles = gestor_roles
+        self.usuario = usuario
         self.setWindowTitle("Funciones admin")
-        self.setGeometry(200, 200, 260, 150)
+        self.setGeometry(200, 200, 260, 200)
         self.setStyleSheet("background-color: white;")
         layout = QVBoxLayout()
 
@@ -252,14 +254,100 @@ class AdminWindow(QWidget):
         btn_users.clicked.connect(self.no_implementado)
         layout.addWidget(btn_users)
 
+        btn_curiosos = QPushButton("Gestionar datos curiosos")
+        btn_curiosos.clicked.connect(self.abrir_datos_curiosos)
+        layout.addWidget(btn_curiosos)
+
         btn_cerrar = QPushButton("Cerrar")
         btn_cerrar.clicked.connect(self.close)
         layout.addWidget(btn_cerrar)
 
         self.setLayout(layout)
 
+    def abrir_datos_curiosos(self):
+        if not hasattr(self, "ventana_datos"):
+            self.ventana_datos = DatosCuriososWindow(self.usuario)
+        self.ventana_datos.show()
+
     def no_implementado(self):
         QMessageBox.information(self, "Admin", "Función no implementada en la interfaz")
+
+
+class DatosCuriososWindow(QWidget):
+    """Permite gestionar el archivo de datos curiosos."""
+
+    def __init__(self, usuario):
+        super().__init__()
+        self.usuario = usuario
+        self.setWindowTitle("Datos curiosos")
+        self.setGeometry(220, 220, 400, 300)
+
+        layout = QVBoxLayout()
+        self.lista = QListWidget()
+        layout.addWidget(self.lista)
+
+        botones = QHBoxLayout()
+        btn_agregar = QPushButton("Agregar")
+        btn_agregar.clicked.connect(self.agregar)
+        btn_modificar = QPushButton("Modificar")
+        btn_modificar.clicked.connect(self.modificar)
+        btn_eliminar = QPushButton("Eliminar")
+        btn_eliminar.clicked.connect(self.eliminar)
+        botones.addWidget(btn_agregar)
+        botones.addWidget(btn_modificar)
+        botones.addWidget(btn_eliminar)
+        layout.addLayout(botones)
+
+        btn_cerrar = QPushButton("Cerrar")
+        btn_cerrar.clicked.connect(self.close)
+        layout.addWidget(btn_cerrar)
+
+        self.setLayout(layout)
+        self.cargar_datos()
+
+    def cargar_datos(self):
+        from services import datos_curiosos
+
+        self.lista.clear()
+        for dato in datos_curiosos.obtener_lista_datos():
+            self.lista.addItem(dato)
+
+    def agregar(self):
+        from services import datos_curiosos
+
+        texto, ok = QInputDialog.getText(self, "Agregar", "Nuevo dato curioso:")
+        if ok and texto.strip():
+            msg = datos_curiosos.agregar_dato(self.usuario, texto)
+            QMessageBox.information(self, "Datos curiosos", quitar_colores(msg))
+            self.cargar_datos()
+
+    def modificar(self):
+        from services import datos_curiosos
+
+        fila = self.lista.currentRow()
+        if fila < 0:
+            QMessageBox.warning(self, "Datos curiosos", "Selecciona un dato primero")
+            return
+        actual = self.lista.item(fila).text()
+        texto, ok = QInputDialog.getText(self, "Modificar", "Nuevo texto:", text=actual)
+        if ok and texto.strip():
+            msg = datos_curiosos.modificar_dato(self.usuario, fila, texto)
+            QMessageBox.information(self, "Datos curiosos", quitar_colores(msg))
+            self.cargar_datos()
+
+    def eliminar(self):
+        from services import datos_curiosos
+
+        fila = self.lista.currentRow()
+        if fila < 0:
+            QMessageBox.warning(self, "Datos curiosos", "Selecciona un dato primero")
+            return
+        ok = QMessageBox.question(self, "Eliminar", "¿Eliminar el dato seleccionado?",
+                                  QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        if ok == QMessageBox.StandardButton.Yes:
+            msg = datos_curiosos.eliminar_dato(self.usuario, fila)
+            QMessageBox.information(self, "Datos curiosos", quitar_colores(msg))
+            self.cargar_datos()
 
         
 class PROMPTYWindow(QMainWindow):
@@ -400,6 +488,7 @@ class PROMPTYWindow(QMainWindow):
         self.ventana_configuracion.show()
 
     def ver_admin(self):
+        usuario_admin = self.usuario
         if not self.usuario.es_admin():
             cif, ok = QInputDialog.getText(self, "Modo admin", "CIF del administrador:")
             if not ok:
@@ -409,12 +498,12 @@ class PROMPTYWindow(QMainWindow):
             )
             if not ok2:
                 return
-            admin = self.gestor_roles.autenticar(cif.strip(), clave.strip())
-            if not admin or not admin.es_admin():
+            usuario_admin = self.gestor_roles.autenticar(cif.strip(), clave.strip())
+            if not usuario_admin or not usuario_admin.es_admin():
                 QMessageBox.warning(self, "Error", "Credenciales incorrectas")
                 return
         if self.ventana_admin is None:
-            self.ventana_admin = AdminWindow(self, self.servicio_voz, self.gestor_roles)
+            self.ventana_admin = AdminWindow(self, self.servicio_voz, self.gestor_roles, usuario_admin)
         self.ventana_admin.show()
 
     def activate_voice(self):
@@ -453,14 +542,12 @@ class PROMPTYWindow(QMainWindow):
             respuesta = "Abriendo funciones de administrador..."
         elif comando == "cerrar_sesion":
             respuesta = "\ud83d\udd12 Sesión cerrada."
-            self.text_output.append(respuesta)
-            self.servicio_voz.hablar(quitar_colores(respuesta))
+            self.mostrar_respuesta(respuesta)
             self.cerrar_sesion()
             return
         elif comando == "salir":
             respuesta = "\ud83d\udc4b Hasta luego. Fue un placer ayudarte."
-            self.text_output.append(respuesta)
-            self.servicio_voz.hablar(quitar_colores(respuesta))
+            self.mostrar_respuesta(respuesta)
             self.close()
             return
         else:
@@ -470,8 +557,13 @@ class PROMPTYWindow(QMainWindow):
             else:
                 respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos)
 
-        self.text_output.append(respuesta)
-        self.servicio_voz.hablar(quitar_colores(respuesta))
+        self.mostrar_respuesta(respuesta)
+
+    def mostrar_respuesta(self, respuesta: str):
+        """Muestra y lee en voz alta la respuesta sin códigos de color."""
+        texto_limpio = quitar_colores(respuesta)
+        self.text_output.append(texto_limpio)
+        self.servicio_voz.hablar(texto_limpio)
 
     def preguntar(self, mensaje):
         texto, ok = QInputDialog.getText(self, "PROMPTY", mensaje)
