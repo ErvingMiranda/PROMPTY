@@ -29,6 +29,12 @@
       "nombre": "Carlos Iván Argüello",
       "rol": "usuario",
       "contrasena": "8cde75a32ddaea3834f981092e64efa171103a1c044e3accb1346fac9f8c4eed"
+    },
+    {
+      "cif": "09710839",
+      "nombre": "JP_Zuniga",
+      "rol": "usuario",
+      "contrasena": "78a9c981c906e0ecfe00a84d10b1c8d326fa5b5883dbb9c29dd15048d541b240"
     }
   ]
 }
