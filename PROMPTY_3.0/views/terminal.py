@@ -60,7 +60,13 @@ class VistaTerminal:
                 continue
 
             # Comandos que requieren entrada
-            comandos_interactivos = ["abrir_carpeta", "abrir_con_opcion", "buscar_en_navegador", "buscar_en_youtube"]
+            comandos_interactivos = [
+                "abrir_carpeta",
+                "abrir_con_opcion",
+                "buscar_en_navegador",
+                "buscar_en_youtube",
+                "buscar_general",
+            ]
             if comando in comandos_interactivos:
                 respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos, entrada_manual_func=input)
             else:
