@@ -232,11 +232,122 @@ class AyudaWindow(QWidget):
             "<p>Si PROMPTY no reconoce un comando, verás un mensaje recordándote que puedes abrir esta ayuda.</p>"
         )
 
+class GestionUsuariosWindow(QWidget):
+    """Permite crear y modificar usuarios."""
+
+    def __init__(self, gestor_roles):
+        super().__init__()
+        self.gestor_roles = gestor_roles
+        self.setWindowTitle("Gestión de usuarios")
+        self.setGeometry(220, 220, 400, 300)
+        self.setStyleSheet("background-color: white;")
+
+        layout = QVBoxLayout()
+        self.lista = QListWidget()
+        layout.addWidget(self.lista)
+
+        botones = QHBoxLayout()
+        btn_crear = QPushButton("Crear")
+        btn_crear.clicked.connect(self.crear)
+        btn_modificar = QPushButton("Modificar")
+        btn_modificar.clicked.connect(self.modificar)
+        btn_reset = QPushButton("Restablecer contraseña")
+        btn_reset.clicked.connect(self.restablecer)
+        botones.addWidget(btn_crear)
+        botones.addWidget(btn_modificar)
+        botones.addWidget(btn_reset)
+        layout.addLayout(botones)
+
+        btn_cerrar = QPushButton("Cerrar")
+        btn_cerrar.clicked.connect(self.close)
+        layout.addWidget(btn_cerrar)
+
+        self.setLayout(layout)
+        self.cargar_usuarios()
+
+    def cargar_usuarios(self):
+        self.lista.clear()
+        for u in self.gestor_roles.listar_usuarios():
+            self.lista.addItem(f"{u.cif} - {u.nombre} ({u.rol})")
+
+    def crear(self):
+        nombre, ok = QInputDialog.getText(self, "Crear usuario", "Nombre:")
+        if not (ok and nombre.strip()):
+            return
+        rol, ok = QInputDialog.getItem(
+            self,
+            "Crear usuario",
+            "Rol:",
+            ["usuario", "colaborador", "admin"],
+            0,
+            False,
+        )
+        if not ok:
+            return
+        cif, clave = self.gestor_roles.registrar_usuario(nombre.strip(), rol)
+        QMessageBox.information(
+            self,
+            "Usuario",
+            f"Usuario creado. CIF: {cif}\nContraseña: {clave}",
+        )
+        self.cargar_usuarios()
+
+    def modificar(self):
+        fila = self.lista.currentRow()
+        if fila < 0:
+            QMessageBox.warning(self, "Usuarios", "Selecciona un usuario primero")
+            return
+        usuario = self.gestor_roles.listar_usuarios()[fila]
+        nuevo_nombre, ok = QInputDialog.getText(
+            self, "Modificar", "Nuevo nombre:", text=usuario.nombre
+        )
+        if not ok:
+            return
+        nueva_clave, ok = QInputDialog.getText(
+            self,
+            "Modificar",
+            "Nueva contraseña (dejar vacío para no cambiar):",
+        )
+        if not ok:
+            return
+        nuevo_rol, ok = QInputDialog.getItem(
+            self,
+            "Modificar",
+            "Rol:",
+            ["usuario", "colaborador", "admin"],
+            ["usuario", "colaborador", "admin"].index(usuario.rol),
+            False,
+        )
+        if not ok:
+            return
+        self.gestor_roles.actualizar_usuario(
+            usuario.cif,
+            nombre=nuevo_nombre.strip() or None,
+            contrasena=nueva_clave.strip() or None,
+            rol=nuevo_rol,
+        )
+        QMessageBox.information(self, "Usuarios", "Usuario actualizado")
+        self.cargar_usuarios()
+
+    def restablecer(self):
+        fila = self.lista.currentRow()
+        if fila < 0:
+            QMessageBox.warning(self, "Usuarios", "Selecciona un usuario primero")
+            return
+        usuario = self.gestor_roles.listar_usuarios()[fila]
+        nueva = self.gestor_roles.restablecer_contrasena(usuario.cif)
+        QMessageBox.information(
+            self,
+            "Contraseña temporal",
+            f"Nueva contraseña para {usuario.cif}: {nueva}",
+        )
+
+
 class AdminWindow(QWidget):
     """Opciones básicas de administración."""
 
     def __init__(self, parent, servicio_voz, gestor_roles, usuario):
-        super().__init__(parent)
+        super().__init__()
         self.parent = parent
         self.servicio_voz = servicio_voz
         self.gestor_roles = gestor_roles
@@ -244,6 +355,7 @@ class AdminWindow(QWidget):
         self.setWindowTitle("Funciones admin")
         self.setGeometry(200, 200, 260, 200)
         self.setStyleSheet("background-color: white;")
+        self.ventana_usuarios = None
         layout = QVBoxLayout()
 
         btn_voz = QPushButton("Configurar voz")
@@ -251,7 +363,7 @@ class AdminWindow(QWidget):
         layout.addWidget(btn_voz)
 
         btn_users = QPushButton("Gestionar usuarios")
-        btn_users.clicked.connect(self.no_implementado)
+        btn_users.clicked.connect(self.abrir_gestion_usuarios)
         layout.addWidget(btn_users)
 
         btn_curiosos = QPushButton("Gestionar datos curiosos")
@@ -268,6 +380,11 @@ class AdminWindow(QWidget):
         if not hasattr(self, "ventana_datos"):
             self.ventana_datos = DatosCuriososWindow(self.usuario)
         self.ventana_datos.show()
+
+    def abrir_gestion_usuarios(self):
+        if self.ventana_usuarios is None:
+            self.ventana_usuarios = GestionUsuariosWindow(self.gestor_roles)
+        self.ventana_usuarios.show()
 
     def no_implementado(self):
         QMessageBox.information(self, "Admin", "Función no implementada en la interfaz")
