@@ -2,7 +2,7 @@ import datetime
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'PROMPTY_2.5'))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'PROMPTY_3.0'))
 
 from services import comandos_basicos
 
