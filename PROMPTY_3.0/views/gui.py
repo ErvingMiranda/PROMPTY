@@ -152,15 +152,30 @@ class UsuarioWindow(QWidget):
 class AyudaWindow(QWidget):
     """Ventana de ayuda que muestra las opciones disponibles para el usuario."""
 
-    def __init__(self, usuario):
+    def __init__(self, usuario, editar_callback=None, logout_callback=None):
         super().__init__()
+        self.editar_callback = editar_callback
+        self.logout_callback = logout_callback
         self.setWindowTitle("Ayuda")
-        self.setGeometry(250, 250, 400, 300)
+        self.setGeometry(250, 250, 400, 350)
         layout = QVBoxLayout()
 
         ayuda = QTextEdit(self._generar_texto(usuario))
         ayuda.setReadOnly(True)
         layout.addWidget(ayuda)
+
+        info = QLabel(f"Usuario: {usuario.nombre} ({usuario.cif}) - {usuario.rol}")
+        layout.addWidget(info)
+
+        if editar_callback:
+            boton_editar = QPushButton("Modificar mis datos")
+            boton_editar.clicked.connect(editar_callback)
+            layout.addWidget(boton_editar)
+
+        if logout_callback:
+            boton_logout = QPushButton("Cerrar sesión")
+            boton_logout.clicked.connect(logout_callback)
+            layout.addWidget(boton_logout)
 
         boton_cerrar = QPushButton("Cerrar")
         boton_cerrar.clicked.connect(self.close)
@@ -192,12 +207,16 @@ class AyudaWindow(QWidget):
                 "9. Salir del programa.",
             ]
         )
+        lineas.append(
+            "\nSi PROMPTY no reconoce un comando, verás un mensaje recordándote que puedes abrir esta ayuda."
+        )
         return "\n".join(lineas)
         
 class PROMPTYWindow(QMainWindow):
-    def __init__(self, usuario):
+    def __init__(self, usuario, logout_callback=None):
         super().__init__()
         self.usuario = usuario
+        self.logout_callback = logout_callback
         self.gestor_roles = GestorRoles()
         self.servicio_voz = ServicioVoz(usuario, verificar_admin_callback=self.gestor_roles.autenticar)
         self.gestor_comandos = GestorComandos(usuario)
@@ -308,7 +327,9 @@ class PROMPTYWindow(QMainWindow):
 
     def ver_ayuda(self):
         if self.ventana_ayuda is None:
-            self.ventana_ayuda = AyudaWindow(self.usuario)
+            self.ventana_ayuda = AyudaWindow(
+                self.usuario, self.ver_usuario, self.cerrar_sesion
+            )
         self.ventana_ayuda.show()
 
     def ver_configuracion(self):
@@ -317,8 +338,11 @@ class PROMPTYWindow(QMainWindow):
         self.ventana_configuracion.show()
 
     def activate_voice(self):
+        mensaje_original = self.label.text()
+        self.label.setText("\ud83c\udf99\ufe0f Escuchando...")
         self.text_output.append("\ud83c\udf99\ufe0f Escuchando...")
         texto = self.servicio_voz.escuchar()
+        self.label.setText(mensaje_original)
         if not texto:
             self.text_output.append("\u274c No se entendió el comando")
             return
@@ -362,6 +386,11 @@ class PROMPTYWindow(QMainWindow):
             self.button_modo_oscuro.setIcon(QIcon(self.button_modo_oscuro.icon_file))
             self.button_config.setIcon(QIcon(self.button_config.icon_file))
 
+    def cerrar_sesion(self):
+        self.close()
+        if self.logout_callback:
+            self.logout_callback()
+
 class LoginWindow(QWidget):
     def __init__(self, gestor_roles=None):
         super().__init__()
@@ -393,7 +422,7 @@ class LoginWindow(QWidget):
         )
         if usuario:
             self.hide()
-            self.main = PROMPTYWindow(usuario)
+            self.main = PROMPTYWindow(usuario, logout_callback=self.show)
             self.main.show()
         else:
             QMessageBox.warning(self, "Error", "CIF o contraseña incorrectos")
