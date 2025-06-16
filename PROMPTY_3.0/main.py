@@ -14,9 +14,6 @@ def main():
         app = QApplication(sys.argv)
         login = LoginWindow()
         login.show()
-        # Aseguramos que la ventana aparezca en primer plano
-        login.raise_()
-        login.activateWindow()
         app.exec()
     else:
         VistaLogin().iniciar()
