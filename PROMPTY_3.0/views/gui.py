@@ -107,21 +107,17 @@ class ConfiguracionWindow(QWidget):
         self.servicio_voz.cambiar_velocidad(self.velocidad_slider.value())
         QMessageBox.information(self, "Configuración", "Ajustes guardados")
 
-class UsuarioWindow(QWidget):
-    """Muestra y permite modificar los datos del usuario actual."""
+class EditarUsuarioWindow(QWidget):
+    """Permite modificar los datos del usuario actual."""
 
-    def __init__(self, usuario, gestor_roles, logout_callback=None):
+    def __init__(self, usuario, gestor_roles):
         super().__init__()
         self.usuario = usuario
         self.gestor_roles = gestor_roles
-        self.logout_callback = logout_callback
-        self.setWindowTitle("Mi cuenta")
-        self.setGeometry(200, 200, 300, 250)
+        self.setWindowTitle("Modificar datos")
+        self.setGeometry(220, 220, 300, 220)
 
         layout = QVBoxLayout()
-        layout.addWidget(
-            QLabel(f"Usuario: {self.usuario.nombre} ({self.usuario.cif}) - {self.usuario.rol}")
-        )
 
         self.nombre_edit = QLineEdit(self.usuario.nombre)
         self.pass_edit = QLineEdit()
@@ -136,11 +132,6 @@ class UsuarioWindow(QWidget):
         boton_guardar = QPushButton("Guardar")
         boton_guardar.clicked.connect(self.guardar)
         layout.addWidget(boton_guardar)
-
-        if self.logout_callback:
-            boton_logout = QPushButton("Cerrar sesión")
-            boton_logout.clicked.connect(self.logout_callback)
-            layout.addWidget(boton_logout)
 
         boton_cerrar = QPushButton("Cerrar")
         boton_cerrar.clicked.connect(self.close)
@@ -160,13 +151,45 @@ class UsuarioWindow(QWidget):
             self.usuario.nombre = nombre
         QMessageBox.information(self, "Usuario", "Datos actualizados")
 
+
+class UsuarioWindow(QWidget):
+    """Muestra la información del usuario y acciones disponibles."""
+
+    def __init__(self, usuario, gestor_roles, editar_callback=None, logout_callback=None):
+        super().__init__()
+        self.usuario = usuario
+        self.gestor_roles = gestor_roles
+        self.editar_callback = editar_callback
+        self.logout_callback = logout_callback
+        self.setWindowTitle("Mi cuenta")
+        self.setGeometry(200, 200, 300, 200)
+
+        layout = QVBoxLayout()
+        layout.addWidget(
+            QLabel(f"Usuario: {self.usuario.nombre} ({self.usuario.cif}) - {self.usuario.rol}")
+        )
+
+        if self.editar_callback:
+            boton_editar = QPushButton("Modificar mis datos")
+            boton_editar.clicked.connect(self.editar_callback)
+            layout.addWidget(boton_editar)
+
+        if self.logout_callback:
+            boton_logout = QPushButton("Cerrar sesión")
+            boton_logout.clicked.connect(self.logout_callback)
+            layout.addWidget(boton_logout)
+
+        boton_cerrar = QPushButton("Cerrar")
+        boton_cerrar.clicked.connect(self.close)
+        layout.addWidget(boton_cerrar)
+
+        self.setLayout(layout)
+
 class AyudaWindow(QWidget):
     """Ventana que muestra las opciones y comandos disponibles."""
 
-    def __init__(self, usuario, editar_callback=None, logout_callback=None):
+    def __init__(self, usuario):
         super().__init__()
-        self.editar_callback = editar_callback
-        self.logout_callback = logout_callback
         self.setWindowTitle("Ayuda")
         self.setGeometry(250, 250, 400, 350)
         layout = QVBoxLayout()
@@ -175,22 +198,10 @@ class AyudaWindow(QWidget):
         ayuda.setReadOnly(True)
         layout.addWidget(ayuda)
 
-        info = QLabel(f"Usuario: {usuario.nombre} ({usuario.cif}) - {usuario.rol}")
-        layout.addWidget(info)
-
-        if editar_callback:
-            boton_editar = QPushButton("Modificar mis datos")
-            boton_editar.clicked.connect(editar_callback)
-            layout.addWidget(boton_editar)
-
-        if logout_callback:
-            boton_logout = QPushButton("Cerrar sesión")
-            boton_logout.clicked.connect(logout_callback)
-            layout.addWidget(boton_logout)
-
         boton_cerrar = QPushButton("Cerrar")
         boton_cerrar.clicked.connect(self.close)
         layout.addWidget(boton_cerrar)
+
         self.setLayout(layout)
 
     def _generar_texto(self, usuario):
@@ -235,6 +246,7 @@ class PROMPTYWindow(QMainWindow):
         self.setGeometry(100, 100, 400, 600)
         self.ventana_configuracion = None
         self.ventana_usuario = None
+        self.ventana_editor_usuario = None
         self.ventana_ayuda = None
         self.dark_mode_enabled = False
         self.setup_ui()
@@ -334,15 +346,23 @@ class PROMPTYWindow(QMainWindow):
     def ver_usuario(self):
         if self.ventana_usuario is None:
             self.ventana_usuario = UsuarioWindow(
-                self.usuario, self.gestor_roles, logout_callback=self.cerrar_sesion
+                self.usuario,
+                self.gestor_roles,
+                editar_callback=self.mostrar_editor_usuario,
+                logout_callback=self.cerrar_sesion,
             )
         self.ventana_usuario.show()
 
+    def mostrar_editor_usuario(self):
+        if self.ventana_editor_usuario is None:
+            self.ventana_editor_usuario = EditarUsuarioWindow(
+                self.usuario, self.gestor_roles
+            )
+        self.ventana_editor_usuario.show()
+
     def ver_ayuda(self):
         if self.ventana_ayuda is None:
-            self.ventana_ayuda = AyudaWindow(
-                self.usuario, self.ver_usuario, self.cerrar_sesion
-            )
+            self.ventana_ayuda = AyudaWindow(self.usuario)
         self.ventana_ayuda.show()
 
     def ver_configuracion(self):
