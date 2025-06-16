@@ -33,4 +33,7 @@ class GestorComandos:
         accion = self._acciones.get(clave)
         if accion:
             return accion(argumentos, entrada_manual_func)
-        return "❌ Comando no reconocido."
+        return (
+            "❌ Comando no reconocido. "
+            "Consulta la sección de ayuda para conocer las opciones disponibles."
+        )
