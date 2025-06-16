@@ -33,7 +33,7 @@ from services.asistente_voz import ServicioVoz
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RESOURCES_DIR = os.path.normpath(
-    os.path.join(BASE_DIR, "..", "..", "PROMPTY_2.5", "views", "resources")
+    os.path.join(BASE_DIR, "..", "views", "resources")
 )
 
 def get_colored_icon(icon_path, color):

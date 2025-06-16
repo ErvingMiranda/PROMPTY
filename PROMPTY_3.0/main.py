@@ -9,7 +9,7 @@ from PyQt6.QtWidgets import QApplication
 
 def main():
     """Pregunta si se usará la interfaz de terminal o la gráfica."""
-    modo = input("¿Usar interfaz gráfica? [s/N]: ").strip().lower()
+    modo = input("¿Usar interfaz gráfica? [S/N]: ").strip().lower()
     if modo in {"s", "y", "si", "sí"}:
         app = QApplication(sys.argv)
         login = LoginWindow()
