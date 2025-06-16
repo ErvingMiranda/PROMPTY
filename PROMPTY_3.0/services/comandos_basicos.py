@@ -137,7 +137,7 @@ class ComandosBasicos:
             return f"🤔 Dato curioso: {choice(datos)}"
         return resultado
 
-    def info_sistema(self, ruta=None):
+    def info_sistema(self, ruta=None, entrada_manual_func=None):
         if ruta is None:
             ruta = os.path.join(os.path.dirname(__file__), '..', 'data', 'info_programa.txt')
         ruta = os.path.abspath(ruta)
@@ -150,16 +150,23 @@ class ComandosBasicos:
         }
 
         while True:
-            print("\n¿Sobre qué deseas saber?")
-            print("1. Sobre los creadores")
-            print("2. Sobre el programa")
-            print("3. Sobre el desarrollo")
-            print("4. Sobre la licencia de uso")
-            opcion = input("Selecciona una opción (1-4): ").strip()
+            mensaje = (
+                "\n¿Sobre qué deseas saber?\n"
+                "1. Sobre los creadores\n"
+                "2. Sobre el programa\n"
+                "3. Sobre el desarrollo\n"
+                "4. Sobre la licencia de uso"
+            )
+            if entrada_manual_func:
+                opcion = entrada_manual_func(f"{mensaje}\nSelecciona una opción (1-4): ").strip()
+            else:
+                print(mensaje)
+                opcion = input("Selecciona una opción (1-4): ").strip()
             titulo = secciones.get(opcion)
             if titulo:
                 break
-            print("❌ Opción inválida.")
+            if not entrada_manual_func:
+                print("❌ Opción inválida.")
 
         try:
             with open(ruta, "r", encoding="utf-8") as archivo:

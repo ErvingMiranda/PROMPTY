@@ -18,7 +18,7 @@ class GestorComandos:
             "buscar_en_navegador": lambda a, e: self.basicos.buscar_en_navegador_con_opcion(entrada_manual_func=e),
             "buscar_general": lambda a, e: self.basicos.buscar_en_navegador_con_opcion(entrada_manual_func=e),
             "dato_curioso": lambda a, e: self.basicos.mostrar_dato_curioso(),
-            "info_programa": lambda a, e: self.basicos.info_sistema(),
+            "info_programa": lambda a, e: self.basicos.info_sistema(entrada_manual_func=e),
         }
 
     def establecer_usuario(self, usuario):
