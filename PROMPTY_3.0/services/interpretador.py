@@ -10,6 +10,13 @@ def interpretar(texto):
 
     texto = texto.lower().strip()
 
+    if "buscar" in texto:
+        if "youtube" in texto:
+            return "buscar_en_youtube", None
+        if "google" in texto or "navegador" in texto:
+            return "buscar_general", None
+        return "buscar_en_navegador", None
+
     numero_comandos = {
         ("1", "uno"): "fecha_hora",
         ("2", "dos"): "abrir_con_opcion",
