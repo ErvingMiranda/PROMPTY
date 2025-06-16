@@ -199,15 +199,18 @@ class VistaTerminal:
             print("\n⚙️ OPCIONES DE ADMINISTRADOR")
             print("1. Configurar voz")
             print("2. Gestionar usuarios")
-            print("3. Volver al menú principal")
+            print("3. Gestionar datos curiosos")
+            print("4. Volver al menú principal")
 
-            opcion = input("Selecciona una opción (1-3): ").strip()
+            opcion = input("Selecciona una opción (1-4): ").strip()
 
             if opcion == "1":
                 self.menu_configuracion_voz()
             elif opcion == "2":
                 self.menu_gestion_usuarios()
             elif opcion == "3":
+                self.menu_datos_curiosos(admin)
+            elif opcion == "4":
                 break
             else:
                 print("❌ Opción no válida.")
@@ -282,6 +285,48 @@ class VistaTerminal:
                     self.gestor_roles.actualizar_usuario(self.usuario.cif, contrasena=nueva)
                     print("✔ Contraseña actualizada.")
             elif opcion == "3":
+                break
+            else:
+                print("❌ Opción no válida.")
+
+    def menu_datos_curiosos(self, admin):
+        from services import datos_curiosos
+
+        while True:
+            print("\n📚 GESTIÓN DE DATOS CURIOSOS")
+            print("1. Listar datos")
+            print("2. Agregar dato")
+            print("3. Modificar dato")
+            print("4. Eliminar dato")
+            print("5. Volver")
+
+            opcion = input("Selecciona una opción (1-5): ").strip()
+
+            if opcion == "1":
+                lista = datos_curiosos.obtener_lista_datos()
+                if not lista:
+                    print("❌ No hay datos registrados.")
+                else:
+                    for i, dato in enumerate(lista, 1):
+                        print(f"{i}. {dato}")
+            elif opcion == "2":
+                nuevo = input("Nuevo dato: ").strip()
+                if nuevo:
+                    print(quitar_colores(datos_curiosos.agregar_dato(admin, nuevo)))
+            elif opcion == "3":
+                try:
+                    indice = int(input("Número de dato a modificar: ")) - 1
+                    nuevo = input("Nuevo texto: ").strip()
+                    print(quitar_colores(datos_curiosos.modificar_dato(admin, indice, nuevo)))
+                except ValueError:
+                    print("❌ Entrada inválida.")
+            elif opcion == "4":
+                try:
+                    indice = int(input("Número de dato a eliminar: ")) - 1
+                    print(quitar_colores(datos_curiosos.eliminar_dato(admin, indice)))
+                except ValueError:
+                    print("❌ Entrada inválida.")
+            elif opcion == "5":
                 break
             else:
                 print("❌ Opción no válida.")
