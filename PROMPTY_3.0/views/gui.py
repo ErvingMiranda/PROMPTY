@@ -241,6 +241,7 @@ class AdminWindow(QWidget):
         self.gestor_roles = gestor_roles
         self.setWindowTitle("Funciones admin")
         self.setGeometry(200, 200, 260, 150)
+        self.setStyleSheet("background-color: white;")
         layout = QVBoxLayout()
 
         btn_voz = QPushButton("Configurar voz")
@@ -445,6 +446,18 @@ class PROMPTYWindow(QMainWindow):
         elif comando == "modo_admin":
             self.ver_admin()
             respuesta = "Abriendo funciones de administrador..."
+        elif comando == "cerrar_sesion":
+            respuesta = "\ud83d\udd12 Sesión cerrada."
+            self.text_output.append(respuesta)
+            self.servicio_voz.hablar(quitar_colores(respuesta))
+            self.cerrar_sesion()
+            return
+        elif comando == "salir":
+            respuesta = "\ud83d\udc4b Hasta luego. Fue un placer ayudarte."
+            self.text_output.append(respuesta)
+            self.servicio_voz.hablar(quitar_colores(respuesta))
+            self.close()
+            return
         else:
             interactivos = {"abrir_carpeta", "abrir_con_opcion", "buscar_en_navegador", "buscar_en_youtube"}
             if comando in interactivos:
