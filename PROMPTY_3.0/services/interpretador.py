@@ -1,21 +1,19 @@
-"""Traduce la instrucción recibida a un comando del asistente."""
-
-
 def interpretar(texto):
-    """Devuelve ``(comando, argumentos)`` a partir de una cadena.
+    """Devuelve (comando, argumentos) a partir de una cadena.
 
-    Si no se reconoce la orden, el comando será ``"comando_no_reconocido"`` y
-    los argumentos ``None``.
+    Si no se reconoce la orden, el comando será "comando_no_reconocido"
+    y los argumentos serán None.
     """
-
     texto = texto.lower().strip()
+    texto = texto.replace("en el", "en")  # Normaliza "buscar en el navegador" → "buscar en navegador"
 
     if "buscar" in texto:
         if "youtube" in texto:
             return "buscar_en_youtube", None
-        if "google" in texto or "navegador" in texto:
+        elif "google" in texto or "navegador" in texto:
+            return "buscar_en_navegador", None
+        else:
             return "buscar_general", None
-        return "buscar_en_navegador", None
 
     numero_comandos = {
         ("1", "uno"): "fecha_hora",
@@ -37,7 +35,8 @@ def interpretar(texto):
         ("hora", "fecha"): "fecha_hora",
         ("carpeta", "archivo", "abrir"): "abrir_con_opcion",
         ("youtube",): "buscar_en_youtube",
-        ("navegador", "buscar"): "buscar_en_navegador",
+        ("navegador", "google"): "buscar_en_navegador",
+        ("buscar",): "buscar_general",
         ("curioso", "dato"): "dato_curioso",
         ("programa", "creador", "información"): "info_programa",
         ("usuario", "perfil"): "editar_usuario",
