@@ -168,10 +168,8 @@ class AyudaWindow(QWidget):
         boton_cerrar.clicked.connect(self.close)
         layout.addWidget(boton_cerrar)
         self.setLayout(layout)
-
+        
 class PROMPTYWindow(QMainWindow):
-    """Ventana principal con botones interactivos y una caja de texto para salida."""
-
     def __init__(self, usuario):
         super().__init__()
         self.usuario = usuario
@@ -180,19 +178,13 @@ class PROMPTYWindow(QMainWindow):
         self.gestor_comandos = GestorComandos(usuario)
         self.setWindowTitle("PROMPTY - Asistente de Voz")
         self.setGeometry(100, 100, 400, 600)
-        
-        # Ventanas secundarias
         self.ventana_configuracion = None
         self.ventana_usuario = None
         self.ventana_ayuda = None
-        
-        # Variable para alternar entre modo oscuro y claro
         self.dark_mode_enabled = False
-        
         self.setup_ui()
 
     def paintEvent(self, event):
-        """Dibuja el fondo degradado sin afectar los widgets."""
         painter = QPainter(self)
         gradient = QLinearGradient(0, 0, self.width(), self.height())
         gradient.setColorAt(0, Qt.GlobalColor.blue)
@@ -201,16 +193,13 @@ class PROMPTYWindow(QMainWindow):
         painter.fillRect(self.rect(), brush)
 
     def setup_ui(self):
-        """Configura la interfaz con los botones en la esquina superior derecha, 
-        una etiqueta de bienvenida, el botón de micrófono y una caja de texto en la parte inferior."""
         central_widget = QWidget(self)
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout()
         central_widget.setLayout(main_layout)
 
-        # Layout superior horizontal para los iconos de usuario, ayuda, modo oscuro y configuración
         top_layout = QHBoxLayout()
-        top_layout.addStretch()  # Esto empuja los botones hacia la derecha
+        top_layout.addStretch()
 
         self.button_usuario = self.create_icon_button("Usuario", "usuario.png")
         self.button_usuario.clicked.connect(self.ver_usuario)
@@ -230,19 +219,16 @@ class PROMPTYWindow(QMainWindow):
 
         main_layout.addLayout(top_layout)
 
-        # Etiqueta de bienvenida centrada
         self.label = QLabel("Hola, soy PROMPTY! \ntu asistente de voz", self)
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.label.setFont(QFont("Roboto", 16))
         main_layout.addWidget(self.label)
 
-        # Entrada para comandos de texto
         self.command_input = QLineEdit()
         self.command_input.setPlaceholderText("Escribe un comando y presiona Enter")
         self.command_input.returnPressed.connect(self.process_command)
         main_layout.addWidget(self.command_input)
 
-        # Botón de micrófono centrado
         self.button_microfono = QPushButton("")
         self.button_microfono.setFixedSize(100, 100)
         self.button_microfono.setStyleSheet("""
@@ -261,18 +247,16 @@ class PROMPTYWindow(QMainWindow):
             self.button_microfono.setIcon(QIcon(ruta_icono_mic))
             self.button_microfono.setIconSize(QSize(50, 50))
         else:
-            print(f"⚠ Icono no encontrado en: {ruta_icono_mic}")
+            print(f"\u26a0 Icono no encontrado en: {ruta_icono_mic}")
         self.button_microfono.clicked.connect(self.activate_voice)
         main_layout.addWidget(self.button_microfono, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # Caja de texto para mostrar lo que diga el asistente de voz (solo lectura)
         self.text_output = QTextEdit()
         self.text_output.setReadOnly(True)
         self.text_output.setPlaceholderText("Aquí se mostrará lo que diga el asistente de voz...")
         self.text_output.setFixedHeight(100)
         main_layout.addWidget(self.text_output)
 
-        # Botón de salir centrado en la parte inferior
         self.button_salir = QPushButton("Salir")
         self.button_salir.setFixedSize(150, 40)
         self.button_salir.setStyleSheet("background-color: #ff6347; color: white; border-radius: 10px;")
@@ -280,7 +264,6 @@ class PROMPTYWindow(QMainWindow):
         main_layout.addWidget(self.button_salir, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def create_icon_button(self, tooltip, icon_file):
-        """Crea un botón con icono y tooltip, sin texto visible. Guarda la ruta original en el botón."""
         button = QPushButton("")
         button.setToolTip(tooltip)
         button.setFixedSize(40, 40)
@@ -290,42 +273,36 @@ class PROMPTYWindow(QMainWindow):
         if os.path.exists(ruta_icono):
             button.setIcon(QIcon(ruta_icono))
             button.setIconSize(QSize(30, 30))
-            # Guardamos la ruta original para poder actualizar el icono según el modo
             button.icon_file = ruta_icono
         else:
-            print(f"⚠ Icono no encontrado: {ruta_icono}")
+            print(f"\u26a0 Icono no encontrado: {ruta_icono}")
         return button
 
     def ver_usuario(self):
-        """Abre la ventana de usuario."""
         if self.ventana_usuario is None:
             self.ventana_usuario = UsuarioWindow(self.usuario, self.gestor_roles)
         self.ventana_usuario.show()
 
     def ver_ayuda(self):
-        """Abre la ventana de ayuda."""
         if self.ventana_ayuda is None:
             self.ventana_ayuda = AyudaWindow()
         self.ventana_ayuda.show()
 
     def ver_configuracion(self):
-        """Abre la ventana de configuración."""
         if self.ventana_configuracion is None:
             self.ventana_configuracion = ConfiguracionWindow(self.servicio_voz)
         self.ventana_configuracion.show()
 
     def activate_voice(self):
-        """Escucha desde el micrófono e interpreta la orden."""
-        self.text_output.append("🎙️ Escuchando...")
+        self.text_output.append("\ud83c\udf99\ufe0f Escuchando...")
         texto = self.servicio_voz.escuchar()
         if not texto:
-            self.text_output.append("❌ No se entendió el comando")
+            self.text_output.append("\u274c No se entendió el comando")
             return
-        self.text_output.append(f"🗣️ {texto}")
+        self.text_output.append(f"\ud83d\udde3\ufe0f {texto}")
         self.ejecutar_comando_desde_texto(texto)
 
     def process_command(self):
-        """Interpreta lo escrito y ejecuta la acción correspondiente."""
         texto = self.command_input.text().strip()
         if texto:
             self.ejecutar_comando_desde_texto(texto)
@@ -345,33 +322,24 @@ class PROMPTYWindow(QMainWindow):
         return texto if ok else ""
 
     def activar_modo_oscuro(self):
-        """Alterna entre modo oscuro y modo claro y actualiza el color de los iconos."""
         if not self.dark_mode_enabled:
-            # Modo oscuro: aplicar stylesheet oscuro, actualizar iconos a blanco
             self.setStyleSheet("background-color: #222; color: white;")
             self.label.setText("Modo oscuro activado.")
             self.dark_mode_enabled = True
-
-            # Actualizar iconos a blanco usando get_colored_icon
             self.button_usuario.setIcon(get_colored_icon(self.button_usuario.icon_file, QColor("white")))
             self.button_ayuda.setIcon(get_colored_icon(self.button_ayuda.icon_file, QColor("white")))
             self.button_modo_oscuro.setIcon(get_colored_icon(self.button_modo_oscuro.icon_file, QColor("white")))
             self.button_config.setIcon(get_colored_icon(self.button_config.icon_file, QColor("white")))
         else:
-            # Modo claro: eliminar stylesheet personalizado y restaurar iconos originales
             self.setStyleSheet("")
             self.label.setText("Modo claro activado.")
             self.dark_mode_enabled = False
-
-            # Restaurar iconos originales
             self.button_usuario.setIcon(QIcon(self.button_usuario.icon_file))
             self.button_ayuda.setIcon(QIcon(self.button_ayuda.icon_file))
             self.button_modo_oscuro.setIcon(QIcon(self.button_modo_oscuro.icon_file))
             self.button_config.setIcon(QIcon(self.button_config.icon_file))
 
 class LoginWindow(QWidget):
-    """Pantalla de inicio de sesión simple."""
-
     def __init__(self, gestor_roles=None):
         super().__init__()
         self.setWindowTitle("Iniciar sesión")
@@ -389,7 +357,7 @@ class LoginWindow(QWidget):
         self.login_button.clicked.connect(self.verificar)
         self.forgot_button = QPushButton("Olvidé mi contraseña")
         self.forgot_button.clicked.connect(self.restablecer)
-        layout.addWidget(QLabel("🔐 Iniciar sesión en PROMPTY"))
+        layout.addWidget(QLabel("\ud83d\udd10 Iniciar sesión en PROMPTY"))
         layout.addWidget(self.cif_input)
         layout.addWidget(self.pass_input)
         layout.addWidget(self.login_button)
@@ -422,9 +390,9 @@ class LoginWindow(QWidget):
         else:
             QMessageBox.warning(self, "Error", "CIF no encontrado")
 
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     login = LoginWindow()
     login.show()
     sys.exit(app.exec())
+
