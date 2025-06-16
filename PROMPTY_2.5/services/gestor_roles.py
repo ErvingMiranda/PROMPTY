@@ -80,5 +80,17 @@ class GestorRoles:
         self.guardar_usuarios()
         return True
 
+    def restablecer_contrasena(self, cif):
+        """Genera y asigna una nueva contraseña para el usuario indicado."""
+        usuario = self.obtener_usuario_por_cif(cif)
+        if not usuario:
+            return None
+        from utils.helpers import generar_contrasena, hash_password
+
+        nueva = generar_contrasena()
+        usuario.contrasena = hash_password(nueva)
+        self.guardar_usuarios()
+        return nueva
+
     def listar_usuarios(self):
         return self.usuarios

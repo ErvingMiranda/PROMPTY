@@ -128,21 +128,21 @@ class VistaTerminal:
         return "exit"
 
     def mostrar_bienvenida(self):
-        print(f"""{Fore.CYAN}
-¡Hola! Soy PROMPTY 2.5, tu asistente virtual de escritorio.
-{Fore.YELLOW}Estoy listo para ayudarte con tareas básicas usando tu voz o el teclado.
-
-{Fore.GREEN}Puedes pedirme que:{Style.RESET_ALL}
-1. Te diga la fecha y hora actual.
-2. Abra un archivo o carpeta (puedes escribir la ruta o buscarla).
-3. Busque algo en YouTube o en tu navegador preferido (puedes usar un término o ingresar una URL).
-4. Te comparta un dato curioso.
-5. Te hable sobre el programa y sus creadores.
-6. Acceder al modo administrador (con contraseña).
-7. Modificar tus datos de usuario.
-8. Cerrar sesión para iniciar con otro usuario.
-9. Salir del programa.
-""")
+        print(f"{Fore.CYAN}¡Hola! Soy PROMPTY 2.5, tu asistente virtual de escritorio.{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}Estoy listo para ayudarte con tareas básicas usando tu voz o el teclado.{Style.RESET_ALL}\n")
+        print(f"{Fore.GREEN}Puedes pedirme que:{Style.RESET_ALL}")
+        print("1. Te diga la fecha y hora actual.")
+        print("2. Abra un archivo o carpeta (puedes escribir la ruta o buscarla).")
+        print("3. Busque algo en YouTube o en tu navegador preferido (puedes usar un término o ingresar una URL).")
+        print("4. Te comparta un dato curioso.")
+        print("5. Te hable sobre el programa y sus creadores.")
+        if self.usuario.es_admin():
+            print("6. Acceder al modo administrador.")
+        else:
+            print("6. Acceder a funciones admin (requerirá credenciales de un administrador).")
+        print("7. Modificar tus datos de usuario.")
+        print("8. Cerrar sesión para iniciar con otro usuario.")
+        print("9. Salir del programa.")
 
     def menu_configuracion_voz(self):
         while True:
@@ -177,12 +177,14 @@ class VistaTerminal:
 
     def menu_admin(self):
         print("\n🔐 MODO ADMINISTRADOR")
-        cif = input("CIF del administrador: ").strip()
-        clave = input("Contraseña: ").strip()
-        admin = self.gestor_roles.autenticar(cif, clave)
-        if not admin or not admin.es_admin():
-            print("❌ Credenciales incorrectas.")
-            return
+        admin = self.usuario
+        if not self.usuario.es_admin():
+            cif = input("CIF del administrador: ").strip()
+            clave = input("Contraseña: ").strip()
+            admin = self.gestor_roles.autenticar(cif, clave)
+            if not admin or not admin.es_admin():
+                print("❌ Credenciales incorrectas.")
+                return
         print("🔓 Acceso concedido.")
         while True:
             print("\n⚙️ OPCIONES DE ADMINISTRADOR")
