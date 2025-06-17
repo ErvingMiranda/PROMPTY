@@ -716,8 +716,14 @@ class LoginWindow(QWidget):
         self.gestor_roles = gestor_roles or GestorRoles()
         self.setup_ui()
 
+    def show(self):
+        """Muestra la ventana asegurando que quede al frente."""
+        super().show()
+        self.raise_()
+        self.activateWindow()
+
     def showEvent(self, event):
-        """Se asegura de que la ventana se muestre en primer plano."""
+        """Garantiza que la ventana reciba el foco al mostrarse."""
         super().showEvent(event)
         self.raise_()
         self.activateWindow()
