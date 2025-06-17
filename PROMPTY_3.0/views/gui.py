@@ -229,7 +229,7 @@ class AyudaWindow(QWidget):
             "<p>Estoy listo para ayudarte con tareas básicas usando tu voz o el teclado.</p>"
             "<p>Puedes pedirme que:</p>"
             f"<ol>{lista}</ol>"
-            "<p>Si PROMPTY no reconoce un comando, verás un mensaje recordándote que puedes abrir esta ayuda.</p>"
+            "<p>Si PROMTY no reconoce un comando, verás un mensaje recordándote que puedes abrir esta ayuda.</p>"
         )
 
 class GestionUsuariosWindow(QWidget):
@@ -713,6 +713,7 @@ class LoginWindow(QWidget):
     def __init__(self, gestor_roles=None):
         super().__init__()
         self.setWindowTitle("Iniciar sesión")
+        self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
         self.gestor_roles = gestor_roles or GestorRoles()
         self.setup_ui()
 
@@ -739,7 +740,7 @@ class LoginWindow(QWidget):
         self.login_button.clicked.connect(self.verificar)
         self.forgot_button = QPushButton("Olvidé mi contraseña")
         self.forgot_button.clicked.connect(self.restablecer)
-        layout.addWidget(QLabel("\ud83d\udd10 Iniciar sesión en PROMPTY"))
+        layout.addWidget(QLabel("\ud83d\udd10 Iniciar sesión en PROMTY"))
         layout.addWidget(self.cif_input)
         layout.addWidget(self.pass_input)
         layout.addWidget(self.login_button)
