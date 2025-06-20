@@ -465,7 +465,9 @@ class DatosCuriososWindow(QWidget):
             msg = datos_curiosos.eliminar_dato(self.usuario, fila)
             QMessageBox.information(self, "Datos curiosos", quitar_colores(msg))
             self.cargar_datos()
-
+class TreeWindow(QWidget):
+    #Poner el arbol del programa
+    pass
         
 class PROMPTYWindow(QMainWindow):
     def __init__(self, usuario, logout_callback=None):
@@ -483,6 +485,7 @@ class PROMPTYWindow(QMainWindow):
         self.ventana_ayuda = None
         self.ventana_admin = None
         self.dark_mode_enabled = False
+        self.ventana_tree = None
         self.setup_ui()
 
     def paintEvent(self, event):
@@ -628,7 +631,9 @@ class PROMPTYWindow(QMainWindow):
         self.ventana_admin.show()
 
     def ver_arbol_programa(self):
-        pass
+        if self.ventana_tree is None:
+            self.ventana_tree = TreeWindow()
+        self.ventana_tree.show()
 
     def activate_voice(self):
         mensaje_original = self.label.text()
@@ -702,6 +707,7 @@ class PROMPTYWindow(QMainWindow):
             self.button_ayuda.setIcon(get_colored_icon(self.button_ayuda.icon_file, QColor("white")))
             self.button_modo_oscuro.setIcon(get_colored_icon(self.button_modo_oscuro.icon_file, QColor("white")))
             self.button_config.setIcon(get_colored_icon(self.button_config.icon_file, QColor("white")))
+            self.button_tree.setIcon(get_colored_icon(self.button_tree.icon_file, QColor("white")))
         else:
             self.setStyleSheet("")
             self.label.setText("Modo claro activado.")
