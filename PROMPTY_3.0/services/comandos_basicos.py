@@ -118,7 +118,6 @@ class ComandosBasicos:
 
         return self.abrir_url(url, mensaje)
 
-
     def buscar_en_navegador_con_opcion(self, destino_predefinido=None, entrada_manual_func=None):
         if not destino_predefinido:
             if entrada_manual_func:

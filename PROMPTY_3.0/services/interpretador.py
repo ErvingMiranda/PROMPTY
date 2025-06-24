@@ -27,7 +27,6 @@ def interpretar(texto):
         "canción",
         "canciones",
     ]):
-
         return "reproducir_musica", None
 
     numero_comandos = {
@@ -60,7 +59,6 @@ def interpretar(texto):
             "canción",
             "canciones",
         ): "reproducir_musica",
-
         ("curioso", "dato"): "dato_curioso",
         ("programa", "creador", "información"): "info_programa",
         ("usuario", "perfil"): "editar_usuario",

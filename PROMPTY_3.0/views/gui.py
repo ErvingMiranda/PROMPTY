@@ -93,7 +93,10 @@ class ConfiguracionWindow(QWidget):
         form.addRow("Velocidad", self.velocidad_slider)
 
         self.font_combo = QComboBox()
-        self.font_combo.addItems(QFontDatabase().families())
+        db = QFontDatabase()
+        # Convertir a lista de cadenas para evitar errores de tipo
+        fuentes = [str(f) for f in db.families()]
+        self.font_combo.addItems(fuentes)
         self.font_combo.setCurrentText(fuente)
         form.addRow("Fuente", self.font_combo)
 
