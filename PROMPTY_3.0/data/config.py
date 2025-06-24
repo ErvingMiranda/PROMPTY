@@ -6,6 +6,10 @@ VELOCIDAD_POR_DEFECTO = 150
 # Volumen (0.0 a 1.0)
 VOLUMEN_POR_DEFECTO = 0.9
 
+# Fuente y tamaño de letra predeterminados para la interfaz
+FUENTE_POR_DEFECTO = "Roboto"
+TAMANO_LETRA_POR_DEFECTO = 16
+
 # Configuración predeterminada de la ventana de ayuda
 AYUDA_POS_X = 250
 AYUDA_POS_Y = 250
