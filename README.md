@@ -1,6 +1,6 @@
 # PROMPTY
 
-PROMPTY es un asistente por voz escrito en Python. Este repositorio contiene distintas versiones que muestran la evolución del proyecto.
+PROMPTY es un asistente por voz escrito en Python. Este repositorio contiene distintas versiones que muestran la evolución del proyecto. La versión 3.0 incluye una interfaz gráfica adaptable y soporte para búsquedas en YouTube Music.
 
 ## Ejecución rápida
 
@@ -25,4 +25,4 @@ PROMPTY es un asistente en desarrollo. Este repositorio contiene diferentes vers
 
 ## Licencia
 
-Este proyecto está disponible bajo la licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más información.
+Este proyecto se distribuye bajo la licencia Creative Commons BY-NC 4.0, por lo que su uso comercial no está permitido. Consulta el archivo [LICENSE](LICENSE) para más información.

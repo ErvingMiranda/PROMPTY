@@ -20,13 +20,15 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import (
     QIcon,
     QFont,
+    QFontDatabase,
     QPainter,
     QLinearGradient,
     QBrush,
     QPixmap,
     QColor,
 )
-from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtCore import Qt, QSize, QTimer
+from pathlib import Path
 from services.gestor_roles import GestorRoles
 from services.gestor_comandos import GestorComandos
 from services.interpretador import interpretar
@@ -63,13 +65,14 @@ def get_colored_icon(icon_path, color):
 
 
 class ConfiguracionWindow(QWidget):
-    """Permite ajustar la voz de PROMPTY."""
+    """Permite ajustar la voz y la fuente de PROMPTY."""
 
-    def __init__(self, servicio_voz):
+    def __init__(self, servicio_voz, fuente="Roboto", tamano=16, aplicar_fuente=None):
         super().__init__()
         self.servicio_voz = servicio_voz
-        self.setWindowTitle("Configuración de voz")
-        self.setGeometry(150, 150, 350, 220)
+        self.aplicar_fuente = aplicar_fuente
+        self.setWindowTitle("Configuración")
+        self.setGeometry(150, 150, 400, 260)
 
         layout = QVBoxLayout()
         form = QFormLayout()
@@ -89,6 +92,16 @@ class ConfiguracionWindow(QWidget):
         self.velocidad_slider.setValue(self.servicio_voz.velocidad)
         form.addRow("Velocidad", self.velocidad_slider)
 
+        self.font_combo = QComboBox()
+        self.font_combo.addItems(QFontDatabase().families())
+        self.font_combo.setCurrentText(fuente)
+        form.addRow("Fuente", self.font_combo)
+
+        self.size_slider = QSlider(Qt.Orientation.Horizontal)
+        self.size_slider.setRange(8, 32)
+        self.size_slider.setValue(tamano)
+        form.addRow("Tamaño letra", self.size_slider)
+
         layout.addLayout(form)
 
         boton_guardar = QPushButton("Guardar")
@@ -106,6 +119,10 @@ class ConfiguracionWindow(QWidget):
         self.servicio_voz.cambiar_voz(int(indice))
         self.servicio_voz.cambiar_volumen(self.volumen_slider.value() / 100)
         self.servicio_voz.cambiar_velocidad(self.velocidad_slider.value())
+        if self.aplicar_fuente:
+            self.aplicar_fuente(
+                self.font_combo.currentText(), self.size_slider.value()
+            )
         QMessageBox.information(self, "Configuración", "Ajustes guardados")
 
 class EditarUsuarioWindow(QWidget):
@@ -466,8 +483,35 @@ class DatosCuriososWindow(QWidget):
             QMessageBox.information(self, "Datos curiosos", quitar_colores(msg))
             self.cargar_datos()
 class TreeWindow(QWidget):
-    #Poner el arbol del programa
-    pass
+    """Muestra un árbol simple de la estructura del proyecto."""
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Árbol del proyecto")
+        self.setGeometry(200, 200, 400, 400)
+
+        layout = QVBoxLayout()
+        self.text = QTextEdit()
+        self.text.setReadOnly(True)
+        layout.addWidget(self.text)
+
+        btn_cerrar = QPushButton("Cerrar")
+        btn_cerrar.clicked.connect(self.close)
+        layout.addWidget(btn_cerrar)
+
+        self.setLayout(layout)
+        self.cargar_arbol()
+
+    def cargar_arbol(self):
+        root_path = Path(__file__).resolve().parents[2]
+        lineas = []
+        for ruta, dirs, files in os.walk(root_path):
+            nivel = len(Path(ruta).relative_to(root_path).parts)
+            indent = "    " * nivel
+            lineas.append(f"{indent}{Path(ruta).name}/")
+            for f in files:
+                lineas.append(f"{indent}    {f}")
+        self.text.setPlainText("\n".join(lineas))
         
 class PROMPTYWindow(QMainWindow):
     def __init__(self, usuario, logout_callback=None):
@@ -479,6 +523,10 @@ class PROMPTYWindow(QMainWindow):
         self.gestor_comandos = GestorComandos(usuario)
         self.setWindowTitle("PROMPTY - Asistente de Voz")
         self.setGeometry(100, 100, 400, 600)
+        self.font_family = "Roboto"
+        self.base_font_size = 16
+        self.saludo = "Hola, soy PROMPTY! \ntu asistente de voz"
+        self.mensaje_timer = QTimer(self)
         self.ventana_configuracion = None
         self.ventana_usuario = None
         self.ventana_editor_usuario = None
@@ -527,9 +575,9 @@ class PROMPTYWindow(QMainWindow):
 
         main_layout.addLayout(top_layout)
 
-        self.label = QLabel("Hola, soy PROMPTY! \ntu asistente de voz", self)
+        self.label = QLabel(self.saludo, self)
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.label.setFont(QFont("Roboto", 16))
+        self.label.setFont(QFont(self.font_family, self.base_font_size))
         main_layout.addWidget(self.label)
 
         self.command_input = QLineEdit()
@@ -570,6 +618,8 @@ class PROMPTYWindow(QMainWindow):
         self.button_salir.clicked.connect(self.close)
         main_layout.addWidget(self.button_salir, alignment=Qt.AlignmentFlag.AlignCenter)
 
+        self.apply_scaling()
+
     def create_icon_button(self, tooltip, icon_file):
         button = QPushButton("")
         button.setToolTip(tooltip)
@@ -608,7 +658,12 @@ class PROMPTYWindow(QMainWindow):
 
     def ver_configuracion(self):
         if self.ventana_configuracion is None:
-            self.ventana_configuracion = ConfiguracionWindow(self.servicio_voz)
+            self.ventana_configuracion = ConfiguracionWindow(
+                self.servicio_voz,
+                fuente=self.font_family,
+                tamano=self.base_font_size,
+                aplicar_fuente=self.actualizar_fuente,
+            )
         self.ventana_configuracion.show()
 
     def ver_admin(self):
@@ -694,6 +749,34 @@ class PROMPTYWindow(QMainWindow):
         self.text_output.append(texto_limpio)
         self.servicio_voz.hablar(texto_limpio)
 
+    def actualizar_fuente(self, familia, tamano):
+        self.font_family = familia
+        self.base_font_size = tamano
+        self.apply_scaling()
+
+    def apply_scaling(self):
+        factor = self.width() / 400
+        fuente = QFont(self.font_family, int(self.base_font_size * factor))
+        self.label.setFont(fuente)
+        self.command_input.setFont(fuente)
+        self.text_output.setFont(fuente)
+        for btn in [
+            self.button_usuario,
+            self.button_ayuda,
+            self.button_modo_oscuro,
+            self.button_config,
+            self.button_tree,
+        ]:
+            btn.setFixedSize(int(40 * factor), int(40 * factor))
+            btn.setIconSize(QSize(int(30 * factor), int(30 * factor)))
+        self.button_microfono.setFixedSize(int(100 * factor), int(100 * factor))
+        self.button_microfono.setIconSize(QSize(int(50 * factor), int(50 * factor)))
+        self.button_salir.setFixedSize(int(150 * factor), int(40 * factor))
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.apply_scaling()
+
     def preguntar(self, mensaje):
         texto, ok = QInputDialog.getText(self, "PROMPTY", mensaje)
         return texto if ok else ""
@@ -717,6 +800,9 @@ class PROMPTYWindow(QMainWindow):
             self.button_modo_oscuro.setIcon(QIcon(self.button_modo_oscuro.icon_file))
             self.button_config.setIcon(QIcon(self.button_config.icon_file))
             self.button_tree.setIcon(QIcon(self.button_tree.icon_file))
+
+        self.mensaje_timer.stop()
+        self.mensaje_timer.singleShot(5000, lambda: self.label.setText(self.saludo))
 
     def cerrar_sesion(self):
         self.close()

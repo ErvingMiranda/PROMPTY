@@ -74,6 +74,8 @@ class ComandosBasicos:
             return f"https://www.youtube.com/results?search_query={busqueda.replace(' ', '+')}"
         elif destino == "navegador":
             return f"https://www.google.com/search?q={busqueda.replace(' ', '+')}"
+        elif destino == "musica":
+            return f"https://music.youtube.com/search?q={busqueda.replace(' ', '+')}"
         return None
 
     def abrir_url(self, url):
@@ -90,16 +92,40 @@ class ComandosBasicos:
         except Exception as e:
             return f"❌ Error al abrir el navegador: {e}"
 
+    def reproducir_musica(self, entrada_manual_func=None):
+        """Abre una búsqueda o URL en YouTube Music."""
+        if not entrada_manual_func:
+            return "❌ Sin entrada para música."
+
+        opcion = entrada_manual_func(
+            "¿Deseas buscar un término (1) o ingresar una URL (2)? "
+        ).strip()
+        if opcion == "1":
+            termino = entrada_manual_func("¿Qué deseas escuchar?: ").strip()
+            if not termino:
+                return "❌ El término no puede estar vacío."
+            url = self.construir_url(termino, "musica")
+        elif opcion == "2":
+            url = entrada_manual_func("Introduce la URL completa: ").strip()
+            if not url:
+                return "❌ La URL no puede estar vacía."
+        else:
+            return "❌ Opción inválida."
+
+        return self.abrir_url(url)
+
     def buscar_en_navegador_con_opcion(self, destino_predefinido=None, entrada_manual_func=None):
         if not destino_predefinido:
             if entrada_manual_func:
-                destino = entrada_manual_func("¿Dónde deseas buscar? (youtube o navegador): ").strip().lower()
+                destino = entrada_manual_func(
+                    "¿Dónde deseas buscar? (youtube, navegador o musica): "
+                ).strip().lower()
             else:
                 return "❌ Sin entrada para destino."
         else:
             destino = destino_predefinido
 
-        if destino not in ["youtube", "navegador"]:
+        if destino not in ["youtube", "navegador", "musica"]:
             return "❌ Opción inválida."
 
         if entrada_manual_func:
