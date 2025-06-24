@@ -821,27 +821,43 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         self._sincronizar_fuente(self.ventana_configuracion)
         self.ventana_configuracion.show()
 
-    def ver_admin(self):
+    def ver_admin(self) -> bool:
+        """Muestra la ventana de administración si las credenciales son válidas.
+
+        Returns
+        -------
+        bool
+            ``True`` si se abrió la ventana de administración, ``False`` en caso
+            contrario.
+        """
+
         usuario_admin = self.usuario
         if not self.usuario.es_admin():
             cif, ok = QInputDialog.getText(self, "Modo admin", "CIF del administrador:")
             if not ok:
-                QMessageBox.warning(self, "Error", "Acceso denegado")
-                return
+                QMessageBox.warning(self, "Error", "Acceso denegado: operación cancelada")
+                return False
+
             clave, ok2 = QInputDialog.getText(
                 self, "Modo admin", "Contraseña:", QLineEdit.EchoMode.Password
             )
             if not ok2:
-                QMessageBox.warning(self, "Error", "Acceso denegado")
-                return
+                QMessageBox.warning(self, "Error", "Acceso denegado: operación cancelada")
+                return False
+
             usuario_admin = self.gestor_roles.autenticar(cif.strip(), clave.strip())
             if not usuario_admin or not usuario_admin.es_admin():
-                QMessageBox.warning(self, "Error", "Acceso denegado")
-                return
+                QMessageBox.warning(self, "Error", "Acceso denegado: credenciales incorrectas")
+                return False
+
         if self.ventana_admin is None:
-            self.ventana_admin = AdminWindow(self, self.servicio_voz, self.gestor_roles, usuario_admin)
+            self.ventana_admin = AdminWindow(
+                self, self.servicio_voz, self.gestor_roles, usuario_admin
+            )
+
         self._sincronizar_fuente(self.ventana_admin)
         self.ventana_admin.show()
+        return True
 
     def ver_arbol_programa(self):
         if self.ventana_tree is None:
@@ -881,8 +897,10 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
             self.mostrar_editor_usuario()
             respuesta = "Abriendo editor de usuario..."
         elif comando == "modo_admin":
-            self.ver_admin()
-            respuesta = "Abriendo funciones de administrador..."
+            if self.ver_admin():
+                respuesta = "Abriendo funciones de administrador..."
+            else:
+                respuesta = "❌ Acceso denegado."
         elif comando == "cerrar_sesion":
             respuesta = "\ud83d\udd12 Sesión cerrada."
             self.mostrar_respuesta(respuesta)
