@@ -118,6 +118,10 @@ class ConfiguracionWindow(QWidget):
         boton_guardar.clicked.connect(self.guardar)
         layout.addWidget(boton_guardar)
 
+        boton_restaurar = QPushButton("Restablecer")
+        boton_restaurar.clicked.connect(self.restablecer)
+        layout.addWidget(boton_restaurar)
+
         boton_cerrar = QPushButton("Cerrar")
         boton_cerrar.clicked.connect(self.close)
         layout.addWidget(boton_cerrar)
@@ -136,6 +140,32 @@ class ConfiguracionWindow(QWidget):
         # Aplicar la fuente seleccionada a esta ventana para reflejar el cambio
         self.setFont(QFont(self.font_combo.currentText(), self.size_slider.value()))
         QMessageBox.information(self, "Configuración", "Ajustes guardados")
+
+    def restablecer(self):
+        """Vuelve a cargar la configuración predeterminada."""
+        idx = self.voz_combo.findData(config.VOZ_POR_DEFECTO)
+        if idx >= 0:
+            self.voz_combo.setCurrentIndex(idx)
+        self.volumen_slider.setValue(int(config.VOLUMEN_POR_DEFECTO * 100))
+        self.velocidad_slider.setValue(config.VELOCIDAD_POR_DEFECTO)
+        self.font_combo.setCurrentText(config.FUENTE_POR_DEFECTO)
+        self.size_slider.setValue(config.TAMANO_LETRA_POR_DEFECTO)
+
+        self.servicio_voz.cambiar_voz(config.VOZ_POR_DEFECTO)
+        self.servicio_voz.cambiar_volumen(config.VOLUMEN_POR_DEFECTO)
+        self.servicio_voz.cambiar_velocidad(config.VELOCIDAD_POR_DEFECTO)
+
+        if self.aplicar_fuente:
+            self.aplicar_fuente(
+                config.FUENTE_POR_DEFECTO,
+                config.TAMANO_LETRA_POR_DEFECTO,
+            )
+        self.setFont(
+            QFont(config.FUENTE_POR_DEFECTO, config.TAMANO_LETRA_POR_DEFECTO)
+        )
+        QMessageBox.information(
+            self, "Configuración", "Valores predeterminados restablecidos"
+        )
 
 class EditarUsuarioWindow(QWidget):
     """Permite modificar los datos del usuario actual."""
