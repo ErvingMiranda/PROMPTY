@@ -643,13 +643,9 @@ class TreeWindow(ScalingMixin, QWidget):
 
     def cargar_arbol(self):
         root_path = Path(__file__).resolve().parents[1]
-        lineas = []
-        for ruta, dirs, files in os.walk(root_path):
-            nivel = len(Path(ruta).relative_to(root_path).parts)
-            indent = "    " * nivel
-            lineas.append(f"{indent}{Path(ruta).name}/")
-            for f in files:
-                lineas.append(f"{indent}    {f}")
+        from utils.helpers import generar_arbol
+
+        lineas = generar_arbol(root_path)
         self.text.setPlainText("\n".join(lineas))
         
 class PROMTYWindow(ScalingMixin, QMainWindow):
