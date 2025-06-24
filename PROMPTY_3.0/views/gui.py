@@ -615,7 +615,7 @@ class TreeWindow(ScalingMixin, QWidget):
         self.cargar_arbol()
 
     def cargar_arbol(self):
-        root_path = Path(__file__).resolve().parents[2] / "PROMPTY_3.0"
+        root_path = Path(__file__).resolve().parents[2] / "PROMTY_3.0"
         lineas = []
         for ruta, dirs, files in os.walk(root_path):
             nivel = len(Path(ruta).relative_to(root_path).parts)
@@ -625,7 +625,7 @@ class TreeWindow(ScalingMixin, QWidget):
                 lineas.append(f"{indent}    {f}")
         self.text.setPlainText("\n".join(lineas))
         
-class PROMPTYWindow(ScalingMixin, QMainWindow):
+class PROMTYWindow(ScalingMixin, QMainWindow):
     def __init__(self, usuario, logout_callback=None):
         super().__init__()
         self.usuario = usuario
@@ -633,13 +633,13 @@ class PROMPTYWindow(ScalingMixin, QMainWindow):
         self.gestor_roles = GestorRoles()
         self.servicio_voz = ServicioVoz(usuario, verificar_admin_callback=self.gestor_roles.autenticar)
         self.gestor_comandos = GestorComandos(usuario)
-        self.setWindowTitle("PROMPTY - Asistente de Voz")
+        self.setWindowTitle("PROMTY - Asistente de Voz")
         self.setGeometry(100, 100, 400, 600)
         self.base_width = 400
         self.base_height = 600
         self.font_family = config.FUENTE_POR_DEFECTO
         self.base_font_size = config.TAMANO_LETRA_POR_DEFECTO
-        self.saludo = "Hola, soy PROMPTY! \ntu asistente de voz"
+        self.saludo = "Hola, soy PROMTY! \ntu asistente de voz"
         self.mensaje_timer = QTimer(self)
         self.ventana_configuracion = None
         self.ventana_usuario = None
@@ -893,7 +893,7 @@ class PROMPTYWindow(ScalingMixin, QMainWindow):
         self.text_output.setFont(fuente)
 
     def preguntar(self, mensaje):
-        texto, ok = QInputDialog.getText(self, "PROMPTY", mensaje)
+        texto, ok = QInputDialog.getText(self, "PROMTY", mensaje)
         return texto if ok else ""
 
     def activar_modo_oscuro(self):
@@ -972,23 +972,27 @@ class LoginWindow(ScalingMixin, QWidget):
         self.pass_input.setPlaceholderText("Contraseña")
         self.pass_input.setEchoMode(QLineEdit.EchoMode.Password)
         self.pass_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.cif_input)
+        layout.addWidget(self.pass_input)
+
         self.login_button = QPushButton("Iniciar sesión")
         self.login_button.clicked.connect(self.verificar)
         self.login_button.setProperty("base_height", 30)
         self.login_button.setProperty("base_width", self.login_button.sizeHint().width())
+        layout.addWidget(self.login_button, alignment=Qt.AlignmentFlag.AlignCenter)
+
         self.forgot_button = QPushButton("Olvidé mi contraseña")
         self.forgot_button.clicked.connect(self.restablecer)
         self.forgot_button.setProperty("base_height", 30)
         self.forgot_button.setProperty("base_width", self.forgot_button.sizeHint().width())
+        layout.addWidget(self.forgot_button, alignment=Qt.AlignmentFlag.AlignCenter)
+
         self.register_button = QPushButton("Registrarse")
         self.register_button.clicked.connect(self.registrar)
         self.register_button.setProperty("base_height", 30)
         self.register_button.setProperty("base_width", self.register_button.sizeHint().width())
-        layout.addWidget(self.cif_input)
-        layout.addWidget(self.pass_input)
-        layout.addWidget(self.login_button)
-        layout.addWidget(self.forgot_button)
-        layout.addWidget(self.register_button)
+        layout.addWidget(self.register_button, alignment=Qt.AlignmentFlag.AlignCenter)
+
         self.setLayout(layout)
         self.apply_scaling()
 
@@ -1019,7 +1023,7 @@ class LoginWindow(ScalingMixin, QWidget):
         )
         if usuario:
             self.hide()
-            self.main = PROMPTYWindow(usuario, logout_callback=self.show)
+            self.main = PROMTYWindow(usuario, logout_callback=self.show)
             self.main.show()
         else:
             QMessageBox.warning(self, "Error", "CIF o contraseña incorrectos")
