@@ -956,17 +956,22 @@ class LoginWindow(ScalingMixin, QWidget):
         self.pass_input.setFont(fuente)
         self.login_button.setFont(fuente)
         self.forgot_button.setFont(fuente)
+        self.register_button.setFont(fuente)
 
     def setup_ui(self):
         layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.title_label = QLabel("\ud83d\udd10 Iniciar sesión en PROMPTY")
+        self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.title_label)
 
         self.cif_input = QLineEdit()
         self.cif_input.setPlaceholderText("CIF")
+        self.cif_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.pass_input = QLineEdit()
         self.pass_input.setPlaceholderText("Contraseña")
         self.pass_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.pass_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.login_button = QPushButton("Iniciar sesión")
         self.login_button.clicked.connect(self.verificar)
         self.login_button.setProperty("base_height", 30)
@@ -975,12 +980,38 @@ class LoginWindow(ScalingMixin, QWidget):
         self.forgot_button.clicked.connect(self.restablecer)
         self.forgot_button.setProperty("base_height", 30)
         self.forgot_button.setProperty("base_width", self.forgot_button.sizeHint().width())
+        self.register_button = QPushButton("Registrarse")
+        self.register_button.clicked.connect(self.registrar)
+        self.register_button.setProperty("base_height", 30)
+        self.register_button.setProperty("base_width", self.register_button.sizeHint().width())
         layout.addWidget(self.cif_input)
         layout.addWidget(self.pass_input)
         layout.addWidget(self.login_button)
         layout.addWidget(self.forgot_button)
+        layout.addWidget(self.register_button)
         self.setLayout(layout)
         self.apply_scaling()
+
+    def registrar(self):
+        nombre, ok = QInputDialog.getText(self, "Registro", "Nombre:")
+        if not (ok and nombre.strip()):
+            return
+        clave, ok = QInputDialog.getText(
+            self,
+            "Registro",
+            "Contrase\u00f1a:",
+            QLineEdit.EchoMode.Password,
+        )
+        if not (ok and clave):
+            return
+        cif, _ = self.gestor_roles.registrar_usuario(
+            nombre.strip(), "usuario", contrasena=clave
+        )
+        QMessageBox.information(
+            self,
+            "Registro",
+            f"Registro exitoso. Tu CIF es {cif}",
+        )
 
     def verificar(self):
         usuario = self.gestor_roles.autenticar(

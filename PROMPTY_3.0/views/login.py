@@ -19,8 +19,9 @@ class VistaLogin:
             limpiar_pantalla()
             print(f"{Fore.CYAN}🔐 Iniciar sesión en PROMPTY{Style.RESET_ALL}")
             print("1. Iniciar sesión")
-            print("2. Olvidé mi contraseña")
-            print("3. Salir")
+            print("2. Registrarse")
+            print("3. Olvidé mi contraseña")
+            print("4. Salir")
             opcion = input("Selecciona una opción: ").strip()
 
             if opcion == "1":
@@ -39,8 +40,10 @@ class VistaLogin:
                     print(f"{Fore.RED}❌ CIF o contraseña incorrectos.{Style.RESET_ALL}")
                     input("Presiona Enter para continuar...")
             elif opcion == "2":
-                self.restablecer_contrasena()
+                self.registrar_usuario()
             elif opcion == "3":
+                self.restablecer_contrasena()
+            elif opcion == "4":
                 break
             else:
                 print("Opción no válida")
@@ -55,5 +58,22 @@ class VistaLogin:
             print(f"Tu nueva contraseña temporal es: {nueva}")
         else:
             print("❌ CIF no encontrado.")
+        input("Presiona Enter para continuar...")
+
+    def registrar_usuario(self):
+        limpiar_pantalla()
+        print("📋 Registro de nuevo usuario")
+        nombre = input("Nombre: ").strip()
+        if not nombre:
+            print("Nombre no puede estar vacío")
+            input("Presiona Enter para continuar...")
+            return
+        clave = input("Contraseña: ").strip()
+        if not clave:
+            print("Contraseña no puede estar vacía")
+            input("Presiona Enter para continuar...")
+            return
+        cif, _ = self.gestor_roles.registrar_usuario(nombre, "usuario", contrasena=clave)
+        print(f"Registro exitoso. Tu CIF es: {cif}")
         input("Presiona Enter para continuar...")
 
