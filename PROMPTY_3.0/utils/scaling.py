@@ -37,8 +37,12 @@ class ScalingMixin:
                 if base_height is None:
                     base_height = btn.sizeHint().height()
                     btn.setProperty("base_height", base_height)
-                bw = max(base_width, btn.fontMetrics().boundingRect(btn.text()).width() + 20)
-                bh = base_height
+                bw = max(
+                    base_width,
+                    btn.fontMetrics().boundingRect(btn.text()).width() + 20,
+                )
+                text_height = btn.fontMetrics().boundingRect(btn.text()).height() + 10
+                bh = max(base_height, text_height)
                 btn.setFixedSize(int(bw * factor), int(bh * factor))
 
         for child in self.findChildren(QWidget):
