@@ -16,7 +16,7 @@ class GestorRoles:
 
     def cargar_usuarios(self, ruta: Path):
         try:
-            with ruta.open("r", encoding="utf-8") as archivo:
+            with ruta.open("r") as archivo:
                 datos = json.load(archivo)
                 self.usuarios = [Usuario(**u) for u in datos["usuarios"]]
         except Exception as e:

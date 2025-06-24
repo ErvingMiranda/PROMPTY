@@ -1,4 +1,4 @@
-speech_recognition
+SpeechRecognition
 pyttsx3
 colorama
 PyQt6

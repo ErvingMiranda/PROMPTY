@@ -465,7 +465,9 @@ class DatosCuriososWindow(QWidget):
             msg = datos_curiosos.eliminar_dato(self.usuario, fila)
             QMessageBox.information(self, "Datos curiosos", quitar_colores(msg))
             self.cargar_datos()
-
+class TreeWindow(QWidget):
+    #Poner el arbol del programa
+    pass
         
 class PROMPTYWindow(QMainWindow):
     def __init__(self, usuario, logout_callback=None):
@@ -483,6 +485,7 @@ class PROMPTYWindow(QMainWindow):
         self.ventana_ayuda = None
         self.ventana_admin = None
         self.dark_mode_enabled = False
+        self.ventana_tree = None
         self.setup_ui()
 
     def paintEvent(self, event):
@@ -517,6 +520,10 @@ class PROMPTYWindow(QMainWindow):
         self.button_config = self.create_icon_button("Configuración", "configuracion.png")
         self.button_config.clicked.connect(self.ver_configuracion)
         top_layout.addWidget(self.button_config)
+
+        self.button_tree = self.create_icon_button("Árbol del programa", "tree_icon.png")
+        self.button_tree.clicked.connect(self.ver_arbol_programa)
+        top_layout.addWidget(self.button_tree)
 
         main_layout.addLayout(top_layout)
 
@@ -623,6 +630,11 @@ class PROMPTYWindow(QMainWindow):
             self.ventana_admin = AdminWindow(self, self.servicio_voz, self.gestor_roles, usuario_admin)
         self.ventana_admin.show()
 
+    def ver_arbol_programa(self):
+        if self.ventana_tree is None:
+            self.ventana_tree = TreeWindow()
+        self.ventana_tree.show()
+
     def activate_voice(self):
         mensaje_original = self.label.text()
         self.label.setText("\ud83c\udf99\ufe0f Escuchando...")
@@ -695,6 +707,7 @@ class PROMPTYWindow(QMainWindow):
             self.button_ayuda.setIcon(get_colored_icon(self.button_ayuda.icon_file, QColor("white")))
             self.button_modo_oscuro.setIcon(get_colored_icon(self.button_modo_oscuro.icon_file, QColor("white")))
             self.button_config.setIcon(get_colored_icon(self.button_config.icon_file, QColor("white")))
+            self.button_tree.setIcon(get_colored_icon(self.button_tree.icon_file, QColor("white")))
         else:
             self.setStyleSheet("")
             self.label.setText("Modo claro activado.")
@@ -703,6 +716,7 @@ class PROMPTYWindow(QMainWindow):
             self.button_ayuda.setIcon(QIcon(self.button_ayuda.icon_file))
             self.button_modo_oscuro.setIcon(QIcon(self.button_modo_oscuro.icon_file))
             self.button_config.setIcon(QIcon(self.button_config.icon_file))
+            self.button_tree.setIcon(QIcon(self.button_tree.icon_file))
 
     def cerrar_sesion(self):
         self.close()
