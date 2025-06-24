@@ -68,7 +68,13 @@ def get_colored_icon(icon_path, color):
 class ConfiguracionWindow(QWidget):
     """Permite ajustar la voz y la fuente de PROMPTY."""
 
-    def __init__(self, servicio_voz, fuente="Roboto", tamano=16, aplicar_fuente=None):
+    def __init__(
+        self,
+        servicio_voz,
+        fuente=config.FUENTE_POR_DEFECTO,
+        tamano=config.TAMANO_LETRA_POR_DEFECTO,
+        aplicar_fuente=None,
+    ):
         super().__init__()
         self.servicio_voz = servicio_voz
         self.aplicar_fuente = aplicar_fuente
@@ -528,8 +534,8 @@ class PROMPTYWindow(QMainWindow):
         self.gestor_comandos = GestorComandos(usuario)
         self.setWindowTitle("PROMPTY - Asistente de Voz")
         self.setGeometry(100, 100, 400, 600)
-        self.font_family = "Roboto"
-        self.base_font_size = 16
+        self.font_family = config.FUENTE_POR_DEFECTO
+        self.base_font_size = config.TAMANO_LETRA_POR_DEFECTO
         self.saludo = "Hola, soy PROMPTY! \ntu asistente de voz"
         self.mensaje_timer = QTimer(self)
         self.ventana_configuracion = None
@@ -831,8 +837,8 @@ class LoginWindow(QWidget):
         self.setWindowTitle("Iniciar sesión")
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
         self.gestor_roles = gestor_roles or GestorRoles()
-        self.font_family = "Roboto"
-        self.base_font_size = 14
+        self.font_family = config.FUENTE_POR_DEFECTO
+        self.base_font_size = config.TAMANO_LETRA_POR_DEFECTO
         self.setup_ui()
         self.apply_scaling()
 
