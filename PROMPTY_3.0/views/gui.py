@@ -122,20 +122,26 @@ class ConfiguracionWindow(ScalingMixin, QWidget):
         boton_guardar = QPushButton("Guardar")
         boton_guardar.clicked.connect(self.guardar)
         boton_guardar.setProperty("base_height", 30)
-        boton_guardar.setProperty("base_width", boton_guardar.sizeHint().width())
-        layout.addWidget(boton_guardar)
+        boton_guardar.setProperty(
+            "base_width", boton_guardar.sizeHint().width()
+        )
+        layout.addWidget(boton_guardar, alignment=Qt.AlignmentFlag.AlignCenter)
 
         boton_restaurar = QPushButton("Restablecer")
         boton_restaurar.clicked.connect(self.restablecer)
         boton_restaurar.setProperty("base_height", 30)
-        boton_restaurar.setProperty("base_width", boton_restaurar.sizeHint().width())
-        layout.addWidget(boton_restaurar)
+        boton_restaurar.setProperty(
+            "base_width", boton_restaurar.sizeHint().width()
+        )
+        layout.addWidget(
+            boton_restaurar, alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
         boton_cerrar = QPushButton("Cerrar")
         boton_cerrar.clicked.connect(self.close)
         boton_cerrar.setProperty("base_height", 30)
         boton_cerrar.setProperty("base_width", boton_cerrar.sizeHint().width())
-        layout.addWidget(boton_cerrar)
+        layout.addWidget(boton_cerrar, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(layout)
         self.apply_scaling()
@@ -206,14 +212,16 @@ class EditarUsuarioWindow(ScalingMixin, QWidget):
         boton_guardar = QPushButton("Guardar")
         boton_guardar.clicked.connect(self.guardar)
         boton_guardar.setProperty("base_height", 30)
-        boton_guardar.setProperty("base_width", boton_guardar.sizeHint().width())
-        layout.addWidget(boton_guardar)
+        boton_guardar.setProperty(
+            "base_width", boton_guardar.sizeHint().width()
+        )
+        layout.addWidget(boton_guardar, alignment=Qt.AlignmentFlag.AlignCenter)
 
         boton_cerrar = QPushButton("Cerrar")
         boton_cerrar.clicked.connect(self.close)
         boton_cerrar.setProperty("base_height", 30)
         boton_cerrar.setProperty("base_width", boton_cerrar.sizeHint().width())
-        layout.addWidget(boton_cerrar)
+        layout.addWidget(boton_cerrar, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(layout)
         self.apply_scaling()
@@ -254,21 +262,33 @@ class UsuarioWindow(ScalingMixin, QWidget):
             self.boton_editar = QPushButton("Modificar mis datos")
             self.boton_editar.clicked.connect(self.editar_callback)
             self.boton_editar.setProperty("base_height", 30)
-            self.boton_editar.setProperty("base_width", self.boton_editar.sizeHint().width())
-            layout.addWidget(self.boton_editar)
+            self.boton_editar.setProperty(
+                "base_width", self.boton_editar.sizeHint().width()
+            )
+            layout.addWidget(
+                self.boton_editar, alignment=Qt.AlignmentFlag.AlignCenter
+            )
 
         if self.logout_callback:
             self.boton_logout = QPushButton("Cerrar sesión")
             self.boton_logout.clicked.connect(self.logout_callback)
             self.boton_logout.setProperty("base_height", 30)
-            self.boton_logout.setProperty("base_width", self.boton_logout.sizeHint().width())
-            layout.addWidget(self.boton_logout)
+            self.boton_logout.setProperty(
+                "base_width", self.boton_logout.sizeHint().width()
+            )
+            layout.addWidget(
+                self.boton_logout, alignment=Qt.AlignmentFlag.AlignCenter
+            )
 
         self.boton_cerrar = QPushButton("Cerrar")
         self.boton_cerrar.clicked.connect(self.close)
         self.boton_cerrar.setProperty("base_height", 30)
-        self.boton_cerrar.setProperty("base_width", self.boton_cerrar.sizeHint().width())
-        layout.addWidget(self.boton_cerrar)
+        self.boton_cerrar.setProperty(
+            "base_width", self.boton_cerrar.sizeHint().width()
+        )
+        layout.addWidget(
+            self.boton_cerrar, alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
         self.setLayout(layout)
         self.apply_scaling()
@@ -297,8 +317,10 @@ class AyudaWindow(ScalingMixin, QWidget):
         self.boton_cerrar = QPushButton("Cerrar")
         self.boton_cerrar.clicked.connect(self.close)
         self.boton_cerrar.setProperty("base_height", 30)
-        self.boton_cerrar.setProperty("base_width", self.boton_cerrar.sizeHint().width())
-        layout.addWidget(self.boton_cerrar)
+        self.boton_cerrar.setProperty(
+            "base_width", self.boton_cerrar.sizeHint().width()
+        )
+        layout.addWidget(self.boton_cerrar, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(layout)
         self.apply_scaling()
@@ -355,13 +377,14 @@ class GestionUsuariosWindow(ScalingMixin, QWidget):
         botones.addWidget(self.btn_crear)
         botones.addWidget(self.btn_modificar)
         botones.addWidget(self.btn_reset)
+        botones.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addLayout(botones)
 
         self.btn_cerrar = QPushButton("Cerrar")
         self.btn_cerrar.clicked.connect(self.close)
         self.btn_cerrar.setProperty("base_height", 30)
         self.btn_cerrar.setProperty("base_width", self.btn_cerrar.sizeHint().width())
-        layout.addWidget(self.btn_cerrar)
+        layout.addWidget(self.btn_cerrar, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(layout)
         self.apply_scaling()
@@ -466,25 +489,25 @@ class AdminWindow(ScalingMixin, QWidget):
         self.btn_voz.clicked.connect(parent.ver_configuracion)
         self.btn_voz.setProperty("base_height", 30)
         self.btn_voz.setProperty("base_width", self.btn_voz.sizeHint().width())
-        layout.addWidget(self.btn_voz)
+        layout.addWidget(self.btn_voz, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.btn_users = QPushButton("Gestionar usuarios")
         self.btn_users.clicked.connect(self.abrir_gestion_usuarios)
         self.btn_users.setProperty("base_height", 30)
         self.btn_users.setProperty("base_width", self.btn_users.sizeHint().width())
-        layout.addWidget(self.btn_users)
+        layout.addWidget(self.btn_users, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.btn_curiosos = QPushButton("Gestionar datos curiosos")
         self.btn_curiosos.clicked.connect(self.abrir_datos_curiosos)
         self.btn_curiosos.setProperty("base_height", 30)
         self.btn_curiosos.setProperty("base_width", self.btn_curiosos.sizeHint().width())
-        layout.addWidget(self.btn_curiosos)
+        layout.addWidget(self.btn_curiosos, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.btn_cerrar = QPushButton("Cerrar")
         self.btn_cerrar.clicked.connect(self.close)
         self.btn_cerrar.setProperty("base_height", 30)
         self.btn_cerrar.setProperty("base_width", self.btn_cerrar.sizeHint().width())
-        layout.addWidget(self.btn_cerrar)
+        layout.addWidget(self.btn_cerrar, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(layout)
         self.apply_scaling()
@@ -534,13 +557,14 @@ class DatosCuriososWindow(ScalingMixin, QWidget):
         botones.addWidget(self.btn_agregar)
         botones.addWidget(self.btn_modificar)
         botones.addWidget(self.btn_eliminar)
+        botones.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addLayout(botones)
 
         self.btn_cerrar = QPushButton("Cerrar")
         self.btn_cerrar.clicked.connect(self.close)
         self.btn_cerrar.setProperty("base_height", 30)
         self.btn_cerrar.setProperty("base_width", self.btn_cerrar.sizeHint().width())
-        layout.addWidget(self.btn_cerrar)
+        layout.addWidget(self.btn_cerrar, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(layout)
         self.apply_scaling()
@@ -608,14 +632,14 @@ class TreeWindow(ScalingMixin, QWidget):
         self.btn_cerrar.clicked.connect(self.close)
         self.btn_cerrar.setProperty("base_height", 30)
         self.btn_cerrar.setProperty("base_width", self.btn_cerrar.sizeHint().width())
-        layout.addWidget(self.btn_cerrar)
+        layout.addWidget(self.btn_cerrar, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(layout)
         self.apply_scaling()
         self.cargar_arbol()
 
     def cargar_arbol(self):
-        root_path = Path(__file__).resolve().parents[2] / "PROMTY_3.0"
+        root_path = Path(__file__).resolve().parents[1]
         lineas = []
         for ruta, dirs, files in os.walk(root_path):
             nivel = len(Path(ruta).relative_to(root_path).parts)
