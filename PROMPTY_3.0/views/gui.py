@@ -769,7 +769,10 @@ class PROMPTYWindow(QMainWindow):
         self.apply_scaling()
 
     def apply_scaling(self):
-        factor = max(0.8, min(2.0, self.width() / 400))
+        """Ajusta tamaños de fuente y botones de forma proporcional."""
+        w_factor = self.width() / 400
+        h_factor = self.height() / 600
+        factor = max(0.8, min(1.5, min(w_factor, h_factor)))
         fuente = QFont(self.font_family, int(self.base_font_size * factor))
         self.label.setFont(fuente)
         self.command_input.setFont(fuente)
@@ -847,7 +850,10 @@ class LoginWindow(QWidget):
         self.activateWindow()
 
     def apply_scaling(self):
-        factor = max(0.8, min(2.0, self.width() / 300))
+        """Escala la interfaz tomando en cuenta el tamaño de la ventana."""
+        w_factor = self.width() / 300
+        h_factor = self.height() / 200
+        factor = max(0.8, min(1.5, min(w_factor, h_factor)))
         fuente = QFont(self.font_family, int(self.base_font_size * factor))
         self.cif_input.setFont(fuente)
         self.pass_input.setFont(fuente)
@@ -855,7 +861,6 @@ class LoginWindow(QWidget):
         self.forgot_button.setFont(fuente)
         for btn in [self.login_button, self.forgot_button]:
             btn.setFixedHeight(int(30 * factor))
-        self.adjustSize()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
