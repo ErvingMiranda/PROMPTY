@@ -93,9 +93,9 @@ class ConfiguracionWindow(QWidget):
         form.addRow("Velocidad", self.velocidad_slider)
 
         self.font_combo = QComboBox()
-        db = QFontDatabase()
-        # Convertir a lista de cadenas para evitar errores de tipo
-        fuentes = [str(f) for f in db.families()]
+        # En algunos bindings de Qt, QFontDatabase no tiene constructor por defecto
+        # por lo que utilizamos sus métodos estáticos para obtener las familias
+        fuentes = [str(f) for f in QFontDatabase.families()]
         self.font_combo.addItems(fuentes)
         self.font_combo.setCurrentText(fuente)
         form.addRow("Fuente", self.font_combo)
@@ -741,7 +741,15 @@ class PROMPTYWindow(QMainWindow):
             self.close()
             return
         else:
-            interactivos = {"abrir_carpeta", "abrir_con_opcion", "buscar_en_navegador", "buscar_en_youtube", "buscar_general", "info_programa"}
+            interactivos = {
+                "abrir_carpeta",
+                "abrir_con_opcion",
+                "buscar_en_navegador",
+                "buscar_en_youtube",
+                "buscar_general",
+                "info_programa",
+                "reproducir_musica",
+            }
             if comando in interactivos:
                 respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos, self.preguntar)
             else:
