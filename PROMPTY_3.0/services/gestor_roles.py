@@ -52,13 +52,16 @@ class GestorRoles:
         except Exception as e:
             self.logger.error("Error al guardar usuarios: %s", e)
 
-    def registrar_usuario(self, nombre, rol):
-        """Registra un nuevo usuario y devuelve su CIF y contraseña inicial."""
+    def registrar_usuario(self, nombre, rol, contrasena=None):
+        """Registra un nuevo usuario y devuelve su CIF y contraseña."""
         from utils.helpers import generar_cif, generar_contrasena, hash_password
 
         existente = [u.cif for u in self.usuarios]
         cif = generar_cif(existente)
-        contrasena_plana = generar_contrasena()
+        if contrasena is None:
+            contrasena_plana = generar_contrasena()
+        else:
+            contrasena_plana = contrasena
         hashed = hash_password(contrasena_plana)
         nuevo = Usuario(cif=cif, nombre=nombre, rol=rol, contrasena=hashed)
         self.usuarios.append(nuevo)
