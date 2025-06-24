@@ -126,6 +126,8 @@ class ConfiguracionWindow(QWidget):
             self.aplicar_fuente(
                 self.font_combo.currentText(), self.size_slider.value()
             )
+        # Aplicar la fuente seleccionada a esta ventana para reflejar el cambio
+        self.setFont(QFont(self.font_combo.currentText(), self.size_slider.value()))
         QMessageBox.information(self, "Configuración", "Ajustes guardados")
 
 class EditarUsuarioWindow(QWidget):
@@ -231,6 +233,7 @@ class AyudaWindow(QWidget):
             "Te diga la fecha y hora actual.",
             "Abra un archivo o carpeta (puedes escribir la ruta o buscarla).",
             "Busque algo en YouTube o en tu navegador preferido (puedes usar un término o ingresar una URL).",
+            "Reproduzca música en YouTube Music.",
             "Te comparta un dato curioso.",
             "Te hable sobre el programa y sus creadores.",
         ]
@@ -836,7 +839,7 @@ class LoginWindow(QWidget):
         self.activateWindow()
 
     def apply_scaling(self):
-        factor = max(0.8, min(1.5, self.width() / 300))
+        factor = max(0.8, min(2.0, self.width() / 300))
         fuente = QFont(self.font_family, int(self.base_font_size * factor))
         self.cif_input.setFont(fuente)
         self.pass_input.setFont(fuente)

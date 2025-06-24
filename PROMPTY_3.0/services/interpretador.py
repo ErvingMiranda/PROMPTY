@@ -33,12 +33,13 @@ def interpretar(texto):
         ("1", "uno"): "fecha_hora",
         ("2", "dos"): "abrir_con_opcion",
         ("3", "tres"): "buscar_en_navegador",
-        ("4", "cuatro"): "dato_curioso",
-        ("5", "cinco"): "info_programa",
-        ("6", "seis", "administrador", "modo admin"): "modo_admin",
-        ("7", "siete"): "editar_usuario",
-        ("8", "ocho", "cerrar sesión", "cerrar sesion", "logout"): "cerrar_sesion",
-        ("9", "nueve", "salir", "cerrar"): "salir",
+        ("4", "cuatro"): "reproducir_musica",
+        ("5", "cinco"): "dato_curioso",
+        ("6", "seis"): "info_programa",
+        ("7", "siete", "administrador", "modo admin"): "modo_admin",
+        ("8", "ocho"): "editar_usuario",
+        ("9", "nueve", "cerrar sesión", "cerrar sesion", "logout"): "cerrar_sesion",
+        ("10", "diez", "salir", "cerrar"): "salir",
     }
 
     for claves, comando in numero_comandos.items():
