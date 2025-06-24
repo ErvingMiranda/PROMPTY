@@ -181,7 +181,7 @@ class VistaTerminal:
         clave = input("Contraseña: ").strip()
         admin = self.gestor_roles.autenticar(cif, clave)
         if not admin or not admin.es_admin():
-            print("❌ Credenciales incorrectas.")
+            print("❌ Acceso denegado.")
             return
         print("🔓 Acceso concedido.")
         while True:

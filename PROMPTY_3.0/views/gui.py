@@ -830,15 +830,17 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         if not self.usuario.es_admin():
             cif, ok = QInputDialog.getText(self, "Modo admin", "CIF del administrador:")
             if not ok:
+                QMessageBox.warning(self, "Error", "Acceso denegado")
                 return
             clave, ok2 = QInputDialog.getText(
                 self, "Modo admin", "Contraseña:", QLineEdit.EchoMode.Password
             )
             if not ok2:
+                QMessageBox.warning(self, "Error", "Acceso denegado")
                 return
             usuario_admin = self.gestor_roles.autenticar(cif.strip(), clave.strip())
             if not usuario_admin or not usuario_admin.es_admin():
-                QMessageBox.warning(self, "Error", "Credenciales incorrectas")
+                QMessageBox.warning(self, "Error", "Acceso denegado")
                 return
         if self.ventana_admin is None:
             self.ventana_admin = AdminWindow(self, self.servicio_voz, self.gestor_roles, usuario_admin)
