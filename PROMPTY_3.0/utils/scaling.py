@@ -31,8 +31,14 @@ class ScalingMixin:
                 if base_icon is not None:
                     btn.setIconSize(QSize(int(base_icon * factor), int(base_icon * factor)))
             else:
-                bw = base_width if base_width is not None else btn.width()
-                bh = base_height if base_height is not None else 30
+                if base_width is None:
+                    base_width = btn.sizeHint().width()
+                    btn.setProperty("base_width", base_width)
+                if base_height is None:
+                    base_height = btn.sizeHint().height()
+                    btn.setProperty("base_height", base_height)
+                bw = max(base_width, btn.fontMetrics().boundingRect(btn.text()).width() + 20)
+                bh = base_height
                 btn.setFixedSize(int(bw * factor), int(bh * factor))
 
         for child in self.findChildren(QWidget):
