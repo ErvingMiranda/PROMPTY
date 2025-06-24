@@ -20,6 +20,7 @@ class GestorComandos:
             "reproducir_musica": lambda a, e: self.basicos.reproducir_musica(entrada_manual_func=e),
             "dato_curioso": lambda a, e: self.basicos.mostrar_dato_curioso(),
             "info_programa": lambda a, e: self.basicos.info_sistema(entrada_manual_func=e),
+            "saludo": lambda a, e: self.basicos.responder_saludo(),
         }
 
     def establecer_usuario(self, usuario):
