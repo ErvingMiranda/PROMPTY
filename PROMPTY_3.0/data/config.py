@@ -7,7 +7,7 @@ VELOCIDAD_POR_DEFECTO = 150
 VOLUMEN_POR_DEFECTO = 0.9
 
 # Fuente y tamaño de letra predeterminados para la interfaz
-FUENTE_POR_DEFECTO = "Roboto"
+FUENTE_POR_DEFECTO = "Arial Rounded MT"
 TAMANO_LETRA_POR_DEFECTO = 14
 
 # Configuración predeterminada de la ventana de ayuda
