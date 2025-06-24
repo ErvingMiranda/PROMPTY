@@ -28,6 +28,7 @@ from PyQt6.QtGui import (
     QColor,
 )
 from PyQt6.QtCore import Qt, QSize, QTimer
+from data import config
 from pathlib import Path
 from services.gestor_roles import GestorRoles
 from services.gestor_comandos import GestorComandos
@@ -214,7 +215,12 @@ class AyudaWindow(QWidget):
     def __init__(self, usuario):
         super().__init__()
         self.setWindowTitle("Ayuda")
-        self.setGeometry(250, 250, 400, 350)
+        self.setGeometry(
+            config.AYUDA_POS_X,
+            config.AYUDA_POS_Y,
+            config.AYUDA_ANCHO,
+            config.AYUDA_ALTO,
+        )
         layout = QVBoxLayout()
 
         ayuda = QTextEdit()
@@ -229,14 +235,7 @@ class AyudaWindow(QWidget):
         self.setLayout(layout)
 
     def _generar_texto(self, usuario):
-        items = [
-            "Te diga la fecha y hora actual.",
-            "Abra un archivo o carpeta (puedes escribir la ruta o buscarla).",
-            "Busque algo en YouTube o en tu navegador preferido (puedes usar un término o ingresar una URL).",
-            "Reproduzca música en YouTube Music.",
-            "Te comparta un dato curioso.",
-            "Te hable sobre el programa y sus creadores.",
-        ]
+        items = list(config.AYUDA_ITEMS_BASE)
         if usuario.es_admin():
             items.append("Funciones admin.")
         else:
