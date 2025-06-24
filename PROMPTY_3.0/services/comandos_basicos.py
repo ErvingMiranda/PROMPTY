@@ -78,7 +78,8 @@ class ComandosBasicos:
             return f"https://music.youtube.com/search?q={busqueda.replace(' ', '+')}"
         return None
 
-    def abrir_url(self, url):
+    def abrir_url(self, url, mensaje=None):
+        """Abre la URL indicada y devuelve un mensaje apropiado."""
         if not re.match(r"^https?://", url):
             return "❌ La URL debe comenzar con 'http://' o 'https://'."
 
@@ -88,7 +89,7 @@ class ComandosBasicos:
                 webbrowser.get(f'"{chrome_path}" %s').open(url)
             else:
                 webbrowser.open(url)
-            return f"🌐 Abriendo: {url}"
+            return f"🌐 {mensaje or f'Abriendo: {url}'}"
         except Exception as e:
             return f"❌ Error al abrir el navegador: {e}"
 
@@ -105,14 +106,18 @@ class ComandosBasicos:
             if not termino:
                 return "❌ El término no puede estar vacío."
             url = self.construir_url(termino, "musica")
+            mensaje = f"Buscando: {termino}"
+
         elif opcion == "2":
             url = entrada_manual_func("Introduce la URL completa: ").strip()
             if not url:
                 return "❌ La URL no puede estar vacía."
+            mensaje = None
         else:
             return "❌ Opción inválida."
 
-        return self.abrir_url(url)
+        return self.abrir_url(url, mensaje)
+
 
     def buscar_en_navegador_con_opcion(self, destino_predefinido=None, entrada_manual_func=None):
         if not destino_predefinido:
@@ -138,14 +143,16 @@ class ComandosBasicos:
             if not termino:
                 return "❌ El término no puede estar vacío."
             url = self.construir_url(termino, destino)
+            mensaje = f"Buscando: {termino}"
         elif metodo == '2':
             url = entrada_manual_func("Introduce la URL completa: ").strip()
             if not url:
                 return "❌ La URL no puede estar vacía."
+            mensaje = None
         else:
             return "❌ Opción inválida."
 
-        return self.abrir_url(url)
+        return self.abrir_url(url, mensaje)
 
     def mostrar_dato_curioso(self):
         """Muestra un dato curioso leyendo primero del archivo externo."""

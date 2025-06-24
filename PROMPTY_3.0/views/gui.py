@@ -503,7 +503,7 @@ class TreeWindow(QWidget):
         self.cargar_arbol()
 
     def cargar_arbol(self):
-        root_path = Path(__file__).resolve().parents[2]
+        root_path = Path(__file__).resolve().parents[2] / "PROMPTY_3.0"
         lineas = []
         for ruta, dirs, files in os.walk(root_path):
             nivel = len(Path(ruta).relative_to(root_path).parts)
@@ -755,7 +755,7 @@ class PROMPTYWindow(QMainWindow):
         self.apply_scaling()
 
     def apply_scaling(self):
-        factor = self.width() / 400
+        factor = max(0.8, min(2.0, self.width() / 400))
         fuente = QFont(self.font_family, int(self.base_font_size * factor))
         self.label.setFont(fuente)
         self.command_input.setFont(fuente)
@@ -815,7 +815,10 @@ class LoginWindow(QWidget):
         self.setWindowTitle("Iniciar sesión")
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
         self.gestor_roles = gestor_roles or GestorRoles()
+        self.font_family = "Roboto"
+        self.base_font_size = 14
         self.setup_ui()
+        self.apply_scaling()
 
     def show(self):
         """Muestra la ventana asegurando que quede al frente."""
@@ -828,6 +831,21 @@ class LoginWindow(QWidget):
         super().showEvent(event)
         self.raise_()
         self.activateWindow()
+
+    def apply_scaling(self):
+        factor = max(0.8, min(1.5, self.width() / 300))
+        fuente = QFont(self.font_family, int(self.base_font_size * factor))
+        self.cif_input.setFont(fuente)
+        self.pass_input.setFont(fuente)
+        self.login_button.setFont(fuente)
+        self.forgot_button.setFont(fuente)
+        for btn in [self.login_button, self.forgot_button]:
+            btn.setFixedHeight(int(30 * factor))
+        self.adjustSize()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.apply_scaling()
 
     def setup_ui(self):
         layout = QVBoxLayout()

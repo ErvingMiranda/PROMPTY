@@ -19,7 +19,15 @@ def interpretar(texto):
             # El usuario dijo "buscar" pero no indicó destino; se pregunta dónde.
             return "buscar_en_navegador", None
 
-    if "musica" in texto or "música" in texto or "music" in texto:
+    if any(p in texto for p in [
+        "musica",
+        "música",
+        "music",
+        "cancion",
+        "canción",
+        "canciones",
+    ]):
+
         return "reproducir_musica", None
 
     numero_comandos = {
@@ -44,7 +52,15 @@ def interpretar(texto):
         ("youtube",): "buscar_en_youtube",
         ("navegador", "google"): "buscar_en_navegador",
         ("buscar",): "buscar_general",
-        ("musica", "música", "music"): "reproducir_musica",
+        (
+            "musica",
+            "música",
+            "music",
+            "cancion",
+            "canción",
+            "canciones",
+        ): "reproducir_musica",
+
         ("curioso", "dato"): "dato_curioso",
         ("programa", "creador", "información"): "info_programa",
         ("usuario", "perfil"): "editar_usuario",

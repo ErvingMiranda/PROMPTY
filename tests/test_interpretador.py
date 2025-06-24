@@ -22,6 +22,9 @@ class TestInterpretador(unittest.TestCase):
         self.assertEqual(interpretar('buscar fotos en google')[0], 'buscar_general')
         self.assertEqual(interpretar('buscar un archivo')[0], 'buscar_en_navegador')
         self.assertEqual(interpretar('escuchar musica')[0], 'reproducir_musica')
+        self.assertEqual(interpretar('poner cancion')[0], 'reproducir_musica')
+        self.assertEqual(interpretar('oir canciones')[0], 'reproducir_musica')
+
 
     def test_desconocido(self):
         self.assertEqual(interpretar('xyz')[0], 'comando_no_reconocido')
