@@ -161,12 +161,10 @@ class VistaTerminal:
     def mostrar_arbol(self):
         """Imprime la estructura de carpetas del proyecto."""
         root_path = Path(__file__).resolve().parents[2] / "PROMPTY_3.0"
-        for ruta, dirs, files in os.walk(root_path):
-            nivel = len(Path(ruta).relative_to(root_path).parts)
-            indent = "    " * nivel
-            print(f"{indent}{Path(ruta).name}/")
-            for f in files:
-                print(f"{indent}    {f}")
+        from utils.helpers import generar_arbol
+
+        for linea in generar_arbol(root_path):
+            print(linea)
 
     def menu_configuracion_voz(self):
         while True:

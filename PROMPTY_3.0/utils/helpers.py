@@ -5,6 +5,7 @@ import logging
 import random
 import string
 from pathlib import Path
+from pathspec import PathSpec
 
 def quitar_colores(texto):
     """
@@ -73,3 +74,37 @@ def preguntar_modo_interfaz():
     """Pregunta al usuario si desea iniciar la interfaz gráfica."""
     respuesta = input("¿Usar interfaz gráfica? [S/N]: ").strip().lower()
     return respuesta in {"s", "y", "si", "sí"}
+
+
+def _cargar_gitignore(path: Path):
+    """Carga las reglas de ``.gitignore`` buscando en ``path`` y sus padres."""
+    for carpeta in [path] + list(path.parents):
+        gi = carpeta / ".gitignore"
+        if gi.exists():
+            with gi.open("r", encoding="utf-8") as f:
+                reglas = [l.strip() for l in f if l.strip() and not l.startswith("#")]
+            return PathSpec.from_lines("gitwildmatch", reglas), carpeta
+    return PathSpec.from_lines("gitwildmatch", []), path
+
+
+def generar_arbol(directorio: Path) -> list[str]:
+    """Devuelve una representación en lista del árbol de ``directorio`` respetando ``.gitignore``."""
+    directorio = directorio.resolve()
+    spec, raiz = _cargar_gitignore(directorio)
+
+    lineas: list[str] = []
+    for ruta, dirs, files in os.walk(directorio):
+        rel_raiz = Path(ruta).resolve().relative_to(raiz)
+        if rel_raiz != Path('.') and spec.match_file(str(rel_raiz) + "/"):
+            dirs[:] = []
+            continue
+
+        dirs[:] = [d for d in dirs if not spec.match_file(str(rel_raiz / d) + "/")]
+        archivos = [f for f in files if not spec.match_file(str(rel_raiz / f))]
+
+        nivel = len(Path(ruta).relative_to(directorio).parts)
+        indent = "    " * nivel
+        lineas.append(f"{indent}{Path(ruta).name}/")
+        for f in archivos:
+            lineas.append(f"{indent}    {f}")
+    return lineas
