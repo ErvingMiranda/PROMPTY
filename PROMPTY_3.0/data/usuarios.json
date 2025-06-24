@@ -35,6 +35,12 @@
       "nombre": "JP_Zuniga",
       "rol": "usuario",
       "contrasena": "78a9c981c906e0ecfe00a84d10b1c8d326fa5b5883dbb9c29dd15048d541b240"
+    },
+    {
+      "cif": "31088963",
+      "nombre": "Marco",
+      "rol": "usuario",
+      "contrasena": "8cf2283ad6ef0a3266059b418a73f8479338233ea2c4bcd3c1f51c39f13ae7dc"
     }
   ]
 }
