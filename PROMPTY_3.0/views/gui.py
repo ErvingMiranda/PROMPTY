@@ -35,6 +35,7 @@ from services.gestor_comandos import GestorComandos
 from services.interpretador import interpretar
 from services.asistente_voz import ServicioVoz
 from utils.helpers import quitar_colores
+from utils import ScalingMixin
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RESOURCES_DIR = os.path.normpath(
@@ -65,7 +66,7 @@ def get_colored_icon(icon_path, color):
     return QIcon(tinted)
 
 
-class ConfiguracionWindow(QWidget):
+class ConfiguracionWindow(ScalingMixin, QWidget):
     """Permite ajustar la voz y la fuente de PROMPTY."""
 
     def __init__(
@@ -80,6 +81,10 @@ class ConfiguracionWindow(QWidget):
         self.aplicar_fuente = aplicar_fuente
         self.setWindowTitle("Configuración")
         self.setGeometry(150, 150, 400, 260)
+        self.base_width = 400
+        self.base_height = 260
+        self.font_family = fuente
+        self.base_font_size = tamano
 
         layout = QVBoxLayout()
         form = QFormLayout()
@@ -116,17 +121,24 @@ class ConfiguracionWindow(QWidget):
 
         boton_guardar = QPushButton("Guardar")
         boton_guardar.clicked.connect(self.guardar)
+        boton_guardar.setProperty("base_height", 30)
+        boton_guardar.setProperty("base_width", boton_guardar.sizeHint().width())
         layout.addWidget(boton_guardar)
 
         boton_restaurar = QPushButton("Restablecer")
         boton_restaurar.clicked.connect(self.restablecer)
+        boton_restaurar.setProperty("base_height", 30)
+        boton_restaurar.setProperty("base_width", boton_restaurar.sizeHint().width())
         layout.addWidget(boton_restaurar)
 
         boton_cerrar = QPushButton("Cerrar")
         boton_cerrar.clicked.connect(self.close)
+        boton_cerrar.setProperty("base_height", 30)
+        boton_cerrar.setProperty("base_width", boton_cerrar.sizeHint().width())
         layout.addWidget(boton_cerrar)
 
         self.setLayout(layout)
+        self.apply_scaling()
 
     def guardar(self):
         indice = self.voz_combo.currentData()
@@ -167,7 +179,7 @@ class ConfiguracionWindow(QWidget):
             self, "Configuración", "Valores predeterminados restablecidos"
         )
 
-class EditarUsuarioWindow(QWidget):
+class EditarUsuarioWindow(ScalingMixin, QWidget):
     """Permite modificar los datos del usuario actual."""
 
     def __init__(self, usuario, gestor_roles):
@@ -176,6 +188,8 @@ class EditarUsuarioWindow(QWidget):
         self.gestor_roles = gestor_roles
         self.setWindowTitle("Modificar datos")
         self.setGeometry(220, 220, 300, 220)
+        self.base_width = 300
+        self.base_height = 220
 
         layout = QVBoxLayout()
 
@@ -191,13 +205,18 @@ class EditarUsuarioWindow(QWidget):
 
         boton_guardar = QPushButton("Guardar")
         boton_guardar.clicked.connect(self.guardar)
+        boton_guardar.setProperty("base_height", 30)
+        boton_guardar.setProperty("base_width", boton_guardar.sizeHint().width())
         layout.addWidget(boton_guardar)
 
         boton_cerrar = QPushButton("Cerrar")
         boton_cerrar.clicked.connect(self.close)
+        boton_cerrar.setProperty("base_height", 30)
+        boton_cerrar.setProperty("base_width", boton_cerrar.sizeHint().width())
         layout.addWidget(boton_cerrar)
 
         self.setLayout(layout)
+        self.apply_scaling()
 
     def guardar(self):
         nombre = self.nombre_edit.text().strip()
@@ -212,7 +231,7 @@ class EditarUsuarioWindow(QWidget):
         QMessageBox.information(self, "Usuario", "Datos actualizados")
 
 
-class UsuarioWindow(QWidget):
+class UsuarioWindow(ScalingMixin, QWidget):
     """Muestra la información del usuario y acciones disponibles."""
 
     def __init__(self, usuario, gestor_roles, editar_callback=None, logout_callback=None):
@@ -223,6 +242,8 @@ class UsuarioWindow(QWidget):
         self.logout_callback = logout_callback
         self.setWindowTitle("Mi cuenta")
         self.setGeometry(200, 200, 300, 200)
+        self.base_width = 300
+        self.base_height = 200
 
         layout = QVBoxLayout()
         layout.addWidget(
@@ -230,22 +251,29 @@ class UsuarioWindow(QWidget):
         )
 
         if self.editar_callback:
-            boton_editar = QPushButton("Modificar mis datos")
-            boton_editar.clicked.connect(self.editar_callback)
-            layout.addWidget(boton_editar)
+            self.boton_editar = QPushButton("Modificar mis datos")
+            self.boton_editar.clicked.connect(self.editar_callback)
+            self.boton_editar.setProperty("base_height", 30)
+            self.boton_editar.setProperty("base_width", self.boton_editar.sizeHint().width())
+            layout.addWidget(self.boton_editar)
 
         if self.logout_callback:
-            boton_logout = QPushButton("Cerrar sesión")
-            boton_logout.clicked.connect(self.logout_callback)
-            layout.addWidget(boton_logout)
+            self.boton_logout = QPushButton("Cerrar sesión")
+            self.boton_logout.clicked.connect(self.logout_callback)
+            self.boton_logout.setProperty("base_height", 30)
+            self.boton_logout.setProperty("base_width", self.boton_logout.sizeHint().width())
+            layout.addWidget(self.boton_logout)
 
-        boton_cerrar = QPushButton("Cerrar")
-        boton_cerrar.clicked.connect(self.close)
-        layout.addWidget(boton_cerrar)
+        self.boton_cerrar = QPushButton("Cerrar")
+        self.boton_cerrar.clicked.connect(self.close)
+        self.boton_cerrar.setProperty("base_height", 30)
+        self.boton_cerrar.setProperty("base_width", self.boton_cerrar.sizeHint().width())
+        layout.addWidget(self.boton_cerrar)
 
         self.setLayout(layout)
+        self.apply_scaling()
 
-class AyudaWindow(QWidget):
+class AyudaWindow(ScalingMixin, QWidget):
     """Ventana que muestra las opciones y comandos disponibles."""
 
     def __init__(self, usuario):
@@ -257,6 +285,8 @@ class AyudaWindow(QWidget):
             config.AYUDA_ANCHO,
             config.AYUDA_ALTO,
         )
+        self.base_width = config.AYUDA_ANCHO
+        self.base_height = config.AYUDA_ALTO
         layout = QVBoxLayout()
 
         ayuda = QTextEdit()
@@ -264,11 +294,14 @@ class AyudaWindow(QWidget):
         ayuda.setHtml(self._generar_texto(usuario))
         layout.addWidget(ayuda)
 
-        boton_cerrar = QPushButton("Cerrar")
-        boton_cerrar.clicked.connect(self.close)
-        layout.addWidget(boton_cerrar)
+        self.boton_cerrar = QPushButton("Cerrar")
+        self.boton_cerrar.clicked.connect(self.close)
+        self.boton_cerrar.setProperty("base_height", 30)
+        self.boton_cerrar.setProperty("base_width", self.boton_cerrar.sizeHint().width())
+        layout.addWidget(self.boton_cerrar)
 
         self.setLayout(layout)
+        self.apply_scaling()
 
     def _generar_texto(self, usuario):
         items = list(config.AYUDA_ITEMS_BASE)
@@ -290,7 +323,7 @@ class AyudaWindow(QWidget):
             "<p>Si PROMTY no reconoce un comando, verás un mensaje recordándote que puedes abrir esta ayuda.</p>"
         )
 
-class GestionUsuariosWindow(QWidget):
+class GestionUsuariosWindow(ScalingMixin, QWidget):
     """Permite crear y modificar usuarios."""
 
     def __init__(self, gestor_roles):
@@ -299,28 +332,39 @@ class GestionUsuariosWindow(QWidget):
         self.setWindowTitle("Gestión de usuarios")
         self.setGeometry(220, 220, 400, 300)
         self.setStyleSheet("background-color: white;")
+        self.base_width = 400
+        self.base_height = 300
 
         layout = QVBoxLayout()
         self.lista = QListWidget()
         layout.addWidget(self.lista)
 
         botones = QHBoxLayout()
-        btn_crear = QPushButton("Crear")
-        btn_crear.clicked.connect(self.crear)
-        btn_modificar = QPushButton("Modificar")
-        btn_modificar.clicked.connect(self.modificar)
-        btn_reset = QPushButton("Restablecer contraseña")
-        btn_reset.clicked.connect(self.restablecer)
-        botones.addWidget(btn_crear)
-        botones.addWidget(btn_modificar)
-        botones.addWidget(btn_reset)
+        self.btn_crear = QPushButton("Crear")
+        self.btn_crear.clicked.connect(self.crear)
+        self.btn_crear.setProperty("base_height", 30)
+        self.btn_crear.setProperty("base_width", self.btn_crear.sizeHint().width())
+        self.btn_modificar = QPushButton("Modificar")
+        self.btn_modificar.clicked.connect(self.modificar)
+        self.btn_modificar.setProperty("base_height", 30)
+        self.btn_modificar.setProperty("base_width", self.btn_modificar.sizeHint().width())
+        self.btn_reset = QPushButton("Restablecer contraseña")
+        self.btn_reset.clicked.connect(self.restablecer)
+        self.btn_reset.setProperty("base_height", 30)
+        self.btn_reset.setProperty("base_width", self.btn_reset.sizeHint().width())
+        botones.addWidget(self.btn_crear)
+        botones.addWidget(self.btn_modificar)
+        botones.addWidget(self.btn_reset)
         layout.addLayout(botones)
 
-        btn_cerrar = QPushButton("Cerrar")
-        btn_cerrar.clicked.connect(self.close)
-        layout.addWidget(btn_cerrar)
+        self.btn_cerrar = QPushButton("Cerrar")
+        self.btn_cerrar.clicked.connect(self.close)
+        self.btn_cerrar.setProperty("base_height", 30)
+        self.btn_cerrar.setProperty("base_width", self.btn_cerrar.sizeHint().width())
+        layout.addWidget(self.btn_cerrar)
 
         self.setLayout(layout)
+        self.apply_scaling()
         self.cargar_usuarios()
 
     def cargar_usuarios(self):
@@ -401,7 +445,7 @@ class GestionUsuariosWindow(QWidget):
         )
 
 
-class AdminWindow(QWidget):
+class AdminWindow(ScalingMixin, QWidget):
     """Opciones básicas de administración."""
 
     def __init__(self, parent, servicio_voz, gestor_roles, usuario):
@@ -414,25 +458,36 @@ class AdminWindow(QWidget):
         self.setGeometry(200, 200, 260, 200)
         self.setStyleSheet("background-color: white;")
         self.ventana_usuarios = None
+        self.base_width = 260
+        self.base_height = 200
         layout = QVBoxLayout()
 
-        btn_voz = QPushButton("Configurar voz")
-        btn_voz.clicked.connect(parent.ver_configuracion)
-        layout.addWidget(btn_voz)
+        self.btn_voz = QPushButton("Configurar voz")
+        self.btn_voz.clicked.connect(parent.ver_configuracion)
+        self.btn_voz.setProperty("base_height", 30)
+        self.btn_voz.setProperty("base_width", self.btn_voz.sizeHint().width())
+        layout.addWidget(self.btn_voz)
 
-        btn_users = QPushButton("Gestionar usuarios")
-        btn_users.clicked.connect(self.abrir_gestion_usuarios)
-        layout.addWidget(btn_users)
+        self.btn_users = QPushButton("Gestionar usuarios")
+        self.btn_users.clicked.connect(self.abrir_gestion_usuarios)
+        self.btn_users.setProperty("base_height", 30)
+        self.btn_users.setProperty("base_width", self.btn_users.sizeHint().width())
+        layout.addWidget(self.btn_users)
 
-        btn_curiosos = QPushButton("Gestionar datos curiosos")
-        btn_curiosos.clicked.connect(self.abrir_datos_curiosos)
-        layout.addWidget(btn_curiosos)
+        self.btn_curiosos = QPushButton("Gestionar datos curiosos")
+        self.btn_curiosos.clicked.connect(self.abrir_datos_curiosos)
+        self.btn_curiosos.setProperty("base_height", 30)
+        self.btn_curiosos.setProperty("base_width", self.btn_curiosos.sizeHint().width())
+        layout.addWidget(self.btn_curiosos)
 
-        btn_cerrar = QPushButton("Cerrar")
-        btn_cerrar.clicked.connect(self.close)
-        layout.addWidget(btn_cerrar)
+        self.btn_cerrar = QPushButton("Cerrar")
+        self.btn_cerrar.clicked.connect(self.close)
+        self.btn_cerrar.setProperty("base_height", 30)
+        self.btn_cerrar.setProperty("base_width", self.btn_cerrar.sizeHint().width())
+        layout.addWidget(self.btn_cerrar)
 
         self.setLayout(layout)
+        self.apply_scaling()
 
     def abrir_datos_curiosos(self):
         if not hasattr(self, "ventana_datos"):
@@ -448,7 +503,7 @@ class AdminWindow(QWidget):
         QMessageBox.information(self, "Admin", "Función no implementada en la interfaz")
 
 
-class DatosCuriososWindow(QWidget):
+class DatosCuriososWindow(ScalingMixin, QWidget):
     """Permite gestionar el archivo de datos curiosos."""
 
     def __init__(self, usuario):
@@ -456,28 +511,39 @@ class DatosCuriososWindow(QWidget):
         self.usuario = usuario
         self.setWindowTitle("Datos curiosos")
         self.setGeometry(220, 220, 400, 300)
+        self.base_width = 400
+        self.base_height = 300
 
         layout = QVBoxLayout()
         self.lista = QListWidget()
         layout.addWidget(self.lista)
 
         botones = QHBoxLayout()
-        btn_agregar = QPushButton("Agregar")
-        btn_agregar.clicked.connect(self.agregar)
-        btn_modificar = QPushButton("Modificar")
-        btn_modificar.clicked.connect(self.modificar)
-        btn_eliminar = QPushButton("Eliminar")
-        btn_eliminar.clicked.connect(self.eliminar)
-        botones.addWidget(btn_agregar)
-        botones.addWidget(btn_modificar)
-        botones.addWidget(btn_eliminar)
+        self.btn_agregar = QPushButton("Agregar")
+        self.btn_agregar.clicked.connect(self.agregar)
+        self.btn_agregar.setProperty("base_height", 30)
+        self.btn_agregar.setProperty("base_width", self.btn_agregar.sizeHint().width())
+        self.btn_modificar = QPushButton("Modificar")
+        self.btn_modificar.clicked.connect(self.modificar)
+        self.btn_modificar.setProperty("base_height", 30)
+        self.btn_modificar.setProperty("base_width", self.btn_modificar.sizeHint().width())
+        self.btn_eliminar = QPushButton("Eliminar")
+        self.btn_eliminar.clicked.connect(self.eliminar)
+        self.btn_eliminar.setProperty("base_height", 30)
+        self.btn_eliminar.setProperty("base_width", self.btn_eliminar.sizeHint().width())
+        botones.addWidget(self.btn_agregar)
+        botones.addWidget(self.btn_modificar)
+        botones.addWidget(self.btn_eliminar)
         layout.addLayout(botones)
 
-        btn_cerrar = QPushButton("Cerrar")
-        btn_cerrar.clicked.connect(self.close)
-        layout.addWidget(btn_cerrar)
+        self.btn_cerrar = QPushButton("Cerrar")
+        self.btn_cerrar.clicked.connect(self.close)
+        self.btn_cerrar.setProperty("base_height", 30)
+        self.btn_cerrar.setProperty("base_width", self.btn_cerrar.sizeHint().width())
+        layout.addWidget(self.btn_cerrar)
 
         self.setLayout(layout)
+        self.apply_scaling()
         self.cargar_datos()
 
     def cargar_datos(self):
@@ -523,24 +589,29 @@ class DatosCuriososWindow(QWidget):
             msg = datos_curiosos.eliminar_dato(self.usuario, fila)
             QMessageBox.information(self, "Datos curiosos", quitar_colores(msg))
             self.cargar_datos()
-class TreeWindow(QWidget):
+class TreeWindow(ScalingMixin, QWidget):
     """Muestra un árbol simple de la estructura del proyecto."""
 
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Árbol del proyecto")
         self.setGeometry(200, 200, 400, 400)
+        self.base_width = 400
+        self.base_height = 400
 
         layout = QVBoxLayout()
         self.text = QTextEdit()
         self.text.setReadOnly(True)
         layout.addWidget(self.text)
 
-        btn_cerrar = QPushButton("Cerrar")
-        btn_cerrar.clicked.connect(self.close)
-        layout.addWidget(btn_cerrar)
+        self.btn_cerrar = QPushButton("Cerrar")
+        self.btn_cerrar.clicked.connect(self.close)
+        self.btn_cerrar.setProperty("base_height", 30)
+        self.btn_cerrar.setProperty("base_width", self.btn_cerrar.sizeHint().width())
+        layout.addWidget(self.btn_cerrar)
 
         self.setLayout(layout)
+        self.apply_scaling()
         self.cargar_arbol()
 
     def cargar_arbol(self):
@@ -554,7 +625,7 @@ class TreeWindow(QWidget):
                 lineas.append(f"{indent}    {f}")
         self.text.setPlainText("\n".join(lineas))
         
-class PROMPTYWindow(QMainWindow):
+class PROMPTYWindow(ScalingMixin, QMainWindow):
     def __init__(self, usuario, logout_callback=None):
         super().__init__()
         self.usuario = usuario
@@ -564,6 +635,8 @@ class PROMPTYWindow(QMainWindow):
         self.gestor_comandos = GestorComandos(usuario)
         self.setWindowTitle("PROMPTY - Asistente de Voz")
         self.setGeometry(100, 100, 400, 600)
+        self.base_width = 400
+        self.base_height = 600
         self.font_family = config.FUENTE_POR_DEFECTO
         self.base_font_size = config.TAMANO_LETRA_POR_DEFECTO
         self.saludo = "Hola, soy PROMPTY! \ntu asistente de voz"
@@ -628,6 +701,8 @@ class PROMPTYWindow(QMainWindow):
 
         self.button_microfono = QPushButton("")
         self.button_microfono.setFixedSize(100, 100)
+        self.button_microfono.setProperty("base_size", 100)
+        self.button_microfono.setProperty("base_icon", 50)
         self.button_microfono.setStyleSheet("""
             QPushButton {
                 border: none;
@@ -651,10 +726,13 @@ class PROMPTYWindow(QMainWindow):
         self.text_output.setReadOnly(True)
         self.text_output.setPlaceholderText("Aquí se mostrará lo que diga el asistente de voz...")
         self.text_output.setFixedHeight(100)
+        self.text_output.setProperty("base_height", 100)
         main_layout.addWidget(self.text_output)
 
         self.button_salir = QPushButton("Salir")
         self.button_salir.setFixedSize(150, 40)
+        self.button_salir.setProperty("base_width", 150)
+        self.button_salir.setProperty("base_height", 40)
         self.button_salir.setStyleSheet("background-color: #ff6347; color: white; border-radius: 10px;")
         self.button_salir.clicked.connect(self.close)
         main_layout.addWidget(self.button_salir, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -665,6 +743,8 @@ class PROMPTYWindow(QMainWindow):
         button = QPushButton("")
         button.setToolTip(tooltip)
         button.setFixedSize(40, 40)
+        button.setProperty("base_size", 40)
+        button.setProperty("base_icon", 30)
         button.setStyleSheet("border: none; background-color: transparent;")
         ruta_icono = os.path.join(RESOURCES_DIR, icon_file)
         if os.path.exists(ruta_icono):
@@ -806,31 +886,11 @@ class PROMPTYWindow(QMainWindow):
         self.base_font_size = tamano
         self.apply_scaling()
 
-    def apply_scaling(self):
-        """Ajusta tamaños de fuente y botones de forma proporcional."""
-        w_factor = self.width() / 400
-        h_factor = self.height() / 600
-        factor = max(0.8, min(1.5, min(w_factor, h_factor)))
+    def on_apply_scaling(self, factor: float) -> None:
         fuente = QFont(self.font_family, int(self.base_font_size * factor))
         self.label.setFont(fuente)
         self.command_input.setFont(fuente)
         self.text_output.setFont(fuente)
-        for btn in [
-            self.button_usuario,
-            self.button_ayuda,
-            self.button_modo_oscuro,
-            self.button_config,
-            self.button_tree,
-        ]:
-            btn.setFixedSize(int(40 * factor), int(40 * factor))
-            btn.setIconSize(QSize(int(30 * factor), int(30 * factor)))
-        self.button_microfono.setFixedSize(int(100 * factor), int(100 * factor))
-        self.button_microfono.setIconSize(QSize(int(50 * factor), int(50 * factor)))
-        self.button_salir.setFixedSize(int(150 * factor), int(40 * factor))
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self.apply_scaling()
 
     def preguntar(self, mensaje):
         texto, ok = QInputDialog.getText(self, "PROMPTY", mensaje)
@@ -864,12 +924,14 @@ class PROMPTYWindow(QMainWindow):
         if self.logout_callback:
             self.logout_callback()
 
-class LoginWindow(QWidget):
+class LoginWindow(ScalingMixin, QWidget):
     def __init__(self, gestor_roles=None):
         super().__init__()
         self.setWindowTitle("Iniciar sesión")
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
         self.gestor_roles = gestor_roles or GestorRoles()
+        self.base_width = 300
+        self.base_height = 200
         self.font_family = config.FUENTE_POR_DEFECTO
         self.base_font_size = config.TAMANO_LETRA_POR_DEFECTO
         self.setup_ui()
@@ -887,23 +949,13 @@ class LoginWindow(QWidget):
         self.raise_()
         self.activateWindow()
 
-    def apply_scaling(self):
-        """Escala la interfaz tomando en cuenta el tamaño de la ventana."""
-        w_factor = self.width() / 300
-        h_factor = self.height() / 200
-        factor = max(0.8, min(1.5, min(w_factor, h_factor)))
+    def on_apply_scaling(self, factor: float) -> None:
         fuente = QFont(self.font_family, int(self.base_font_size * factor))
         self.title_label.setFont(fuente)
         self.cif_input.setFont(fuente)
         self.pass_input.setFont(fuente)
         self.login_button.setFont(fuente)
         self.forgot_button.setFont(fuente)
-        for btn in [self.login_button, self.forgot_button]:
-            btn.setFixedHeight(int(30 * factor))
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self.apply_scaling()
 
     def setup_ui(self):
         layout = QVBoxLayout()
@@ -917,13 +969,18 @@ class LoginWindow(QWidget):
         self.pass_input.setEchoMode(QLineEdit.EchoMode.Password)
         self.login_button = QPushButton("Iniciar sesión")
         self.login_button.clicked.connect(self.verificar)
+        self.login_button.setProperty("base_height", 30)
+        self.login_button.setProperty("base_width", self.login_button.sizeHint().width())
         self.forgot_button = QPushButton("Olvidé mi contraseña")
         self.forgot_button.clicked.connect(self.restablecer)
+        self.forgot_button.setProperty("base_height", 30)
+        self.forgot_button.setProperty("base_width", self.forgot_button.sizeHint().width())
         layout.addWidget(self.cif_input)
         layout.addWidget(self.pass_input)
         layout.addWidget(self.login_button)
         layout.addWidget(self.forgot_button)
         self.setLayout(layout)
+        self.apply_scaling()
 
     def verificar(self):
         usuario = self.gestor_roles.autenticar(
