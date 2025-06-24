@@ -39,3 +39,14 @@ def test_abrir_url(monkeypatch):
     assert cb.abrir_url("ftp://example.com").startswith("\u274c")
     assert cb.abrir_url("https://example.com") == "🌐 Abriendo: https://example.com"
     assert opened["url"] == "https://example.com"
+
+
+def test_reproducir_musica(monkeypatch):
+    opened = {}
+    monkeypatch.setattr(comandos_basicos.shutil, "which", lambda _: None)
+    monkeypatch.setattr(comandos_basicos.webbrowser, "open", lambda url: opened.setdefault("url", url))
+    cb = comandos_basicos.ComandosBasicos()
+    vals = iter(["1", "cancion"])
+    entrada = lambda msg="": next(vals)
+    assert cb.reproducir_musica(entrada) == "🌐 Buscando: cancion"
+    assert opened["url"] == "https://music.youtube.com/search?q=cancion"
