@@ -66,6 +66,7 @@ class VistaTerminal:
                 "buscar_en_navegador",
                 "buscar_en_youtube",
                 "buscar_general",
+                "reproducir_musica",
             ]
             if comando in comandos_interactivos:
                 respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos, entrada_manual_func=input)
@@ -143,15 +144,16 @@ class VistaTerminal:
         print("1. Te diga la fecha y hora actual.")
         print("2. Abra un archivo o carpeta (puedes escribir la ruta o buscarla).")
         print("3. Busque algo en YouTube o en tu navegador preferido (puedes usar un término o ingresar una URL).")
-        print("4. Te comparta un dato curioso.")
-        print("5. Te hable sobre el programa y sus creadores.")
+        print("4. Reproduzca música en YouTube Music.")
+        print("5. Te comparta un dato curioso.")
+        print("6. Te hable sobre el programa y sus creadores.")
         if self.usuario.es_admin():
-            print("6. Funciones admin.")
+            print("7. Funciones admin.")
         else:
-            print("6. Acceder al modo admin (requerirá credenciales de un administrador).")
-        print("7. Modificar tus datos de usuario.")
-        print("8. Cerrar sesión para iniciar con otro usuario.")
-        print("9. Salir del programa.")
+            print("7. Acceder al modo admin (requerirá credenciales de un administrador).")
+        print("8. Modificar tus datos de usuario.")
+        print("9. Cerrar sesión para iniciar con otro usuario.")
+        print("10. Salir del programa.")
 
     def menu_configuracion_voz(self):
         while True:

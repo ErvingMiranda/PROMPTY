@@ -9,8 +9,8 @@ class TestInterpretador(unittest.TestCase):
     def test_numeros(self):
         self.assertEqual(interpretar('1')[0], 'fecha_hora')
         self.assertEqual(interpretar('dos')[0], 'abrir_con_opcion')
-        self.assertEqual(interpretar('9')[0], 'salir')
-        self.assertEqual(interpretar('seis')[0], 'modo_admin')
+        self.assertEqual(interpretar('10')[0], 'salir')
+        self.assertEqual(interpretar('siete')[0], 'modo_admin')
 
     def test_palabras_clave(self):
         self.assertEqual(interpretar('abre una carpeta')[0], 'abrir_con_opcion')
