@@ -13,7 +13,8 @@ class TestInterpretador(unittest.TestCase):
         self.assertEqual(interpretar('siete')[0], 'modo_admin')
 
     def test_palabras_clave(self):
-        self.assertEqual(interpretar('abre una carpeta')[0], 'abrir_con_opcion')
+        self.assertEqual(interpretar('abre una carpeta')[0], 'abrir_carpeta')
+        self.assertEqual(interpretar('abre un archivo')[0], 'abrir_archivo')
         self.assertEqual(interpretar('quiero un dato curioso')[0], 'dato_curioso')
         self.assertEqual(interpretar('cerrar sesion')[0], 'cerrar_sesion')
 
