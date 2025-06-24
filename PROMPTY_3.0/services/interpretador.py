@@ -1,3 +1,5 @@
+import re
+
 def interpretar(texto):
     """Devuelve (comando, argumentos) a partir de una cadena.
 
@@ -6,6 +8,19 @@ def interpretar(texto):
     """
     texto = texto.lower().strip()
     texto = texto.replace("en el", "en")  # Normaliza "buscar en el navegador" → "buscar en navegador"
+
+    texto_simple = re.sub(r"[!.,?]", "", texto).strip()
+    saludos = [
+        "hola",
+        "hola prompty",
+        "buenos dias",
+        "buenas tardes",
+        "buenas noches",
+        "que tal",
+        "como estas",
+    ]
+    if texto_simple in saludos:
+        return "saludo", None
 
     if "buscar" in texto:
         if "youtube" in texto:
@@ -47,13 +62,13 @@ def interpretar(texto):
             return comando, None
 
     palabras_clave = {
-        ("hora", "fecha"): "fecha_hora",
-        ("carpeta",): "abrir_carpeta",
-        ("archivo",): "abrir_archivo",
-        ("abrir",): "abrir_con_opcion",
+        ("hora", "fecha", "tiempo"): "fecha_hora",
+        ("carpeta", "folder", "directorio"): "abrir_carpeta",
+        ("archivo", "documento", "fichero", "aplicacion", "aplicación", "app"): "abrir_archivo",
+        ("abrir", "abre", "ejecuta"): "abrir_con_opcion",
         ("youtube",): "buscar_en_youtube",
-        ("navegador", "google"): "buscar_en_navegador",
-        ("buscar",): "buscar_general",
+        ("navegador", "google", "internet", "web", "explorador"): "buscar_en_navegador",
+        ("buscar", "investigar", "consultar"): "buscar_general",
         (
             "musica",
             "música",
@@ -61,13 +76,18 @@ def interpretar(texto):
             "cancion",
             "canción",
             "canciones",
+            "escuchar",
+            "reproduce",
+            "pon",
+            "toca",
+            "suena",
         ): "reproducir_musica",
-        ("curioso", "dato"): "dato_curioso",
-        ("programa", "creador", "información"): "info_programa",
-        ("usuario", "perfil"): "editar_usuario",
-        ("ayuda", "opciones", "menu"): "ayuda",
-        ("tree", "árbol", "arbol", "estructura"): "ver_arbol",
-        ("salir", "cerrar"): "salir",
+        ("curioso", "dato", "curiosidad", "sabias"): "dato_curioso",
+        ("programa", "creador", "información", "informacion", "acerca", "sobre"): "info_programa",
+        ("usuario", "perfil", "cuenta"): "editar_usuario",
+        ("ayuda", "opciones", "menu", "ayudar"): "ayuda",
+        ("tree", "árbol", "arbol", "estructura", "directorios", "mapa"): "ver_arbol",
+        ("salir", "cerrar", "adios", "terminar", "exit"): "salir",
         ("cerrar sesión", "cerrar sesion", "logout"): "cerrar_sesion",
     }
 

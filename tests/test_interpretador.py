@@ -31,6 +31,16 @@ class TestInterpretador(unittest.TestCase):
         self.assertEqual(interpretar('árbol')[0], 'ver_arbol')
         self.assertEqual(interpretar('estructura del proyecto')[0], 'ver_arbol')
 
+    def test_saludos(self):
+        self.assertEqual(interpretar('hola')[0], 'saludo')
+        self.assertEqual(interpretar('hola prompty')[0], 'saludo')
+        self.assertNotEqual(interpretar('hola quiero buscar un video')[0], 'saludo')
+
+    def test_sinonimos(self):
+        self.assertEqual(interpretar('abre el folder')[0], 'abrir_carpeta')
+        self.assertEqual(interpretar('abre un documento')[0], 'abrir_archivo')
+        self.assertEqual(interpretar('exit')[0], 'salir')
+
     def test_desconocido(self):
         self.assertEqual(interpretar('xyz')[0], 'comando_no_reconocido')
 

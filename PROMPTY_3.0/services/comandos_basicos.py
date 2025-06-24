@@ -22,6 +22,14 @@ class ComandosBasicos:
         ahora = datetime.datetime.now()
         return f"📆 {ahora.strftime('%d/%m/%Y')} 🕒 {ahora.strftime('%H:%M:%S')}"
 
+    def responder_saludo(self):
+        saludos = [
+            "¡Hola! ¿En qué puedo ayudarte?",
+            "Hola, ¿qué tal?",
+            "¡Hola! Estoy listo para asistirte."
+        ]
+        return choice(saludos)
+
     def abrir_carpeta(self, ruta):
         try:
             if platform.system() == "Windows":
@@ -47,19 +55,18 @@ class ComandosBasicos:
             root.destroy()
 
     def abrir_con_opcion(self, tipo=None, entrada_manual_func=None):
-        if tipo not in ['archivo', 'carpeta']:
-            if entrada_manual_func:
-                tipo = entrada_manual_func("¿Qué deseas abrir? (carpeta o archivo): ").strip().lower()
-            else:
-                return "❌ Tipo no válido."
+        entrada = entrada_manual_func or input
 
-        if entrada_manual_func:
-            metodo = entrada_manual_func("¿Deseas escribir la ruta (1) o buscarla en el explorador (2)? ").strip()
-        else:
-            return "❌ No se puede continuar sin función de entrada."
+        if tipo not in ['archivo', 'carpeta']:
+            tipo = entrada("¿Qué deseas abrir? (carpeta o archivo): ").strip().lower()
+
+        if tipo not in ['archivo', 'carpeta']:
+            return "❌ Tipo no válido."
+
+        metodo = entrada("¿Deseas escribir la ruta (1) o buscarla en el explorador (2)? ").strip()
 
         if metodo == '1':
-            ruta = entrada_manual_func("Escribe la ruta completa: ").strip()
+            ruta = entrada("Escribe la ruta completa: ").strip()
         elif metodo == '2':
             ruta = self.seleccionar_ruta(tipo)
         else:
@@ -95,21 +102,20 @@ class ComandosBasicos:
 
     def reproducir_musica(self, entrada_manual_func=None):
         """Abre una búsqueda o URL en YouTube Music."""
-        if not entrada_manual_func:
-            return "❌ Sin entrada para música."
+        entrada = entrada_manual_func or input
 
-        opcion = entrada_manual_func(
+        opcion = entrada(
             "¿Deseas buscar un término (1) o ingresar una URL (2)? "
         ).strip()
         if opcion == "1":
-            termino = entrada_manual_func("¿Qué deseas escuchar?: ").strip()
+            termino = entrada("¿Qué deseas escuchar?: ").strip()
             if not termino:
                 return "❌ El término no puede estar vacío."
             url = self.construir_url(termino, "musica")
             mensaje = f"Buscando: {termino}"
 
         elif opcion == "2":
-            url = entrada_manual_func("Introduce la URL completa: ").strip()
+            url = entrada("Introduce la URL completa: ").strip()
             if not url:
                 return "❌ La URL no puede estar vacía."
             mensaje = None
@@ -119,32 +125,28 @@ class ComandosBasicos:
         return self.abrir_url(url, mensaje)
 
     def buscar_en_navegador_con_opcion(self, destino_predefinido=None, entrada_manual_func=None):
+        entrada = entrada_manual_func or input
+
         if not destino_predefinido:
-            if entrada_manual_func:
-                destino = entrada_manual_func(
-                    "¿Dónde deseas buscar? (youtube, navegador o musica): "
-                ).strip().lower()
-            else:
-                return "❌ Sin entrada para destino."
+            destino = entrada(
+                "¿Dónde deseas buscar? (youtube, navegador o musica): "
+            ).strip().lower()
         else:
             destino = destino_predefinido
 
         if destino not in ["youtube", "navegador", "musica"]:
             return "❌ Opción inválida."
 
-        if entrada_manual_func:
-            metodo = entrada_manual_func("¿Deseas buscar un término (1) o ingresar una URL (2)? ").strip()
-        else:
-            return "❌ Sin entrada para método."
+        metodo = entrada("¿Deseas buscar un término (1) o ingresar una URL (2)? ").strip()
 
         if metodo == '1':
-            termino = entrada_manual_func("¿Qué deseas buscar?: ").strip()
+            termino = entrada("¿Qué deseas buscar?: ").strip()
             if not termino:
                 return "❌ El término no puede estar vacío."
             url = self.construir_url(termino, destino)
             mensaje = f"Buscando: {termino}"
         elif metodo == '2':
-            url = entrada_manual_func("Introduce la URL completa: ").strip()
+            url = entrada("Introduce la URL completa: ").strip()
             if not url:
                 return "❌ La URL no puede estar vacía."
             mensaje = None
@@ -174,6 +176,8 @@ class ComandosBasicos:
             ruta = os.path.join(os.path.dirname(__file__), '..', 'data', 'info_programa.txt')
         ruta = os.path.abspath(ruta)
 
+        entrada = entrada_manual_func or input
+
         secciones = {
             "1": "SOBRE LOS CREADORES DE PROMPTY",
             "2": "SOBRE EL PROGRAMA",
@@ -193,7 +197,7 @@ class ComandosBasicos:
                 opcion = entrada_manual_func(f"{mensaje}\nSelecciona una opción (1-4): ").strip()
             else:
                 print(mensaje)
-                opcion = input("Selecciona una opción (1-4): ").strip()
+                opcion = entrada("Selecciona una opción (1-4): ").strip()
             titulo = secciones.get(opcion)
             if titulo:
                 break
