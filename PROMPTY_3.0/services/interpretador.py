@@ -48,7 +48,9 @@ def interpretar(texto):
 
     palabras_clave = {
         ("hora", "fecha"): "fecha_hora",
-        ("carpeta", "archivo", "abrir"): "abrir_con_opcion",
+        ("carpeta",): "abrir_carpeta",
+        ("archivo",): "abrir_archivo",
+        ("abrir",): "abrir_con_opcion",
         ("youtube",): "buscar_en_youtube",
         ("navegador", "google"): "buscar_en_navegador",
         ("buscar",): "buscar_general",
