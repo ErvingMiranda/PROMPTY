@@ -1,1 +1,6 @@
-# Funciones utilitarias generales para PROMPTY 3.0 (como helpers de consola, rutas, lectura de archivos).
+"""Utilidades comunes para PROMPTY 3.0."""
+
+from .helpers import *  # noqa: F401,F403
+from .scaling import ScalingMixin
+
+__all__ = ["ScalingMixin"]

@@ -8,7 +8,7 @@ VOLUMEN_POR_DEFECTO = 0.9
 
 # Fuente y tamaño de letra predeterminados para la interfaz
 FUENTE_POR_DEFECTO = "Roboto"
-TAMANO_LETRA_POR_DEFECTO = 16
+TAMANO_LETRA_POR_DEFECTO = 14
 
 # Configuración predeterminada de la ventana de ayuda
 AYUDA_POS_X = 250
