@@ -674,6 +674,10 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         self.ventana_tree = None
         self.setup_ui()
 
+    def show(self):
+        """Muestra la ventana principal en pantalla completa."""
+        super().showFullScreen()
+
     def paintEvent(self, event):
         painter = QPainter(self)
         gradient = QLinearGradient(0, 0, self.width(), self.height())
@@ -754,10 +758,13 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         main_layout.addWidget(self.text_output)
 
         self.button_salir = QPushButton("Salir")
-        self.button_salir.setFixedSize(150, 40)
-        self.button_salir.setProperty("base_width", 150)
+        self.button_salir.setStyleSheet(
+            "background-color: #ff6347; color: white; border-radius: 10px;"
+        )
         self.button_salir.setProperty("base_height", 40)
-        self.button_salir.setStyleSheet("background-color: #ff6347; color: white; border-radius: 10px;")
+        self.button_salir.setProperty(
+            "base_width", self.button_salir.sizeHint().width()
+        )
         self.button_salir.clicked.connect(self.close)
         main_layout.addWidget(self.button_salir, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -962,8 +969,8 @@ class LoginWindow(ScalingMixin, QWidget):
         self.apply_scaling()
 
     def show(self):
-        """Muestra la ventana asegurando que quede al frente."""
-        super().show()
+        """Muestra la ventana en pantalla completa y al frente."""
+        super().showFullScreen()
         self.raise_()
         self.activateWindow()
 
