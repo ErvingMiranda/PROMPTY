@@ -194,7 +194,11 @@ class ComandosBasicos:
                 "4. Sobre la licencia de uso"
             )
             if entrada_manual_func:
-                opcion = entrada_manual_func(f"{mensaje}\nSelecciona una opción (1-4): ").strip()
+                opcion = entrada_manual_func(
+                    f"{mensaje}\nSelecciona una opción (1-4): "
+                ).strip()
+                if not opcion:
+                    return "Operación cancelada."
             else:
                 print(mensaje)
                 opcion = entrada("Selecciona una opción (1-4): ").strip()

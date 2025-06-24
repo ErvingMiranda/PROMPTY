@@ -413,7 +413,8 @@ class GestionUsuariosWindow(ScalingMixin, QWidget):
         QMessageBox.information(
             self,
             "Usuario",
-            f"Usuario creado. CIF: {cif}\nContraseña: {clave}",
+            f"Usuario creado.\nCIF: {cif}\nContraseña: {clave}\n"
+            "Anota estos datos en un lugar seguro.",
         )
         self.cargar_usuarios()
 
@@ -515,11 +516,13 @@ class AdminWindow(ScalingMixin, QWidget):
     def abrir_datos_curiosos(self):
         if not hasattr(self, "ventana_datos"):
             self.ventana_datos = DatosCuriososWindow(self.usuario)
+        self.parent._sincronizar_fuente(self.ventana_datos)
         self.ventana_datos.show()
 
     def abrir_gestion_usuarios(self):
         if self.ventana_usuarios is None:
             self.ventana_usuarios = GestionUsuariosWindow(self.gestor_roles)
+        self.parent._sincronizar_fuente(self.ventana_usuarios)
         self.ventana_usuarios.show()
 
     def no_implementado(self):
@@ -794,6 +797,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
                 editar_callback=self.mostrar_editor_usuario,
                 logout_callback=self.cerrar_sesion,
             )
+        self._sincronizar_fuente(self.ventana_usuario)
         self.ventana_usuario.show()
 
     def mostrar_editor_usuario(self):
@@ -801,11 +805,13 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
             self.ventana_editor_usuario = EditarUsuarioWindow(
                 self.usuario, self.gestor_roles
             )
+        self._sincronizar_fuente(self.ventana_editor_usuario)
         self.ventana_editor_usuario.show()
 
     def ver_ayuda(self):
         if self.ventana_ayuda is None:
             self.ventana_ayuda = AyudaWindow(self.usuario)
+        self._sincronizar_fuente(self.ventana_ayuda)
         self.ventana_ayuda.show()
 
     def ver_configuracion(self):
@@ -816,6 +822,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
                 tamano=self.base_font_size,
                 aplicar_fuente=self.actualizar_fuente,
             )
+        self._sincronizar_fuente(self.ventana_configuracion)
         self.ventana_configuracion.show()
 
     def ver_admin(self):
@@ -835,11 +842,13 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
                 return
         if self.ventana_admin is None:
             self.ventana_admin = AdminWindow(self, self.servicio_voz, self.gestor_roles, usuario_admin)
+        self._sincronizar_fuente(self.ventana_admin)
         self.ventana_admin.show()
 
     def ver_arbol_programa(self):
         if self.ventana_tree is None:
             self.ventana_tree = TreeWindow()
+        self._sincronizar_fuente(self.ventana_tree)
         self.ventana_tree.show()
 
     def activate_voice(self):
@@ -916,6 +925,29 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         self.font_family = familia
         self.base_font_size = tamano
         self.apply_scaling()
+        self._actualizar_fuente_ventanas()
+
+    def _sincronizar_fuente(self, ventana):
+        if ventana is not None:
+            ventana.font_family = self.font_family
+            ventana.base_font_size = self.base_font_size
+            ventana.apply_scaling()
+
+    def _actualizar_fuente_ventanas(self):
+        ventanas = [
+            self.ventana_configuracion,
+            self.ventana_usuario,
+            self.ventana_editor_usuario,
+            self.ventana_ayuda,
+            self.ventana_admin,
+            self.ventana_tree,
+        ]
+        for v in ventanas:
+            self._sincronizar_fuente(v)
+            if hasattr(v, "ventana_usuarios"):
+                self._sincronizar_fuente(getattr(v, "ventana_usuarios"))
+            if hasattr(v, "ventana_datos"):
+                self._sincronizar_fuente(getattr(v, "ventana_datos"))
 
     def on_apply_scaling(self, factor: float) -> None:
         fuente = QFont(self.font_family, int(self.base_font_size * factor))
@@ -1051,7 +1083,8 @@ class LoginWindow(ScalingMixin, QWidget):
         QMessageBox.information(
             self,
             "Registro",
-            f"Registro exitoso. Tu CIF es {cif}",
+            f"Registro exitoso.\nCIF: {cif}\nContrase\u00f1a: {clave}\n"
+            "Anota estos datos en un lugar seguro.",
         )
 
     def verificar(self):
