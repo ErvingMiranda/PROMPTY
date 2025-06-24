@@ -1024,6 +1024,12 @@ class LoginWindow(ScalingMixin, QWidget):
         self.register_button.setProperty("base_width", self.register_button.sizeHint().width())
         layout.addWidget(self.register_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
+        self.exit_button = QPushButton("Salir")
+        self.exit_button.clicked.connect(self.close)
+        self.exit_button.setProperty("base_height", 30)
+        self.exit_button.setProperty("base_width", self.exit_button.sizeHint().width())
+        layout.addWidget(self.exit_button, alignment=Qt.AlignmentFlag.AlignCenter)
+
         self.setLayout(layout)
         self.apply_scaling()
 

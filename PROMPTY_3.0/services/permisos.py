@@ -18,7 +18,8 @@ class Permisos:
                 "agregar_datos_curiosos"
             ],
             "usuario": [
-                "ver_comandos"
+                "ver_comandos",
+                "editar_voz"
             ]
         }
 
