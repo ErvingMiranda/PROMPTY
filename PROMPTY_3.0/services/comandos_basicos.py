@@ -107,6 +107,7 @@ class ComandosBasicos:
                 return "❌ El término no puede estar vacío."
             url = self.construir_url(termino, "musica")
             mensaje = f"Buscando: {termino}"
+
         elif opcion == "2":
             url = entrada_manual_func("Introduce la URL completa: ").strip()
             if not url:
@@ -116,6 +117,7 @@ class ComandosBasicos:
             return "❌ Opción inválida."
 
         return self.abrir_url(url, mensaje)
+
 
     def buscar_en_navegador_con_opcion(self, destino_predefinido=None, entrada_manual_func=None):
         if not destino_predefinido:

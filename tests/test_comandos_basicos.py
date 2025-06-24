@@ -49,4 +49,5 @@ def test_reproducir_musica(monkeypatch):
     vals = iter(["1", "cancion"])
     entrada = lambda msg="": next(vals)
     assert cb.reproducir_musica(entrada) == "🌐 Buscando: cancion"
+
     assert opened["url"] == "https://music.youtube.com/search?q=cancion"
