@@ -129,4 +129,4 @@ class ServicioVoz:
             if admin:
                 print("🔓 Acceso concedido.")
                 return accion_si_autorizado()
-        return "❌ Acción cancelada o acceso denegado."
+        return "❌ Acceso denegado."
