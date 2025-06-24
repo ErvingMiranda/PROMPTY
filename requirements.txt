@@ -4,3 +4,4 @@ colorama
 PyQt6
 pytest
 PyAudio
+pathspec
