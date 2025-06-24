@@ -775,6 +775,9 @@ class PROMPTYWindow(QMainWindow):
             self.mostrar_respuesta(respuesta)
             self.close()
             return
+        elif comando == "ver_arbol":
+            self.ver_arbol_programa()
+            respuesta = "Mostrando estructura del proyecto..."
         else:
             interactivos = {
                 "abrir_carpeta",
