@@ -48,6 +48,9 @@ class VistaTerminal:
             if comando == "ayuda":
                 self.mostrar_bienvenida()
                 continue
+            if comando == "ver_arbol":
+                self.mostrar_arbol()
+                continue
 
             if comando == "comando_no_reconocido":
                 mensaje = (
@@ -154,6 +157,16 @@ class VistaTerminal:
         print("8. Modificar tus datos de usuario.")
         print("9. Cerrar sesión para iniciar con otro usuario.")
         print("10. Salir del programa.")
+
+    def mostrar_arbol(self):
+        """Imprime la estructura de carpetas del proyecto."""
+        root_path = Path(__file__).resolve().parents[2] / "PROMPTY_3.0"
+        for ruta, dirs, files in os.walk(root_path):
+            nivel = len(Path(ruta).relative_to(root_path).parts)
+            indent = "    " * nivel
+            print(f"{indent}{Path(ruta).name}/")
+            for f in files:
+                print(f"{indent}    {f}")
 
     def menu_configuracion_voz(self):
         while True:

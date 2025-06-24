@@ -26,6 +26,11 @@ class TestInterpretador(unittest.TestCase):
         self.assertEqual(interpretar('poner cancion')[0], 'reproducir_musica')
         self.assertEqual(interpretar('oir canciones')[0], 'reproducir_musica')
 
+    def test_arbol(self):
+        self.assertEqual(interpretar('tree')[0], 'ver_arbol')
+        self.assertEqual(interpretar('árbol')[0], 'ver_arbol')
+        self.assertEqual(interpretar('estructura del proyecto')[0], 'ver_arbol')
+
     def test_desconocido(self):
         self.assertEqual(interpretar('xyz')[0], 'comando_no_reconocido')
 

@@ -13,6 +13,8 @@ Cada versión cuenta con su propio archivo principal:
 
 Asegúrate de usar Python 3.13
 
+Si quieres ver la estructura del proyecto desde la interfaz gráfica, puedes decir palabras como "tree", "árbol" o simplemente "estructura" y se abrirá una ventana con el árbol de carpetas.
+
 ## Estructura de carpetas
 Prompty1.0.py/ # Implementación inicial con varios scripts sueltos
 PROMPTY_2.0/ # Dividido en datos, funciones y utilidades

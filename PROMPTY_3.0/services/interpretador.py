@@ -66,6 +66,7 @@ def interpretar(texto):
         ("programa", "creador", "información"): "info_programa",
         ("usuario", "perfil"): "editar_usuario",
         ("ayuda", "opciones", "menu"): "ayuda",
+        ("tree", "árbol", "arbol", "estructura"): "ver_arbol",
         ("salir", "cerrar"): "salir",
         ("cerrar sesión", "cerrar sesion", "logout"): "cerrar_sesion",
     }
