@@ -855,6 +855,7 @@ class LoginWindow(QWidget):
         h_factor = self.height() / 200
         factor = max(0.8, min(1.5, min(w_factor, h_factor)))
         fuente = QFont(self.font_family, int(self.base_font_size * factor))
+        self.title_label.setFont(fuente)
         self.cif_input.setFont(fuente)
         self.pass_input.setFont(fuente)
         self.login_button.setFont(fuente)
@@ -868,6 +869,9 @@ class LoginWindow(QWidget):
 
     def setup_ui(self):
         layout = QVBoxLayout()
+        self.title_label = QLabel("\ud83d\udd10 Iniciar sesión en PROMPTY")
+        layout.addWidget(self.title_label)
+
         self.cif_input = QLineEdit()
         self.cif_input.setPlaceholderText("CIF")
         self.pass_input = QLineEdit()
@@ -877,7 +881,6 @@ class LoginWindow(QWidget):
         self.login_button.clicked.connect(self.verificar)
         self.forgot_button = QPushButton("Olvidé mi contraseña")
         self.forgot_button.clicked.connect(self.restablecer)
-        layout.addWidget(QLabel("\ud83d\udd10 Iniciar sesión en PROMTY"))
         layout.addWidget(self.cif_input)
         layout.addWidget(self.pass_input)
         layout.addWidget(self.login_button)
