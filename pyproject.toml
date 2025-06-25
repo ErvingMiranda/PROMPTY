@@ -1,0 +1,13 @@
+[project]
+name = "prompty"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "colorama>=0.4.6",
+    "pathspec>=0.12.1",
+    "pyaudio>=0.2.14",
+    "pyqt6>=6.9.1",
+    "pytest>=8.4.1",
+    "pyttsx3>=2.98",
+    "speechrecognition>=3.14.3",
+]
