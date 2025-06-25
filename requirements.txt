@@ -1,7 +1,0 @@
-SpeechRecognition
-pyttsx3
-colorama
-PyQt6
-pytest
-PyAudio
-pathspec
