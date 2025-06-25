@@ -1,13 +1,15 @@
 import datetime
 import os
 import platform
+import re
+import shutil
 import subprocess
 import webbrowser
-import shutil
-from tkinter import Tk, filedialog
 from random import choice
+from tkinter import Tk, filedialog
+
 from utils.helpers import quitar_colores
-import re
+
 
 class ComandosBasicos:
     def mostrar_fecha(self):

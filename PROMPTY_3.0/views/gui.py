@@ -1,41 +1,42 @@
-import sys
 import os
-from PyQt6.QtWidgets import (
-    QApplication,
-    QMainWindow,
-    QPushButton,
-    QLabel,
-    QVBoxLayout,
-    QHBoxLayout,
-    QWidget,
-    QTextEdit,
-    QLineEdit,
-    QMessageBox,
-    QInputDialog,
-    QComboBox,
-    QSlider,
-    QListWidget,
-    QFormLayout,
-)
+import sys
+from pathlib import Path
+
+from data import config
+from PyQt6.QtCore import QSize, Qt, QTimer
 from PyQt6.QtGui import (
-    QIcon,
+    QBrush,
+    QColor,
     QFont,
     QFontDatabase,
-    QPainter,
+    QIcon,
     QLinearGradient,
-    QBrush,
+    QPainter,
     QPixmap,
-    QColor,
 )
-from PyQt6.QtCore import Qt, QSize, QTimer
-from data import config
-from pathlib import Path
-from services.gestor_roles import GestorRoles
-from services.gestor_comandos import GestorComandos
-from services.interpretador import interpretar
+from PyQt6.QtWidgets import (
+    QApplication,
+    QComboBox,
+    QFormLayout,
+    QHBoxLayout,
+    QInputDialog,
+    QLabel,
+    QLineEdit,
+    QListWidget,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QSlider,
+    QTextEdit,
+    QVBoxLayout,
+    QWidget,
+)
 from services.asistente_voz import ServicioVoz
-from utils.helpers import quitar_colores
+from services.gestor_comandos import GestorComandos
+from services.gestor_roles import GestorRoles
+from services.interpretador import interpretar
 from utils import ScalingMixin
+from utils.helpers import quitar_colores
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RESOURCES_DIR = os.path.normpath(

@@ -1,9 +1,10 @@
-import unittest
 import sys
+import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'PROMPTY_3.0'))
 from services.interpretador import interpretar
+
 
 class TestInterpretador(unittest.TestCase):
     def test_numeros(self):

@@ -2,10 +2,10 @@
 
 import sys
 
-from views.login import VistaLogin
-from views.gui import LoginWindow
 from PyQt6.QtWidgets import QApplication
 from utils.helpers import preguntar_modo_interfaz
+from views.gui import LoginWindow
+from views.login import VistaLogin
 
 
 def main():

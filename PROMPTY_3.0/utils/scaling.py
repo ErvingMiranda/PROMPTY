@@ -1,7 +1,8 @@
-from PyQt6.QtWidgets import QPushButton, QWidget
-from PyQt6.QtGui import QFont
-from PyQt6.QtCore import QSize
 from data import config
+from PyQt6.QtCore import QSize
+from PyQt6.QtGui import QFont
+from PyQt6.QtWidgets import QPushButton, QWidget
+
 
 class ScalingMixin:
     """Mixin que ajusta fuentes e iconos según el tamaño de la ventana."""

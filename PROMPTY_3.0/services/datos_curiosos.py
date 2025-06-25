@@ -1,7 +1,7 @@
-from colorama import Fore, Style
-from utils.helpers import leer_datos, guardar_datos, ruta_absoluta
-
 import random
+
+from colorama import Fore, Style
+from utils.helpers import guardar_datos, leer_datos, ruta_absoluta
 
 RUTA_DATOS = ruta_absoluta("data/datos_curiosos.txt")
 

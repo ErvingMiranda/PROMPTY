@@ -1,7 +1,7 @@
-from services.gestor_roles import GestorRoles
-from views.terminal import VistaTerminal
-from utils.helpers import limpiar_pantalla
 from colorama import Fore, Style
+from services.gestor_roles import GestorRoles
+from utils.helpers import limpiar_pantalla
+from views.terminal import VistaTerminal
 
 
 class VistaLogin:

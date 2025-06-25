@@ -1,8 +1,9 @@
-import speech_recognition as sr
 import pyttsx3
-from services.permisos import Permisos
-from utils.helpers import quitar_colores, limpiar_emoji
+import speech_recognition as sr
 from data import config
+from services.permisos import Permisos
+from utils.helpers import limpiar_emoji, quitar_colores
+
 
 class ServicioVoz:
     def __init__(self, usuario, verificar_admin_callback=None):

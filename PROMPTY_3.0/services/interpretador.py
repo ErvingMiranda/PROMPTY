@@ -1,5 +1,6 @@
 import re
 
+
 def interpretar(texto):
     """Devuelve (comando, argumentos) a partir de una cadena.
 

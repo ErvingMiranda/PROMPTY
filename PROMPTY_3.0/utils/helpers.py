@@ -1,11 +1,13 @@
-import os
-import re
 import hashlib
 import logging
+import os
 import random
+import re
 import string
 from pathlib import Path
+
 from pathspec import PathSpec
+
 
 def quitar_colores(texto):
     """
