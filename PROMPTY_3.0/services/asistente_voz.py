@@ -28,7 +28,6 @@ class ServicioVoz:
             daemon=True,
         )
         self._speech_thread.start()
-
         self.engine.setProperty("rate", self.velocidad)
         self.engine.setProperty("volume", self.volumen)
 
@@ -57,6 +56,7 @@ class ServicioVoz:
                 self.engine.setProperty("voice", self.voz_actual)
                 self.engine.setProperty("rate", self.velocidad)
                 self.engine.setProperty("volume", self.volumen)
+
             finally:
                 self._speech_queue.task_done()
 
@@ -69,6 +69,7 @@ class ServicioVoz:
             # Detener la reproducción actual y limpiar la cola
             if self._speech_thread.is_alive():
                 self.engine.stop()
+
             while not self._speech_queue.empty():
                 try:
                     self._speech_queue.get_nowait()
@@ -87,7 +88,6 @@ class ServicioVoz:
                     daemon=True,
                 )
                 self._speech_thread.start()
-
             self._speech_queue.put(texto_limpio)
         return texto_limpio
 
