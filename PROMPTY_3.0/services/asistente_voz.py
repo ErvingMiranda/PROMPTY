@@ -1,5 +1,7 @@
 import pyttsx3
 import speech_recognition as sr
+import queue
+import threading
 from data import config
 from services.permisos import Permisos
 from utils.helpers import limpiar_emoji, quitar_colores
@@ -18,6 +20,15 @@ class ServicioVoz:
         self.velocidad = config.VELOCIDAD_POR_DEFECTO
         self.volumen = config.VOLUMEN_POR_DEFECTO
 
+        # Control de reproducción de voz
+        self._speech_lock = threading.Lock()
+        self._speech_queue = queue.Queue()
+        self._speech_thread = threading.Thread(
+            target=self._procesar_cola,
+            daemon=True,
+        )
+        self._speech_thread.start()
+
         self.engine.setProperty("rate", self.velocidad)
         self.engine.setProperty("volume", self.volumen)
 
@@ -27,18 +38,70 @@ class ServicioVoz:
         except Exception:
             pass
 
+    def _procesar_cola(self):
+        """Hilo de reproducción que procesa la cola de frases."""
+        while True:
+            texto = self._speech_queue.get()
+            if texto is None:
+                break
+            self.engine.say(texto)
+            try:
+                self.engine.runAndWait()
+            except Exception as e:  # pragma: no cover - no audio backend in tests
+                print(f"⚠️ Error en motor de voz: {e}. Reiniciando...")
+                try:
+                    self.engine.stop()
+                except Exception:
+                    pass
+                self.engine = pyttsx3.init()
+                self.engine.setProperty("voice", self.voz_actual)
+                self.engine.setProperty("rate", self.velocidad)
+                self.engine.setProperty("volume", self.volumen)
+            finally:
+                self._speech_queue.task_done()
+
     def hablar(self, texto):
+        """Reproduce ``texto`` deteniendo cualquier reproducción en curso."""
         texto_sin_colores = quitar_colores(texto)
         texto_limpio = limpiar_emoji(texto_sin_colores)
-        self.engine.say(texto_limpio)
-        self.engine.runAndWait()
+
+        with self._speech_lock:
+            # Detener la reproducción actual y limpiar la cola
+            if self._speech_thread.is_alive():
+                self.engine.stop()
+            while not self._speech_queue.empty():
+                try:
+                    self._speech_queue.get_nowait()
+                    self._speech_queue.task_done()
+                except queue.Empty:
+                    break
+
+            # Restablecer propiedades después de detener
+            self.engine.setProperty("voice", self.voz_actual)
+            self.engine.setProperty("rate", self.velocidad)
+            self.engine.setProperty("volume", self.volumen)
+
+            if not self._speech_thread.is_alive():
+                self._speech_thread = threading.Thread(
+                    target=self._procesar_cola,
+                    daemon=True,
+                )
+                self._speech_thread.start()
+
+            self._speech_queue.put(texto_limpio)
         return texto_limpio
+
+    def esperar_fin(self):
+        """Bloquea hasta que termine la reproducción en curso."""
+        self._speech_queue.join()
 
     def escuchar(self, notify=None):
         """Escucha desde el micrófono y devuelve el texto reconocido.
         Si se proporciona ``notify`` se llamará con el mensaje de escucha en
         lugar de imprimirlo en la terminal. Devuelve ``None`` si no se entiende
         o ``"__error_red"`` si ocurre un problema de conexión."""
+        # Asegura que no haya reproducción en curso antes de escuchar
+        self.esperar_fin()
         with sr.Microphone() as source:
             if notify:
                 notify("🎙️ Escuchando...")
