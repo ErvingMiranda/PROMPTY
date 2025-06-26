@@ -28,7 +28,6 @@ class ServicioVoz:
             daemon=True,
         )
         self._speech_thread.start()
-
         self.engine.setProperty("rate", self.velocidad)
         self.engine.setProperty("volume", self.volumen)
 
@@ -76,6 +75,7 @@ class ServicioVoz:
     def esperar_fin(self):
         """Bloquea hasta que termine la reproducción en curso."""
         self._speech_queue.join()
+
 
     def escuchar(self, notify=None):
         """Escucha desde el micrófono y devuelve el texto reconocido.
