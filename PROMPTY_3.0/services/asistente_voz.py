@@ -1,5 +1,6 @@
 import pyttsx3
 import speech_recognition as sr
+import queue
 import threading
 from data import config
 from services.permisos import Permisos
@@ -20,9 +21,13 @@ class ServicioVoz:
         self.volumen = config.VOLUMEN_POR_DEFECTO
 
         # Control de reproducción de voz
-        self._speech_thread = None
         self._speech_lock = threading.Lock()
-
+        self._speech_queue = queue.Queue()
+        self._speech_thread = threading.Thread(
+            target=self._procesar_cola,
+            daemon=True,
+        )
+        self._speech_thread.start()
         self.engine.setProperty("rate", self.velocidad)
         self.engine.setProperty("volume", self.volumen)
 
@@ -32,36 +37,45 @@ class ServicioVoz:
         except Exception:
             pass
 
+    def _procesar_cola(self):
+        """Hilo de reproducción que procesa la cola de frases."""
+        while True:
+            texto = self._speech_queue.get()
+            if texto is None:
+                break
+            self.engine.say(texto)
+            try:
+                self.engine.runAndWait()
+            finally:
+                self._speech_queue.task_done()
+
     def hablar(self, texto):
-        """Reproduce ``texto`` interrumpiendo cualquier reproducción previa."""
+        """Reproduce ``texto`` deteniendo cualquier reproducción en curso."""
         texto_sin_colores = quitar_colores(texto)
         texto_limpio = limpiar_emoji(texto_sin_colores)
 
-        def reproducir():
-            self.engine.say(texto_limpio)
-            self.engine.runAndWait()
-
         with self._speech_lock:
-            if self._speech_thread and self._speech_thread.is_alive():
-                self.engine.stop()
-                self._speech_thread.join()
-                # Al llamar a stop se pierden algunas propiedades,
-                # por lo que las restablecemos.
-                self.engine.setProperty("voice", self.voz_actual)
-                self.engine.setProperty("rate", self.velocidad)
-                self.engine.setProperty("volume", self.volumen)
+            # Detener la reproducción actual y limpiar la cola
+            self.engine.stop()
+            while not self._speech_queue.empty():
+                try:
+                    self._speech_queue.get_nowait()
+                    self._speech_queue.task_done()
+                except queue.Empty:
+                    break
 
-            self._speech_thread = threading.Thread(target=reproducir, daemon=True)
-            self._speech_thread.start()
+            # Restablecer propiedades después de detener
+            self.engine.setProperty("voice", self.voz_actual)
+            self.engine.setProperty("rate", self.velocidad)
+            self.engine.setProperty("volume", self.volumen)
+
+            self._speech_queue.put(texto_limpio)
         return texto_limpio
 
     def esperar_fin(self):
-        """Bloquea hasta que termine la reproducción actual (si existe)."""
-        hilo = None
-        with self._speech_lock:
-            hilo = self._speech_thread
-        if hilo:
-            hilo.join()
+        """Bloquea hasta que termine la reproducción en curso."""
+        self._speech_queue.join()
+
 
     def escuchar(self, notify=None):
         """Escucha desde el micrófono y devuelve el texto reconocido.
