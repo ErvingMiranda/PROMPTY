@@ -76,6 +76,8 @@ class ServicioVoz:
         if 0 <= indice < len(voces):
             self.voz_actual = voces[indice].id
             self.engine.setProperty("voice", self.voz_actual)
+            return True
+        return False
 
     def seleccionar_voz(self):
         print("\n🎤 Elige la voz de PROMPTY:")
@@ -96,10 +98,17 @@ class ServicioVoz:
                 print("❌ Entrada inválida. Intenta con un número válido.")
 
     def cambiar_voz(self, indice):
+        voces = self.engine.getProperty("voices")
+        if not 0 <= indice < len(voces):
+            return "❌ Índice de voz inválido."
         if self.tiene_permiso("editar_voz"):
             self.establecer_voz_por_indice(indice)
             return "✔ Voz cambiada con éxito."
-        return self.requiere_autorizacion_admin("cambiar la voz", lambda: self.establecer_voz_por_indice(indice) or "✔ Voz cambiada como administrador.")
+        return self.requiere_autorizacion_admin(
+            "cambiar la voz",
+            lambda: self.establecer_voz_por_indice(indice)
+            or "✔ Voz cambiada como administrador."
+        )
 
     def cambiar_volumen(self, valor):
         if not 0.0 <= valor <= 1.0:
