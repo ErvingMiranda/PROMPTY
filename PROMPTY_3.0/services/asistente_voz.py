@@ -1,5 +1,6 @@
 import pyttsx3
 import speech_recognition as sr
+import threading
 from data import config
 from services.permisos import Permisos
 from utils.helpers import limpiar_emoji, quitar_colores
@@ -12,6 +13,7 @@ class ServicioVoz:
         self.usuario = usuario
         self.permisos = Permisos()
         self.verificar_admin = verificar_admin_callback
+        self._lock = threading.Lock()
 
         # Valores por defecto obtenidos de la configuración
         self.voz_actual = None
@@ -30,8 +32,18 @@ class ServicioVoz:
     def hablar(self, texto):
         texto_sin_colores = quitar_colores(texto)
         texto_limpio = limpiar_emoji(texto_sin_colores)
-        self.engine.say(texto_limpio)
-        self.engine.runAndWait()
+        with self._lock:
+            try:
+                self.engine.stop()
+            except Exception:
+                pass
+            if self.voz_actual is not None:
+                try:
+                    self.engine.setProperty("voice", self.voz_actual)
+                except Exception:
+                    pass
+            self.engine.say(texto_limpio)
+            self.engine.runAndWait()
         return texto_limpio
 
     def escuchar(self, notify=None):
@@ -51,6 +63,8 @@ class ServicioVoz:
         except sr.UnknownValueError:
             return None
         except sr.RequestError:
+            return "__error_red"
+        except Exception:
             return "__error_red"
 
     def listar_voces_disponibles(self):
