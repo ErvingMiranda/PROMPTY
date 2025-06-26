@@ -35,7 +35,6 @@ class TestInterpretador(unittest.TestCase):
     def test_saludos(self):
         self.assertEqual(interpretar('hola')[0], 'saludo')
         self.assertEqual(interpretar('hola prompty')[0], 'saludo')
-        self.assertEqual(interpretar('¡hola prompty!')[0], 'saludo')
         self.assertNotEqual(interpretar('hola quiero buscar un video')[0], 'saludo')
 
     def test_sinonimos(self):

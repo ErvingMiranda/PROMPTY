@@ -10,8 +10,7 @@ def interpretar(texto):
     texto = texto.lower().strip()
     texto = texto.replace("en el", "en")  # Normaliza "buscar en el navegador" → "buscar en navegador"
 
-    texto_simple = re.sub(r"[!.,?¡¿]", "", texto)
-    texto_simple = re.sub(r"\s+", " ", texto_simple).strip()
+    texto_simple = re.sub(r"[!.,?]", "", texto).strip()
     saludos = [
         "hola",
         "hola prompty",
