@@ -74,6 +74,8 @@ class ServicioVoz:
     def establecer_voz_por_indice(self, indice):
         voces = self.engine.getProperty("voices")
         if 0 <= indice < len(voces):
+            if self.engine.isBusy():
+                self.engine.stop()
             self.voz_actual = voces[indice].id
             self.engine.setProperty("voice", self.voz_actual)
             return True
@@ -106,9 +108,12 @@ class ServicioVoz:
             return "✔ Voz cambiada con éxito."
         return self.requiere_autorizacion_admin(
             "cambiar la voz",
-            lambda: self.establecer_voz_por_indice(indice)
-            or "✔ Voz cambiada como administrador."
+            lambda: self._forzar_cambio_voz(indice),
         )
+
+    def _forzar_cambio_voz(self, indice):
+        self.establecer_voz_por_indice(indice)
+        return "✔ Voz cambiada como administrador."
 
     def cambiar_volumen(self, valor):
         if not 0.0 <= valor <= 1.0:

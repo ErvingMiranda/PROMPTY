@@ -53,3 +53,28 @@ def test_cambiar_voz_indice_invalido(monkeypatch):
     resultado = voz.cambiar_voz(5)
     assert resultado.startswith('❌')
     assert voz.voz_actual is None
+class DummyAdmin:
+    rol = 'admin'
+
+
+def test_cambiar_voz_con_admin(monkeypatch):
+    engine = DummyEngine()
+    monkeypatch.setattr('services.asistente_voz.pyttsx3.init', lambda: engine)
+    monkeypatch.setattr('services.asistente_voz.sr.Recognizer', lambda: DummyRecognizer())
+    user = SimpleNamespace(rol='guest')
+    voz = ServicioVoz(user, verificar_admin_callback=lambda c, p: DummyAdmin())
+    monkeypatch.setattr('builtins.input', lambda _: 'dummy')
+    resultado = voz.cambiar_voz(0)
+    assert resultado.startswith('✔')
+    assert voz.voz_actual == '1'
+
+
+def test_cambiar_voz_detiene_engine(monkeypatch):
+    engine = DummyEngine()
+    engine.busy = True
+    monkeypatch.setattr('services.asistente_voz.pyttsx3.init', lambda: engine)
+    monkeypatch.setattr('services.asistente_voz.sr.Recognizer', lambda: DummyRecognizer())
+    voz = ServicioVoz(DummyUser())
+    resultado = voz.cambiar_voz(0)
+    assert resultado.startswith('✔')
+    assert engine.stopped
