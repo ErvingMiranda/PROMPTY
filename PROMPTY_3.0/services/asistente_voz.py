@@ -1,5 +1,7 @@
 import pyttsx3
 import speech_recognition as sr
+import queue
+import threading
 from data import config
 from services.permisos import Permisos
 from utils.helpers import limpiar_emoji, quitar_colores
@@ -12,6 +14,10 @@ class ServicioVoz:
         self.usuario = usuario
         self.permisos = Permisos()
         self.verificar_admin = verificar_admin_callback
+        self._speech_queue = queue.Queue()
+        self._lock = threading.Lock()
+        self._worker = threading.Thread(target=self._speech_worker, daemon=True)
+        self._worker.start()
 
         # Valores por defecto obtenidos de la configuración
         self.voz_actual = None
@@ -27,11 +33,34 @@ class ServicioVoz:
         except Exception:
             pass
 
+    def _speech_worker(self) -> None:
+        while True:
+            texto = self._speech_queue.get()
+            if texto is None:
+                try:
+                    self.engine.stop()
+                except Exception:
+                    pass
+                continue
+            if self.voz_actual is not None:
+                try:
+                    self.engine.setProperty("voice", self.voz_actual)
+                except Exception:
+                    pass
+            self.engine.say(texto)
+            self.engine.runAndWait()
+
     def hablar(self, texto):
         texto_sin_colores = quitar_colores(texto)
         texto_limpio = limpiar_emoji(texto_sin_colores)
-        self.engine.say(texto_limpio)
-        self.engine.runAndWait()
+        with self._lock:
+            while not self._speech_queue.empty():
+                try:
+                    self._speech_queue.get_nowait()
+                except queue.Empty:
+                    break
+            self._speech_queue.put(None)
+            self._speech_queue.put(texto_limpio)
         return texto_limpio
 
     def escuchar(self, notify=None):
