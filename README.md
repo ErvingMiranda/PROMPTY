@@ -9,7 +9,7 @@ Cada versión cuenta con su propio archivo principal:
 - **Prompty1.0**: scripts iniciales ubicados en `Prompty1.0`. Ejecuta por ejemplo `python Prompty1.0.py` o `Prompty1.2.py` según el script que quieras probar.
 - **PROMPTY_2.0**: versión modularizada. Corre `python PROMPTY_2.0/main.py`.
 - **PROMPTY_2.5**: prototipo con estructura de modelos y servicios.
-- **PROMPTY_3.0**: versión actual con GUI funcional, reconocimiento de voz y ventanas de configuración y ayuda. Ejecuta `python PROMPTY_3.0/main.py` y elige la opción gráfica. La interfaz ahora escala mejor en pantalla completa.
+- **PROMPTY_3.0**: versión actual con GUI funcional, reconocimiento de voz y ventanas de configuración y ayuda. Ejecuta `python PROMPTY_3.0/main.py` y elige la opción gráfica. La interfaz ahora escala mejor en pantalla completa y la voz se puede interrumpir (incluso al enviar varios comandos seguidos) sin perder la configuración.
 
 Asegúrate de usar Python 3.13
 
