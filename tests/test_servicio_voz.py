@@ -68,7 +68,6 @@ def test_cambiar_voz_con_admin(monkeypatch):
     assert resultado.startswith('✔')
     assert voz.voz_actual == '1'
 
-
 def test_cambiar_voz_detiene_engine(monkeypatch):
     engine = DummyEngine()
     engine.busy = True
