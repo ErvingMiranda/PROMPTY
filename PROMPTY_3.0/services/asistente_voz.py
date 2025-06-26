@@ -30,6 +30,16 @@ class ServicioVoz:
     def hablar(self, texto):
         texto_sin_colores = quitar_colores(texto)
         texto_limpio = limpiar_emoji(texto_sin_colores)
+        try:
+            if self.engine.isBusy():
+                self.engine.stop()
+        except Exception:
+            pass
+        if self.voz_actual is not None:
+            try:
+                self.engine.setProperty("voice", self.voz_actual)
+            except Exception:
+                pass
         self.engine.say(texto_limpio)
         self.engine.runAndWait()
         return texto_limpio
