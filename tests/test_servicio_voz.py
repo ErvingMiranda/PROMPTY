@@ -43,3 +43,13 @@ def test_hablar_detiene_si_ocupado(monkeypatch):
     voz.hablar('hola')
     assert engine.stopped
     assert engine.last_said == 'hola'
+
+
+def test_cambiar_voz_indice_invalido(monkeypatch):
+    engine = DummyEngine()
+    monkeypatch.setattr('services.asistente_voz.pyttsx3.init', lambda: engine)
+    monkeypatch.setattr('services.asistente_voz.sr.Recognizer', lambda: DummyRecognizer())
+    voz = ServicioVoz(DummyUser())
+    resultado = voz.cambiar_voz(5)
+    assert resultado.startswith('❌')
+    assert voz.voz_actual is None
