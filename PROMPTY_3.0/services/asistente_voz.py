@@ -22,7 +22,6 @@ class ServicioVoz:
         # Control de reproducción de voz
         self._speech_lock = threading.Lock()
         self._speech_thread = None
-
         self.engine.setProperty("rate", self.velocidad)
         self.engine.setProperty("volume", self.volumen)
 
@@ -46,7 +45,6 @@ class ServicioVoz:
             self.engine.setProperty("voice", self.voz_actual)
             self.engine.setProperty("rate", self.velocidad)
             self.engine.setProperty("volume", self.volumen)
-
 
     def hablar(self, texto):
         """Reproduce ``texto`` deteniendo cualquier reproducción en curso."""
