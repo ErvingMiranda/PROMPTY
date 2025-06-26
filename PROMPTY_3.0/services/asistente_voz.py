@@ -106,9 +106,12 @@ class ServicioVoz:
             return "✔ Voz cambiada con éxito."
         return self.requiere_autorizacion_admin(
             "cambiar la voz",
-            lambda: self.establecer_voz_por_indice(indice)
-            or "✔ Voz cambiada como administrador."
+            lambda: self._forzar_cambio_voz(indice),
         )
+
+    def _forzar_cambio_voz(self, indice):
+        self.establecer_voz_por_indice(indice)
+        return "✔ Voz cambiada como administrador."
 
     def cambiar_volumen(self, valor):
         if not 0.0 <= valor <= 1.0:
