@@ -7,7 +7,6 @@ from utils.helpers import limpiar_emoji, quitar_colores
 
 class ServicioVoz:
     def __init__(self, usuario, verificar_admin_callback=None):
-        self.engine = pyttsx3.init()
         self.recognizer = sr.Recognizer()
         self.usuario = usuario
         self.permisos = Permisos()
@@ -18,14 +17,21 @@ class ServicioVoz:
         self.velocidad = config.VELOCIDAD_POR_DEFECTO
         self.volumen = config.VOLUMEN_POR_DEFECTO
 
-        self.engine.setProperty("rate", self.velocidad)
-        self.engine.setProperty("volume", self.volumen)
+        self._init_engine()
 
         # Establecer la voz configurada si existe
         try:
             self.establecer_voz_por_indice(config.VOZ_POR_DEFECTO)
         except Exception:
             pass
+
+    def _init_engine(self):
+        """Crea un motor de voz nuevo con la configuración actual."""
+        self.engine = pyttsx3.init()
+        self.engine.setProperty("rate", self.velocidad)
+        self.engine.setProperty("volume", self.volumen)
+        if self.voz_actual:
+            self.engine.setProperty("voice", self.voz_actual)
 
     def hablar(self, texto):
         texto_sin_colores = quitar_colores(texto)
@@ -36,18 +42,14 @@ class ServicioVoz:
             self.engine.say(texto_limpio)
             self.engine.runAndWait()
         except RuntimeError:
-            # Si el loop sigue activo por cualquier motivo se cierra y se reintenta
-            if getattr(self.engine, "_inLoop", False):
-                try:
-                    self.engine.endLoop()
-                except RuntimeError:
-                    pass
+            # Reiniciar y volver a intentar si el motor quedó en mal estado
+            self._init_engine()
             self.engine.say(texto_limpio)
             self.engine.runAndWait()
         return texto_limpio
 
     def detener(self):
-        """Detiene la reproducción actual manteniendo la configuración."""
+        """Detiene la reproducción actual y reinicia el motor conservando la configuración."""
         if self.engine.isBusy():
             self.engine.stop()
         if getattr(self.engine, "_inLoop", False):
@@ -55,10 +57,8 @@ class ServicioVoz:
                 self.engine.endLoop()
             except RuntimeError:
                 pass
-        if self.voz_actual:
-            self.engine.setProperty("voice", self.voz_actual)
-        self.engine.setProperty("rate", self.velocidad)
-        self.engine.setProperty("volume", self.volumen)
+        # Reiniciar el motor para evitar bloqueos por interrupciones sucesivas
+        self._init_engine()
 
     def escuchar(self, notify=None):
         """Escucha desde el micrófono y devuelve el texto reconocido.
