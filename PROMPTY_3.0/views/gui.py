@@ -867,6 +867,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         self.ventana_tree.show()
 
     def activate_voice(self):
+        self.servicio_voz.detener()
         mensaje_original = self.label.text()
         self.label.setText("\ud83c\udf99\ufe0f Escuchando...")
         
@@ -887,10 +888,12 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
     def process_command(self):
         texto = self.command_input.text().strip()
         if texto:
+            self.servicio_voz.detener()
             self.ejecutar_comando_desde_texto(texto)
             self.command_input.clear()
 
     def ejecutar_comando_desde_texto(self, texto):
+        self.servicio_voz.detener()
         comando, argumentos = interpretar(texto)
         self.text_output.clear()
 

@@ -34,6 +34,15 @@ class ServicioVoz:
         self.engine.runAndWait()
         return texto_limpio
 
+    def detener(self):
+        """Detiene la reproducción actual manteniendo la configuración."""
+        if self.engine.isBusy():
+            self.engine.stop()
+            if self.voz_actual:
+                self.engine.setProperty("voice", self.voz_actual)
+            self.engine.setProperty("rate", self.velocidad)
+            self.engine.setProperty("volume", self.volumen)
+
     def escuchar(self, notify=None):
         """Escucha desde el micrófono y devuelve el texto reconocido.
         Si se proporciona ``notify`` se llamará con el mensaje de escucha en
