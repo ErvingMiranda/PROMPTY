@@ -7,7 +7,6 @@ from utils.helpers import limpiar_emoji, quitar_colores
 
 class ServicioVoz:
     def __init__(self, usuario, verificar_admin_callback=None):
-        self.engine = pyttsx3.init()
         self.recognizer = sr.Recognizer()
         self.usuario = usuario
         self.permisos = Permisos()
@@ -18,8 +17,8 @@ class ServicioVoz:
         self.velocidad = config.VELOCIDAD_POR_DEFECTO
         self.volumen = config.VOLUMEN_POR_DEFECTO
 
-        self.engine.setProperty("rate", self.velocidad)
-        self.engine.setProperty("volume", self.volumen)
+        self.engine = None
+        self._init_engine()
 
         # Establecer la voz configurada si existe
         try:
@@ -27,12 +26,49 @@ class ServicioVoz:
         except Exception:
             pass
 
+    def _init_engine(self):
+        """Crea un motor de voz nuevo con la configuración actual."""
+        self.engine = pyttsx3.init()
+        self.engine.setProperty("rate", self.velocidad)
+        self.engine.setProperty("volume", self.volumen)
+        if self.voz_actual:
+            self.engine.setProperty("voice", self.voz_actual)
+
+    def _ensure_engine(self):
+        """Recrea el motor si no ha sido inicializado."""
+        if self.engine is None:
+            self._init_engine()
+
     def hablar(self, texto):
         texto_sin_colores = quitar_colores(texto)
         texto_limpio = limpiar_emoji(texto_sin_colores)
-        self.engine.say(texto_limpio)
-        self.engine.runAndWait()
+        # Garantizar que no haya otro loop de pyttsx3 activo y que el motor exista
+        self.detener()
+        self._ensure_engine()
+        try:
+            self.engine.say(texto_limpio)
+            self.engine.runAndWait()
+        except RuntimeError:
+            # Reiniciar y volver a intentar si el motor quedó en mal estado
+            self.engine = None
+            self._ensure_engine()
+            self.engine.say(texto_limpio)
+            self.engine.runAndWait()
         return texto_limpio
+
+    def detener(self):
+        """Detiene la reproducción actual y descarta el motor."""
+        if self.engine is None:
+            return
+        if self.engine.isBusy():
+            self.engine.stop()
+        if getattr(self.engine, "_inLoop", False):
+            try:
+                self.engine.endLoop()
+            except RuntimeError:
+                pass
+        # Descartar el motor para que se vuelva a crear al hablar de nuevo
+        self.engine = None
 
     def escuchar(self, notify=None):
         """Escucha desde el micrófono y devuelve el texto reconocido.
@@ -54,10 +90,12 @@ class ServicioVoz:
             return "__error_red"
 
     def listar_voces_disponibles(self):
+        self._ensure_engine()
         voces = self.engine.getProperty("voices")
         return [(i, v.name) for i, v in enumerate(voces)]
 
     def reproducir_muestra(self, indice):
+        self._ensure_engine()
         voces = self.engine.getProperty("voices")
         if 0 <= indice < len(voces):
             self.engine.setProperty("voice", voces[indice].id)
@@ -65,6 +103,7 @@ class ServicioVoz:
             self.engine.runAndWait()
 
     def establecer_voz_por_indice(self, indice):
+        self._ensure_engine()
         voces = self.engine.getProperty("voices")
         if 0 <= indice < len(voces):
             self.voz_actual = voces[indice].id
@@ -95,6 +134,7 @@ class ServicioVoz:
         return self.requiere_autorizacion_admin("cambiar la voz", lambda: self.establecer_voz_por_indice(indice) or "✔ Voz cambiada como administrador.")
 
     def cambiar_volumen(self, valor):
+        self._ensure_engine()
         if not 0.0 <= valor <= 1.0:
             return "❌ El volumen debe estar entre 0.0 y 1.0."
         if self.tiene_permiso("editar_voz"):
@@ -104,11 +144,13 @@ class ServicioVoz:
         return self.requiere_autorizacion_admin("cambiar el volumen", lambda: self._forzar_cambio_volumen(valor))
 
     def _forzar_cambio_volumen(self, valor):
+        self._ensure_engine()
         self.volumen = valor
         self.engine.setProperty("volume", valor)
         return f"✔ Volumen cambiado como administrador a {int(valor * 100)}%."
 
     def cambiar_velocidad(self, valor):
+        self._ensure_engine()
         if not 100 <= valor <= 250:
             return "❌ La velocidad debe estar entre 100 y 250."
         if self.tiene_permiso("editar_voz"):
@@ -118,6 +160,7 @@ class ServicioVoz:
         return self.requiere_autorizacion_admin("cambiar la velocidad", lambda: self._forzar_cambio_velocidad(valor))
 
     def _forzar_cambio_velocidad(self, valor):
+        self._ensure_engine()
         self.velocidad = valor
         self.engine.setProperty("rate", valor)
         return f"✔ Velocidad cambiada como administrador a {valor}."
