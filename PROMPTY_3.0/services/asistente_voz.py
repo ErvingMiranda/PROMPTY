@@ -30,18 +30,35 @@ class ServicioVoz:
     def hablar(self, texto):
         texto_sin_colores = quitar_colores(texto)
         texto_limpio = limpiar_emoji(texto_sin_colores)
-        self.engine.say(texto_limpio)
-        self.engine.runAndWait()
+        # Garantizar que no haya otro loop de pyttsx3 activo
+        self.detener()
+        try:
+            self.engine.say(texto_limpio)
+            self.engine.runAndWait()
+        except RuntimeError:
+            # Si el loop sigue activo por cualquier motivo se cierra y se reintenta
+            if getattr(self.engine, "_inLoop", False):
+                try:
+                    self.engine.endLoop()
+                except RuntimeError:
+                    pass
+            self.engine.say(texto_limpio)
+            self.engine.runAndWait()
         return texto_limpio
 
     def detener(self):
         """Detiene la reproducción actual manteniendo la configuración."""
         if self.engine.isBusy():
             self.engine.stop()
-            if self.voz_actual:
-                self.engine.setProperty("voice", self.voz_actual)
-            self.engine.setProperty("rate", self.velocidad)
-            self.engine.setProperty("volume", self.volumen)
+        if getattr(self.engine, "_inLoop", False):
+            try:
+                self.engine.endLoop()
+            except RuntimeError:
+                pass
+        if self.voz_actual:
+            self.engine.setProperty("voice", self.voz_actual)
+        self.engine.setProperty("rate", self.velocidad)
+        self.engine.setProperty("volume", self.volumen)
 
     def escuchar(self, notify=None):
         """Escucha desde el micrófono y devuelve el texto reconocido.
