@@ -42,6 +42,11 @@ class TestInterpretador(unittest.TestCase):
         self.assertEqual(interpretar('abre un documento')[0], 'abrir_archivo')
         self.assertEqual(interpretar('exit')[0], 'salir')
 
+    def test_fechas_horas(self):
+        self.assertEqual(interpretar('fecha y hora')[0], 'fecha_hora')
+        self.assertEqual(interpretar('que hora es')[0], 'hora')
+        self.assertEqual(interpretar('cual es la fecha')[0], 'fecha')
+
     def test_desconocido(self):
         self.assertEqual(interpretar('xyz')[0], 'comando_no_reconocido')
 
