@@ -1,3 +1,5 @@
+"""Gestiona la asociación de comandos con sus funciones ejecutables."""
+
 from services.comandos_basicos import ComandosBasicos
 
 
@@ -8,19 +10,19 @@ class GestorComandos:
         self.basicos = ComandosBasicos()
         self.usuario_actual = usuario_actual
         self._acciones = {
-            "fecha": lambda a, e: self.basicos.mostrar_fecha(),
-            "hora": lambda a, e: self.basicos.mostrar_hora(),
-            "fecha_hora": lambda a, e: self.basicos.mostrar_fecha_hora(),
-            "abrir_carpeta": lambda a, e: self.basicos.abrir_carpeta(a) if a else self.basicos.abrir_con_opcion(tipo="carpeta", entrada_manual_func=e),
-            "abrir_archivo": lambda a, e: self.basicos.abrir_con_opcion(tipo="archivo", entrada_manual_func=e),
-            "abrir_con_opcion": lambda a, e: self.basicos.abrir_con_opcion(entrada_manual_func=e),
-            "buscar_en_youtube": lambda a, e: self.basicos.buscar_en_navegador_con_opcion(destino_predefinido="youtube", entrada_manual_func=e if not a else None),
-            "buscar_en_navegador": lambda a, e: self.basicos.buscar_en_navegador_con_opcion(entrada_manual_func=e),
-            "buscar_general": lambda a, e: self.basicos.buscar_en_navegador_con_opcion(destino_predefinido="navegador", entrada_manual_func=e),
-            "reproducir_musica": lambda a, e: self.basicos.reproducir_musica(entrada_manual_func=e),
-            "dato_curioso": lambda a, e: self.basicos.mostrar_dato_curioso(),
-            "info_programa": lambda a, e: self.basicos.info_sistema(entrada_manual_func=e),
-            "saludo": lambda a, e: self.basicos.responder_saludo(),
+            "fecha": self._accion_fecha,
+            "hora": self._accion_hora,
+            "fecha_hora": self._accion_fecha_hora,
+            "abrir_carpeta": self._accion_abrir_carpeta,
+            "abrir_archivo": self._accion_abrir_archivo,
+            "abrir_con_opcion": self._accion_abrir_con_opcion,
+            "buscar_en_youtube": self._accion_buscar_en_youtube,
+            "buscar_en_navegador": self._accion_buscar_en_navegador,
+            "buscar_general": self._accion_buscar_general,
+            "reproducir_musica": self._accion_reproducir_musica,
+            "dato_curioso": self._accion_dato_curioso,
+            "info_programa": self._accion_info_programa,
+            "saludo": self._accion_saludo,
         }
 
     def establecer_usuario(self, usuario):
@@ -39,3 +41,50 @@ class GestorComandos:
             "❌ Comando no reconocido. "
             "Consulta la sección de ayuda para conocer las opciones disponibles."
         )
+
+    # Funciones de acción extraídas del diccionario ------------------------
+    def _accion_fecha(self, args, entrada_func):
+        return self.basicos.mostrar_fecha()
+
+    def _accion_hora(self, args, entrada_func):
+        return self.basicos.mostrar_hora()
+
+    def _accion_fecha_hora(self, args, entrada_func):
+        return self.basicos.mostrar_fecha_hora()
+
+    def _accion_abrir_carpeta(self, args, entrada_func):
+        if args:
+            return self.basicos.abrir_carpeta(args)
+        return self.basicos.abrir_con_opcion(tipo="carpeta", entrada_manual_func=entrada_func)
+
+    def _accion_abrir_archivo(self, args, entrada_func):
+        return self.basicos.abrir_con_opcion(tipo="archivo", entrada_manual_func=entrada_func)
+
+    def _accion_abrir_con_opcion(self, args, entrada_func):
+        return self.basicos.abrir_con_opcion(entrada_manual_func=entrada_func)
+
+    def _accion_buscar_en_youtube(self, args, entrada_func):
+        manual = entrada_func if not args else None
+        return self.basicos.buscar_en_navegador_con_opcion(
+            destino_predefinido="youtube", entrada_manual_func=manual
+        )
+
+    def _accion_buscar_en_navegador(self, args, entrada_func):
+        return self.basicos.buscar_en_navegador_con_opcion(entrada_manual_func=entrada_func)
+
+    def _accion_buscar_general(self, args, entrada_func):
+        return self.basicos.buscar_en_navegador_con_opcion(
+            destino_predefinido="navegador", entrada_manual_func=entrada_func
+        )
+
+    def _accion_reproducir_musica(self, args, entrada_func):
+        return self.basicos.reproducir_musica(entrada_manual_func=entrada_func)
+
+    def _accion_dato_curioso(self, args, entrada_func):
+        return self.basicos.mostrar_dato_curioso()
+
+    def _accion_info_programa(self, args, entrada_func):
+        return self.basicos.info_sistema(entrada_manual_func=entrada_func)
+
+    def _accion_saludo(self, args, entrada_func):
+        return self.basicos.responder_saludo()
