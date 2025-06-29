@@ -6,6 +6,9 @@ VELOCIDAD_POR_DEFECTO = 150
 # Volumen (0.0 a 1.0)
 VOLUMEN_POR_DEFECTO = 0.9
 
+# Espera en segundos antes de reproducir la voz
+ESPERA_INICIAL_VOZ = 0.3
+
 # Fuente y tamaño de letra predeterminados para la interfaz
 FUENTE_POR_DEFECTO = "Arial Rounded MT"
 TAMANO_LETRA_POR_DEFECTO = 14
