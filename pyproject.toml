@@ -10,4 +10,5 @@ dependencies = [
     "pytest>=8.4.1",
     "pyttsx3>=2.98",
     "speechrecognition>=3.14.3",
+    "num2words>=0.5.13",
 ]

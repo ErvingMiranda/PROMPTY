@@ -46,6 +46,7 @@ class TestInterpretador(unittest.TestCase):
         self.assertEqual(interpretar('fecha y hora')[0], 'fecha_hora')
         self.assertEqual(interpretar('que hora es')[0], 'hora')
         self.assertEqual(interpretar('cual es la fecha')[0], 'fecha')
+        self.assertEqual(interpretar('que dia es hoy')[0], 'dia_fecha')
 
     def test_desconocido(self):
         self.assertEqual(interpretar('xyz')[0], 'comando_no_reconocido')

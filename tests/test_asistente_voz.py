@@ -48,3 +48,10 @@ def test_recrear_motor_si_se_descarta(monkeypatch):
     assert voz.engine is not None
     assert voz.engine is not primero
     assert len(_created) == 2
+
+
+def test_normalizar_numeros(monkeypatch):
+    usuario = SimpleNamespace(rol="usuario")
+    voz = av.ServicioVoz(usuario)
+    texto = voz.hablar("Tengo 1000 pesos")
+    assert "mil" in texto
