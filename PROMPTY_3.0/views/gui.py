@@ -871,7 +871,10 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         self.servicio_voz.detener()
         mensaje_original = self.label.text()
         self.label.setText("\ud83c\udf99\ufe0f Escuchando...")
-        
+
+        # Limpiar la salida para mostrar el estado de escucha
+        self.text_output.clear()
+
         def notify_gui(msg):
             self.text_output.append(msg)
             QApplication.processEvents()
@@ -883,8 +886,11 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
             self.text_output.append("\u274c No se entendió el comando")
             self.servicio_voz.hablar("No se entendió el comando")
             return
+
+        # Mostrar lo entendido y dar tiempo a leerlo antes de procesar
         self.text_output.append(f"\ud83d\udde3\ufe0f Entendí: {texto}")
-        self.ejecutar_comando_desde_texto(texto)
+        QApplication.processEvents()
+        QTimer.singleShot(1500, lambda: self.ejecutar_comando_desde_texto(texto))
 
     def process_command(self):
         texto = self.command_input.text().strip()
