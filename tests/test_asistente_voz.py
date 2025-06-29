@@ -55,3 +55,11 @@ def test_normalizar_numeros(monkeypatch):
     voz = av.ServicioVoz(usuario)
     texto = voz.hablar("Tengo 1000 pesos")
     assert "mil" in texto
+
+
+def test_fecha_hora_natural(monkeypatch):
+    usuario = SimpleNamespace(rol="usuario")
+    voz = av.ServicioVoz(usuario)
+    texto = voz.hablar("\U0001F4C6 02/01/2020 \U0001F552 15:30:00")
+    assert "hoy es" in texto.lower()
+    assert "tres" in texto.lower()
