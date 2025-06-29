@@ -45,6 +45,15 @@ def interpretar(texto):
     ]):
         return "reproducir_musica", None
 
+    if re.search(r"\bfecha\b", texto) and re.search(r"\bhora\b", texto):
+        return "fecha_hora", None
+    if re.search(r"\bfecha\b", texto):
+        return "fecha", None
+    if re.search(r"\bhora\b", texto):
+        return "hora", None
+    if re.search(r"\btiempo\b", texto):
+        return "fecha_hora", None
+
     numero_comandos = {
         ("1", "uno"): "fecha_hora",
         ("2", "dos"): "abrir_con_opcion",
@@ -63,7 +72,7 @@ def interpretar(texto):
             return comando, None
 
     palabras_clave = {
-        ("hora", "fecha", "tiempo"): "fecha_hora",
+        ("tiempo",): "fecha_hora",
         ("carpeta", "folder", "directorio"): "abrir_carpeta",
         ("archivo", "documento", "fichero", "aplicacion", "aplicación", "app"): "abrir_archivo",
         ("abrir", "abre", "ejecuta"): "abrir_con_opcion",
