@@ -1,6 +1,7 @@
 import pyttsx3
 import speech_recognition as sr
 import re
+import time
 from num2words import num2words
 from data import config
 from services.permisos import Permisos
@@ -98,6 +99,8 @@ class ServicioVoz:
         # Garantizar que no haya otro loop de pyttsx3 activo y que el motor exista
         self.detener()
         self._ensure_engine()
+        # Dar tiempo para que el motor se inicialice correctamente
+        time.sleep(config.ESPERA_INICIAL_VOZ)
         try:
             self.engine.say(texto_final)
             self.engine.runAndWait()
