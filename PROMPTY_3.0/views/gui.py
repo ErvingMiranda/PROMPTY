@@ -889,6 +889,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         texto = self.command_input.text().strip()
         if texto:
             self.servicio_voz.detener()
+            self.text_output.append("\U0001F5E3\ufe0f Entendí: " + texto)
             self.ejecutar_comando_desde_texto(texto)
             self.command_input.clear()
 
