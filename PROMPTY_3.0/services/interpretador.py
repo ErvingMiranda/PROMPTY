@@ -30,10 +30,10 @@ def interpretar(texto):
             # Si el usuario especifica google o navegador, ya sabemos el destino
             # por lo que sólo se debe preguntar si quiere buscar un término o
             # ingresar una URL.
-            return "buscar_general", None
+            return "buscar_en_navegador", None
         else:
             # El usuario dijo "buscar" pero no indicó destino; se pregunta dónde.
-            return "buscar_en_navegador", None
+            return "buscar_general", None
 
     if any(p in texto for p in [
         "musica",
@@ -60,7 +60,7 @@ def interpretar(texto):
     numero_comandos = {
         ("1", "uno"): "fecha_hora",
         ("2", "dos"): "abrir_con_opcion",
-        ("3", "tres"): "buscar_en_navegador",
+        ("3", "tres"): "buscar_general",
         ("4", "cuatro"): "reproducir_musica",
         ("5", "cinco"): "dato_curioso",
         ("6", "seis"): "info_programa",
