@@ -5,6 +5,7 @@ from num2words import num2words
 from data import config
 from services.permisos import Permisos
 from utils.helpers import limpiar_emoji, quitar_colores
+from services.comandos_basicos import MESES
 
 
 class ServicioVoz:
@@ -41,6 +42,34 @@ class ServicioVoz:
         if self.engine is None:
             self._init_engine()
 
+    def _formatear_fecha_hora(self, texto: str) -> str | None:
+        """Convierte una cadena con fecha y hora numerica en una frase mas
+        natural. Devuelve ``None`` si no coincide con el patron esperado."""
+        m = re.search(r"(\d{2})/(\d{2})/(\d{4})\s+(\d{2}):(\d{2})(?::(\d{2}))?", texto)
+        if not m:
+            m = re.search(r"(\d{2})(\d{2})(\d{4})\s+(\d{2}):(\d{2})(?::(\d{2}))?", texto)
+        if not m:
+            return None
+        dia, mes, anio, hora, minuto, _ = m.groups()
+        try:
+            dia = int(dia)
+            mes = MESES[int(mes) - 1]
+            anio_pal = num2words(int(anio), lang="es")
+            h = int(hora) % 12 or 12
+            h_pal = num2words(h, lang="es")
+            min_val = int(minuto)
+            if min_val == 0:
+                minuto_pal = "en punto"
+            elif min_val == 30:
+                minuto_pal = "y media"
+            elif min_val == 15:
+                minuto_pal = "y cuarto"
+            else:
+                minuto_pal = f"y {num2words(min_val, lang='es')}"
+        except Exception:
+            return None
+        return f"Hoy es {num2words(dia, lang='es')} de {mes} de {anio_pal}, son las {h_pal} {minuto_pal}"
+
     def _normalizar_numeros(self, texto: str) -> str:
         """Convierte cifras numéricas a palabras en español para una
         pronunciación más natural."""
@@ -61,7 +90,11 @@ class ServicioVoz:
     def hablar(self, texto):
         texto_sin_colores = quitar_colores(texto)
         texto_limpio = limpiar_emoji(texto_sin_colores)
-        texto_final = self._normalizar_numeros(texto_limpio)
+        natural = self._formatear_fecha_hora(texto_limpio)
+        if natural is not None:
+            texto_final = natural
+        else:
+            texto_final = self._normalizar_numeros(texto_limpio)
         # Garantizar que no haya otro loop de pyttsx3 activo y que el motor exista
         self.detener()
         self._ensure_engine()
