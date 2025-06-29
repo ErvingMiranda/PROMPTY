@@ -130,13 +130,21 @@ class ServicioVoz:
         """Escucha desde el micrófono y devuelve el texto reconocido.
         Si se proporciona ``notify`` se llamará con el mensaje de escucha en
         lugar de imprimirlo en la terminal. Devuelve ``None`` si no se entiende
-        o ``"__error_red"`` si ocurre un problema de conexión."""
-        with sr.Microphone() as source:
+        o ``"__error_red"`` si ocurre un problema de conexión o con el
+        micrófono."""
+        try:
+            with sr.Microphone() as source:
+                if notify:
+                    notify("🎙️ Escuchando...")
+                else:
+                    print("🎙️ Escuchando...")
+                audio = self.recognizer.listen(source)
+        except OSError:
             if notify:
-                notify("🎙️ Escuchando...")
+                notify("❌ Error al acceder al micrófono")
             else:
-                print("🎙️ Escuchando...")
-            audio = self.recognizer.listen(source)
+                print("❌ Error al acceder al micrófono")
+            return "__error_red"
         try:
             texto = self.recognizer.recognize_google(audio, language="es-ES")
             return texto
