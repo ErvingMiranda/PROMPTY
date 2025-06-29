@@ -1,6 +1,7 @@
 import pyttsx3
 import speech_recognition as sr
 import re
+import time
 from num2words import num2words
 from data import config
 from services.permisos import Permisos
@@ -98,6 +99,8 @@ class ServicioVoz:
         # Garantizar que no haya otro loop de pyttsx3 activo y que el motor exista
         self.detener()
         self._ensure_engine()
+        # Dar tiempo para que el motor se inicialice correctamente
+        time.sleep(config.ESPERA_INICIAL_VOZ)
         try:
             self.engine.say(texto_final)
             self.engine.runAndWait()
@@ -127,13 +130,21 @@ class ServicioVoz:
         """Escucha desde el micrófono y devuelve el texto reconocido.
         Si se proporciona ``notify`` se llamará con el mensaje de escucha en
         lugar de imprimirlo en la terminal. Devuelve ``None`` si no se entiende
-        o ``"__error_red"`` si ocurre un problema de conexión."""
-        with sr.Microphone() as source:
+        o ``"__error_red"`` si ocurre un problema de conexión o con el
+        micrófono."""
+        try:
+            with sr.Microphone() as source:
+                if notify:
+                    notify("🎙️ Escuchando...")
+                else:
+                    print("🎙️ Escuchando...")
+                audio = self.recognizer.listen(source)
+        except OSError:
             if notify:
-                notify("🎙️ Escuchando...")
+                notify("❌ Error al acceder al micrófono")
             else:
-                print("🎙️ Escuchando...")
-            audio = self.recognizer.listen(source)
+                print("❌ Error al acceder al micrófono")
+            return "__error_red"
         try:
             texto = self.recognizer.recognize_google(audio, language="es-ES")
             return texto
