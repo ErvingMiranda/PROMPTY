@@ -2,7 +2,7 @@ import sys
 from types import SimpleNamespace
 from pathlib import Path
 
-# Crear modulo falso de pyttsx3 antes de importar el servicio
+# Crear módulo falso de pyttsx3 antes de importar el servicio
 _created = []
 
 def _fake_init():
