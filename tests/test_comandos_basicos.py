@@ -18,9 +18,15 @@ class FixedDateTime(datetime.datetime):
 def test_mostrar_fechas(monkeypatch):
     monkeypatch.setattr(comandos_basicos.datetime, "datetime", FixedDateTime)
     cb = comandos_basicos.ComandosBasicos()
-    assert cb.mostrar_fecha() == "📅 La fecha de hoy es 02/01/2020."
+    assert cb.mostrar_fecha() == "📅 La fecha de hoy es 2 de enero de 2020."
     assert cb.mostrar_hora() == "🕒 La hora actual es 03:30 PM."
     assert cb.mostrar_fecha_hora() == "📆 02/01/2020 🕒 15:30:45"
+
+
+def test_mostrar_dia_fecha(monkeypatch):
+    monkeypatch.setattr(comandos_basicos.datetime, "datetime", FixedDateTime)
+    cb = comandos_basicos.ComandosBasicos()
+    assert cb.mostrar_dia_fecha() == "📅 Hoy es jueves, 2 de enero de 2020."
 
 
 def test_construir_url():

@@ -45,6 +45,9 @@ def interpretar(texto):
     ]):
         return "reproducir_musica", None
 
+    if "dia" in texto_simple and "hoy" in texto_simple:
+        return "dia_fecha", None
+
     if re.search(r"\bfecha\b", texto) and re.search(r"\bhora\b", texto):
         return "fecha_hora", None
     if re.search(r"\bfecha\b", texto):

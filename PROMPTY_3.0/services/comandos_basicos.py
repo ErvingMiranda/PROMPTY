@@ -11,10 +11,43 @@ from tkinter import Tk, filedialog
 from utils.helpers import quitar_colores
 
 
+MESES = [
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre",
+]
+
+DIAS_SEMANA = [
+    "lunes",
+    "martes",
+    "miércoles",
+    "jueves",
+    "viernes",
+    "sábado",
+    "domingo",
+]
+
+
 class ComandosBasicos:
     def mostrar_fecha(self):
-        fecha_actual = datetime.datetime.now().strftime("%d/%m/%Y")
+        hoy = datetime.datetime.now()
+        fecha_actual = f"{hoy.day} de {MESES[hoy.month - 1]} de {hoy.year}"
         return f"📅 La fecha de hoy es {fecha_actual}."
+
+    def mostrar_dia_fecha(self):
+        hoy = datetime.datetime.now()
+        dia = DIAS_SEMANA[hoy.weekday()]
+        fecha = f"{hoy.day} de {MESES[hoy.month - 1]} de {hoy.year}"
+        return f"📅 Hoy es {dia}, {fecha}."
 
     def mostrar_hora(self):
         hora_actual = datetime.datetime.now().strftime("%I:%M %p")

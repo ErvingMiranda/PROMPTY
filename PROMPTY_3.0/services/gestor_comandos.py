@@ -13,6 +13,7 @@ class GestorComandos:
             "fecha": self._accion_fecha,
             "hora": self._accion_hora,
             "fecha_hora": self._accion_fecha_hora,
+            "dia_fecha": self._accion_dia_fecha,
             "abrir_carpeta": self._accion_abrir_carpeta,
             "abrir_archivo": self._accion_abrir_archivo,
             "abrir_con_opcion": self._accion_abrir_con_opcion,
@@ -51,6 +52,9 @@ class GestorComandos:
 
     def _accion_fecha_hora(self, args, entrada_func):
         return self.basicos.mostrar_fecha_hora()
+
+    def _accion_dia_fecha(self, args, entrada_func):
+        return self.basicos.mostrar_dia_fecha()
 
     def _accion_abrir_carpeta(self, args, entrada_func):
         if args:

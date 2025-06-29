@@ -1,5 +1,7 @@
 import pyttsx3
 import speech_recognition as sr
+import re
+from num2words import num2words
 from data import config
 from services.permisos import Permisos
 from utils.helpers import limpiar_emoji, quitar_colores
@@ -39,22 +41,40 @@ class ServicioVoz:
         if self.engine is None:
             self._init_engine()
 
+    def _normalizar_numeros(self, texto: str) -> str:
+        """Convierte cifras numéricas a palabras en español para una
+        pronunciación más natural."""
+
+        def reemplazar(match: re.Match) -> str:
+            numero = match.group(0).replace(',', '.')
+            try:
+                if '.' in numero:
+                    valor = float(numero)
+                else:
+                    valor = int(numero)
+                return num2words(valor, lang="es")
+            except Exception:
+                return match.group(0)
+
+        return re.sub(r"\d+(?:[.,]\d+)?", reemplazar, texto)
+
     def hablar(self, texto):
         texto_sin_colores = quitar_colores(texto)
         texto_limpio = limpiar_emoji(texto_sin_colores)
+        texto_final = self._normalizar_numeros(texto_limpio)
         # Garantizar que no haya otro loop de pyttsx3 activo y que el motor exista
         self.detener()
         self._ensure_engine()
         try:
-            self.engine.say(texto_limpio)
+            self.engine.say(texto_final)
             self.engine.runAndWait()
         except RuntimeError:
             # Reiniciar y volver a intentar si el motor quedó en mal estado
             self.engine = None
             self._ensure_engine()
-            self.engine.say(texto_limpio)
+            self.engine.say(texto_final)
             self.engine.runAndWait()
-        return texto_limpio
+        return texto_final
 
     def detener(self):
         """Detiene la reproducción actual y descarta el motor."""
