@@ -1,9 +1,12 @@
+"""Vista en terminal para interactuar con PROMPTY."""
+
 from pathlib import Path
 
 from colorama import Fore, Style
 from services.asistente_voz import ServicioVoz
 from services.gestor_comandos import GestorComandos
 from services.gestor_roles import GestorRoles
+from services.autenticacion import ServicioAutenticacion
 from services.interpretador import interpretar
 from utils.helpers import limpiar_pantalla, quitar_colores
 
@@ -12,6 +15,7 @@ class VistaTerminal:
     def __init__(self, usuario):
         self.usuario = usuario
         self.gestor_roles = GestorRoles()
+        self.auth_service = ServicioAutenticacion(self.gestor_roles)
         self.asistente_voz = ServicioVoz(usuario, verificar_admin_callback=self.gestor_roles.autenticar)
         self.gestor_comandos = GestorComandos(usuario)
         self.modo_respuesta = "texto"
@@ -202,14 +206,15 @@ class VistaTerminal:
 
     def menu_admin(self):
         print("\n🔐 MODO ADMINISTRADOR")
-        admin = self.usuario
-        if not self.usuario.es_admin():
+        def pedir():
             cif = input("CIF del administrador: ").strip()
             clave = input("Contraseña: ").strip()
-            admin = self.gestor_roles.autenticar(cif, clave)
-            if not admin or not admin.es_admin():
-                print("❌ Acceso denegado.")
-                return
+            return cif, clave
+
+        admin = self.auth_service.autenticar_admin(self.usuario, pedir)
+        if not admin:
+            print("❌ Acceso denegado.")
+            return
         print("🔓 Acceso concedido.")
         while True:
             print("\n⚙️ OPCIONES DE ADMINISTRADOR")
