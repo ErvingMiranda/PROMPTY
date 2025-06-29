@@ -1,8 +1,12 @@
 import pyttsx3
 import speech_recognition as sr
+import re
+import time
+from num2words import num2words
 from data import config
 from services.permisos import Permisos
 from utils.helpers import limpiar_emoji, quitar_colores
+from services.comandos_basicos import MESES
 
 
 class ServicioVoz:
@@ -39,22 +43,74 @@ class ServicioVoz:
         if self.engine is None:
             self._init_engine()
 
+    def _formatear_fecha_hora(self, texto: str) -> str | None:
+        """Convierte una cadena con fecha y hora numerica en una frase mas
+        natural. Devuelve ``None`` si no coincide con el patron esperado."""
+        m = re.search(r"(\d{2})/(\d{2})/(\d{4})\s+(\d{2}):(\d{2})(?::(\d{2}))?", texto)
+        if not m:
+            m = re.search(r"(\d{2})(\d{2})(\d{4})\s+(\d{2}):(\d{2})(?::(\d{2}))?", texto)
+        if not m:
+            return None
+        dia, mes, anio, hora, minuto, _ = m.groups()
+        try:
+            dia = int(dia)
+            mes = MESES[int(mes) - 1]
+            anio_pal = num2words(int(anio), lang="es")
+            h = int(hora) % 12 or 12
+            h_pal = num2words(h, lang="es")
+            min_val = int(minuto)
+            if min_val == 0:
+                minuto_pal = "en punto"
+            elif min_val == 30:
+                minuto_pal = "y media"
+            elif min_val == 15:
+                minuto_pal = "y cuarto"
+            else:
+                minuto_pal = f"y {num2words(min_val, lang='es')}"
+        except Exception:
+            return None
+        return f"Hoy es {num2words(dia, lang='es')} de {mes} de {anio_pal}, son las {h_pal} {minuto_pal}"
+
+    def _normalizar_numeros(self, texto: str) -> str:
+        """Convierte cifras numéricas a palabras en español para una
+        pronunciación más natural."""
+
+        def reemplazar(match: re.Match) -> str:
+            numero = match.group(0).replace(',', '.')
+            try:
+                if '.' in numero:
+                    valor = float(numero)
+                else:
+                    valor = int(numero)
+                return num2words(valor, lang="es")
+            except Exception:
+                return match.group(0)
+
+        return re.sub(r"\d+(?:[.,]\d+)?", reemplazar, texto)
+
     def hablar(self, texto):
         texto_sin_colores = quitar_colores(texto)
         texto_limpio = limpiar_emoji(texto_sin_colores)
+        natural = self._formatear_fecha_hora(texto_limpio)
+        if natural is not None:
+            texto_final = natural
+        else:
+            texto_final = self._normalizar_numeros(texto_limpio)
         # Garantizar que no haya otro loop de pyttsx3 activo y que el motor exista
         self.detener()
         self._ensure_engine()
+        # Dar tiempo para que el motor se inicialice correctamente
+        time.sleep(config.ESPERA_INICIAL_VOZ)
         try:
-            self.engine.say(texto_limpio)
+            self.engine.say(texto_final)
             self.engine.runAndWait()
         except RuntimeError:
             # Reiniciar y volver a intentar si el motor quedó en mal estado
             self.engine = None
             self._ensure_engine()
-            self.engine.say(texto_limpio)
+            self.engine.say(texto_final)
             self.engine.runAndWait()
-        return texto_limpio
+        return texto_final
 
     def detener(self):
         """Detiene la reproducción actual y descarta el motor."""
@@ -74,13 +130,21 @@ class ServicioVoz:
         """Escucha desde el micrófono y devuelve el texto reconocido.
         Si se proporciona ``notify`` se llamará con el mensaje de escucha en
         lugar de imprimirlo en la terminal. Devuelve ``None`` si no se entiende
-        o ``"__error_red"`` si ocurre un problema de conexión."""
-        with sr.Microphone() as source:
+        o ``"__error_red"`` si ocurre un problema de conexión o con el
+        micrófono."""
+        try:
+            with sr.Microphone() as source:
+                if notify:
+                    notify("🎙️ Escuchando...")
+                else:
+                    print("🎙️ Escuchando...")
+                audio = self.recognizer.listen(source)
+        except OSError:
             if notify:
-                notify("🎙️ Escuchando...")
+                notify("❌ Error al acceder al micrófono")
             else:
-                print("🎙️ Escuchando...")
-            audio = self.recognizer.listen(source)
+                print("❌ Error al acceder al micrófono")
+            return "__error_red"
         try:
             texto = self.recognizer.recognize_google(audio, language="es-ES")
             return texto

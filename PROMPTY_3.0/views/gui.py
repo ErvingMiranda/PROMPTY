@@ -1,3 +1,5 @@
+"""Interfaz gráfica principal de PROMPTY construida con PyQt."""
+
 import os
 import sys
 from pathlib import Path
@@ -34,6 +36,7 @@ from PyQt6.QtWidgets import (
 from services.asistente_voz import ServicioVoz
 from services.gestor_comandos import GestorComandos
 from services.gestor_roles import GestorRoles
+from services.autenticacion import ServicioAutenticacion
 from services.interpretador import interpretar
 from utils import ScalingMixin
 from utils.helpers import quitar_colores
@@ -655,6 +658,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         self.usuario = usuario
         self.logout_callback = logout_callback
         self.gestor_roles = GestorRoles()
+        self.auth_service = ServicioAutenticacion(self.gestor_roles)
         self.servicio_voz = ServicioVoz(usuario, verificar_admin_callback=self.gestor_roles.autenticar)
         self.gestor_comandos = GestorComandos(usuario)
         self.setWindowTitle("PROMTY - Asistente de Voz")
@@ -832,24 +836,21 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
             contrario.
         """
 
-        usuario_admin = self.usuario
-        if not self.usuario.es_admin():
+        def pedir():
             cif, ok = QInputDialog.getText(self, "Modo admin", "CIF del administrador:")
             if not ok:
-                QMessageBox.warning(self, "Error", "Acceso denegado: operación cancelada")
-                return False
-
+                return None, None
             clave, ok2 = QInputDialog.getText(
                 self, "Modo admin", "Contraseña:", QLineEdit.EchoMode.Password
             )
             if not ok2:
-                QMessageBox.warning(self, "Error", "Acceso denegado: operación cancelada")
-                return False
+                return None, None
+            return cif.strip(), clave.strip()
 
-            usuario_admin = self.gestor_roles.autenticar(cif.strip(), clave.strip())
-            if not usuario_admin or not usuario_admin.es_admin():
-                QMessageBox.warning(self, "Error", "Acceso denegado: credenciales incorrectas")
-                return False
+        usuario_admin = self.auth_service.autenticar_admin(self.usuario, pedir)
+        if not usuario_admin:
+            QMessageBox.warning(self, "Error", "Acceso denegado")
+            return False
 
         if self.ventana_admin is None:
             self.ventana_admin = AdminWindow(
@@ -870,7 +871,10 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         self.servicio_voz.detener()
         mensaje_original = self.label.text()
         self.label.setText("\ud83c\udf99\ufe0f Escuchando...")
-        
+
+        # Limpiar la salida para mostrar el estado de escucha
+        self.text_output.clear()
+
         def notify_gui(msg):
             self.text_output.append(msg)
             QApplication.processEvents()
@@ -882,18 +886,23 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
             self.text_output.append("\u274c No se entendió el comando")
             self.servicio_voz.hablar("No se entendió el comando")
             return
+
+        # Mostrar lo entendido y dar tiempo a leerlo antes de procesar
         self.text_output.append(f"\ud83d\udde3\ufe0f Entendí: {texto}")
-        self.ejecutar_comando_desde_texto(texto)
+        QApplication.processEvents()
+        QTimer.singleShot(1500, lambda: self.ejecutar_comando_desde_texto(texto))
 
     def process_command(self):
         texto = self.command_input.text().strip()
         if texto:
             self.servicio_voz.detener()
+            self.text_output.append("\U0001F5E3\ufe0f Entendí: " + texto)
             self.ejecutar_comando_desde_texto(texto)
             self.command_input.clear()
 
     def ejecutar_comando_desde_texto(self, texto):
         self.servicio_voz.detener()
+        # Obtener la acción y limpiar la salida previa
         comando, argumentos = interpretar(texto)
         self.text_output.clear()
 
@@ -919,12 +928,13 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
             self.ver_arbol_programa()
             respuesta = "Mostrando estructura del proyecto..."
         else:
+            # Llamadas que requieren interacción del usuario
             interactivos = {
                 "abrir_carpeta",
                 "abrir_con_opcion",
-                "buscar_en_navegador",
+                "buscar_en_navegador_interactivo",
                 "buscar_en_youtube",
-                "buscar_general",
+                "buscar_en_navegador_directo",
                 "info_programa",
                 "reproducir_musica",
             }
@@ -933,6 +943,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
             else:
                 respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos)
 
+        # Mostrar respuesta final al usuario
         self.mostrar_respuesta(respuesta)
 
     def mostrar_respuesta(self, respuesta: str):

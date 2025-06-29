@@ -21,8 +21,8 @@ class TestInterpretador(unittest.TestCase):
 
     def test_busquedas(self):
         self.assertEqual(interpretar('buscar receta en youtube')[0], 'buscar_en_youtube')
-        self.assertEqual(interpretar('buscar fotos en google')[0], 'buscar_general')
-        self.assertEqual(interpretar('buscar un archivo')[0], 'buscar_en_navegador')
+        self.assertEqual(interpretar('buscar fotos en google')[0], 'buscar_en_navegador_directo')
+        self.assertEqual(interpretar('buscar un archivo')[0], 'buscar_en_navegador_interactivo')
         self.assertEqual(interpretar('escuchar musica')[0], 'reproducir_musica')
         self.assertEqual(interpretar('poner cancion')[0], 'reproducir_musica')
         self.assertEqual(interpretar('oir canciones')[0], 'reproducir_musica')
@@ -41,6 +41,12 @@ class TestInterpretador(unittest.TestCase):
         self.assertEqual(interpretar('abre el folder')[0], 'abrir_carpeta')
         self.assertEqual(interpretar('abre un documento')[0], 'abrir_archivo')
         self.assertEqual(interpretar('exit')[0], 'salir')
+
+    def test_fechas_horas(self):
+        self.assertEqual(interpretar('fecha y hora')[0], 'fecha_hora')
+        self.assertEqual(interpretar('que hora es')[0], 'hora')
+        self.assertEqual(interpretar('cual es la fecha')[0], 'fecha')
+        self.assertEqual(interpretar('que dia es hoy')[0], 'dia_fecha')
 
     def test_desconocido(self):
         self.assertEqual(interpretar('xyz')[0], 'comando_no_reconocido')

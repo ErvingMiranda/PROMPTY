@@ -26,16 +26,20 @@ Funciones actuales:
 - Iniciar sesión con distintos roles y permisos.
 
 PROCESO DE DESARROLLO
-PROMPTY está desarrollado en Python 3.13.3 utilizando librerías estándar como `datetime`, `os`, `webbrowser`, `random`, así como módulos como `speech_recognition` y `pyttsx3` para integrar entrada y salida por voz.
+PROMPTY está desarrollado en Python 3.13.3 utilizando librerías estándar como datetime, os, webbrowser, random, así como módulos como speech_recognition y pyttsx3 para integrar entrada y salida por voz.
 
-A diferencia de versiones anteriores, PROMPTY 3.0 utiliza una estructura profesional basada en capas (data, models, services, views) y programación orientada a objetos. Esto permite que el código sea fácilmente reutilizable en su interfaz gráfica.
+A diferencia de versiones anteriores, PROMPTY 3.0 utiliza una estructura basada en capas (data, models, services, views) y programación orientada a objetos, permitiendo que el código sea fácilmente reutilizable en su interfaz gráfica.
 
 Versión actual: PROMPTY 3.0
 
-Próxima versión: PROMPTY 3.1
-- Interfaz gráfica completa (Tkinter o Qt).
-- Mejora en las voces y configuración avanzada.
-- Gestión visual de comandos y usuarios.
+Próxima versión: PROMPTY 4.0
+- Incorporación de inteligencia artificial para comprender mejor las peticiones del usuario y adaptar las respuestas.
+- Configuración de temas en la interfaz.
+- Sistema de gestión visual de comandos y usuarios, permitiendo personalización intuitiva al administrador.
+- Mejora en la calidad de las voces y la configuración avanzada de velocidad y volumen.
+- Integración de nuevas funciones.
+
+LICENCIA DE USO Y DERECHOS
 
 LICENCIA DE USO Y DERECHOS
 © 2025 PROMPTY 3.0 | Universidad Americana (UAM)

@@ -27,13 +27,12 @@ def interpretar(texto):
         if "youtube" in texto:
             return "buscar_en_youtube", None
         elif "google" in texto or "navegador" in texto:
-            # Si el usuario especifica google o navegador, ya sabemos el destino
-            # por lo que sólo se debe preguntar si quiere buscar un término o
-            # ingresar una URL.
-            return "buscar_general", None
+            # Si el usuario especifica google o navegador, se asume que
+            # desea realizar la búsqueda directamente en ese destino.
+            return "buscar_en_navegador_directo", None
         else:
             # El usuario dijo "buscar" pero no indicó destino; se pregunta dónde.
-            return "buscar_en_navegador", None
+            return "buscar_en_navegador_interactivo", None
 
     if any(p in texto for p in [
         "musica",
@@ -45,10 +44,22 @@ def interpretar(texto):
     ]):
         return "reproducir_musica", None
 
+    if "dia" in texto_simple or "hoy" in texto_simple:
+        return "dia_fecha", None
+
+    if re.search(r"\bfecha\b", texto) and re.search(r"\bhora\b", texto):
+        return "fecha_hora", None
+    if re.search(r"\bfecha\b", texto):
+        return "fecha", None
+    if re.search(r"\bhora\b", texto):
+        return "hora", None
+    if re.search(r"\btiempo\b", texto):
+        return "fecha_hora", None
+
     numero_comandos = {
         ("1", "uno"): "fecha_hora",
         ("2", "dos"): "abrir_con_opcion",
-        ("3", "tres"): "buscar_en_navegador",
+        ("3", "tres"): "buscar_en_navegador_directo",
         ("4", "cuatro"): "reproducir_musica",
         ("5", "cinco"): "dato_curioso",
         ("6", "seis"): "info_programa",
@@ -63,13 +74,16 @@ def interpretar(texto):
             return comando, None
 
     palabras_clave = {
-        ("hora", "fecha", "tiempo"): "fecha_hora",
+        ("tiempo",): "fecha_hora",
         ("carpeta", "folder", "directorio"): "abrir_carpeta",
         ("archivo", "documento", "fichero", "aplicacion", "aplicación", "app"): "abrir_archivo",
         ("abrir", "abre", "ejecuta"): "abrir_con_opcion",
         ("youtube",): "buscar_en_youtube",
-        ("navegador", "google", "internet", "web", "explorador"): "buscar_en_navegador",
-        ("buscar", "investigar", "consultar"): "buscar_general",
+        # Si la palabra clave indica explícitamente "navegador" o "google",
+        # se asume búsqueda directa en el navegador.
+        ("navegador", "google", "internet", "web", "explorador"): "buscar_en_navegador_directo",
+        # Palabras genéricas para buscar sin destino definido.
+        ("buscar", "investigar", "consultar"): "buscar_en_navegador_interactivo",
         (
             "musica",
             "música",
