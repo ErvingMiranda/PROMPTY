@@ -1,21 +1,14 @@
-"""Vista en terminal para interactuar con PROMPTY."""
-
-from pathlib import Path
-
-from colorama import Fore, Style
-from services.asistente_voz import ServicioVoz
 from services.gestor_comandos import GestorComandos
+from services.asistente_voz import ServicioVoz
 from services.gestor_roles import GestorRoles
-from services.autenticacion import ServicioAutenticacion
 from services.interpretador import interpretar
-from utils.helpers import limpiar_pantalla, quitar_colores
-
+from utils.helpers import quitar_colores, limpiar_pantalla
+from colorama import Fore, Style
 
 class VistaTerminal:
     def __init__(self, usuario):
         self.usuario = usuario
         self.gestor_roles = GestorRoles()
-        self.auth_service = ServicioAutenticacion(self.gestor_roles)
         self.asistente_voz = ServicioVoz(usuario, verificar_admin_callback=self.gestor_roles.autenticar)
         self.gestor_comandos = GestorComandos(usuario)
         self.modo_respuesta = "texto"
@@ -55,29 +48,16 @@ class VistaTerminal:
             if comando == "ayuda":
                 self.mostrar_bienvenida()
                 continue
-            if comando == "ver_arbol":
-                self.mostrar_arbol()
-                continue
 
             if comando == "comando_no_reconocido":
-                mensaje = (
-                    "❌ Comando no reconocido. "
-                    "Puedes consultar las opciones disponibles escribiendo 'ayuda'."
-                )
+                mensaje = "❌ Comando no reconocido. Intenta de nuevo."
                 print(mensaje)
                 if self.modo_respuesta in ["voz", "ambos"]:
                     self.asistente_voz.hablar(quitar_colores(mensaje))
                 continue
 
             # Comandos que requieren entrada
-            comandos_interactivos = [
-                "abrir_carpeta",
-                "abrir_con_opcion",
-                "buscar_general",
-                "buscar_en_youtube",
-                "buscar_en_navegador",
-                "reproducir_musica",
-            ]
+            comandos_interactivos = ["abrir_carpeta", "abrir_con_opcion", "buscar_en_navegador", "buscar_en_youtube"]
             if comando in comandos_interactivos:
                 respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos, entrada_manual_func=input)
             else:
@@ -148,30 +128,21 @@ class VistaTerminal:
         return "exit"
 
     def mostrar_bienvenida(self):
-        print(f"{Fore.CYAN}¡Hola! Soy PROMPTY 3.0, tu asistente virtual de escritorio.{Style.RESET_ALL}")
-        print(f"{Fore.YELLOW}Estoy listo para ayudarte con tareas básicas usando tu voz o el teclado.{Style.RESET_ALL}\n")
-        print(f"{Fore.GREEN}Puedes pedirme que:{Style.RESET_ALL}")
-        print("1. Te diga la fecha y hora actual.")
-        print("2. Abra un archivo o carpeta (puedes escribir la ruta o buscarla).")
-        print("3. Busque algo en YouTube o en tu navegador preferido (puedes usar un término o ingresar una URL).")
-        print("4. Reproduzca música en YouTube Music.")
-        print("5. Te comparta un dato curioso.")
-        print("6. Te hable sobre el programa y sus creadores.")
-        if self.usuario.es_admin():
-            print("7. Funciones admin.")
-        else:
-            print("7. Acceder al modo admin (requerirá credenciales de un administrador).")
-        print("8. Modificar tus datos de usuario.")
-        print("9. Cerrar sesión para iniciar con otro usuario.")
-        print("10. Salir del programa.")
+        print(f"""{Fore.CYAN}
+¡Hola! Soy PROMPTY 2.5, tu asistente virtual de escritorio.
+{Fore.YELLOW}Estoy listo para ayudarte con tareas básicas usando tu voz o el teclado.
 
-    def mostrar_arbol(self):
-        """Imprime la estructura de carpetas del proyecto."""
-        root_path = Path(__file__).resolve().parents[2] / "PROMPTY_3.0"
-        from utils.helpers import generar_arbol
-
-        for linea in generar_arbol(root_path):
-            print(linea)
+{Fore.GREEN}Puedes pedirme que:{Style.RESET_ALL}
+1. Te diga la fecha y hora actual.
+2. Abra un archivo o carpeta (puedes escribir la ruta o buscarla).
+3. Busque algo en YouTube o en tu navegador preferido (puedes usar un término o ingresar una URL).
+4. Te comparta un dato curioso.
+5. Te hable sobre el programa y sus creadores.
+6. Acceder al modo administrador (con contraseña).
+7. Modificar tus datos de usuario.
+8. Cerrar sesión para iniciar con otro usuario.
+9. Salir del programa.
+""")
 
     def menu_configuracion_voz(self):
         while True:
@@ -206,32 +177,26 @@ class VistaTerminal:
 
     def menu_admin(self):
         print("\n🔐 MODO ADMINISTRADOR")
-        def pedir():
-            cif = input("CIF del administrador: ").strip()
-            clave = input("Contraseña: ").strip()
-            return cif, clave
-
-        admin = self.auth_service.autenticar_admin(self.usuario, pedir)
-        if not admin:
-            print("❌ Acceso denegado.")
+        cif = input("CIF del administrador: ").strip()
+        clave = input("Contraseña: ").strip()
+        admin = self.gestor_roles.autenticar(cif, clave)
+        if not admin or not admin.es_admin():
+            print("❌ Credenciales incorrectas.")
             return
         print("🔓 Acceso concedido.")
         while True:
             print("\n⚙️ OPCIONES DE ADMINISTRADOR")
             print("1. Configurar voz")
             print("2. Gestionar usuarios")
-            print("3. Gestionar datos curiosos")
-            print("4. Volver al menú principal")
+            print("3. Volver al menú principal")
 
-            opcion = input("Selecciona una opción (1-4): ").strip()
+            opcion = input("Selecciona una opción (1-3): ").strip()
 
             if opcion == "1":
                 self.menu_configuracion_voz()
             elif opcion == "2":
                 self.menu_gestion_usuarios()
             elif opcion == "3":
-                self.menu_datos_curiosos(admin)
-            elif opcion == "4":
                 break
             else:
                 print("❌ Opción no válida.")
@@ -261,29 +226,12 @@ class VistaTerminal:
                 nuevo_nombre = input(f"Nuevo nombre [{usuario.nombre}]: ").strip()
                 nueva_clave = input("Nueva contraseña (dejar vacío para no cambiar): ").strip()
                 nuevo_rol = input(f"Nuevo rol [{usuario.rol}] (usuario/colaborador/admin): ").strip().lower()
-                nueva_pregunta = input(
-                    f"Nueva pregunta [{usuario.pregunta or 'ninguna'}] (vacío para no cambiar, '-' para eliminar): "
-                ).strip()
-                nueva_respuesta = None
-                if nueva_pregunta == "-":
-                    nueva_pregunta = None
-                elif nueva_pregunta:
-                    nueva_respuesta = input("Nueva respuesta: ").strip()
-                kwargs = {}
-                if nuevo_nombre:
-                    kwargs["nombre"] = nuevo_nombre
-                if nueva_clave:
-                    kwargs["contrasena"] = nueva_clave
-                if nuevo_rol:
-                    kwargs["rol"] = nuevo_rol
-                if nueva_pregunta == "-":
-                    kwargs["pregunta"] = None
-                    kwargs["respuesta"] = None
-                elif nueva_pregunta:
-                    kwargs["pregunta"] = nueva_pregunta
-                    if nueva_respuesta:
-                        kwargs["respuesta"] = nueva_respuesta
-                self.gestor_roles.actualizar_usuario(cif, **kwargs)
+                self.gestor_roles.actualizar_usuario(
+                    cif,
+                    nombre=nuevo_nombre or None,
+                    contrasena=nueva_clave or None,
+                    rol=nuevo_rol or None,
+                )
                 print("✔ Usuario actualizado.")
             elif opcion == "3":
                 self.mostrar_tabla_usuarios()
@@ -307,10 +255,9 @@ class VistaTerminal:
             print("\n✏️ MODIFICAR MIS DATOS")
             print("1. Cambiar nombre")
             print("2. Cambiar contraseña")
-            print("3. Cambiar pregunta de seguridad")
-            print("4. Volver")
+            print("3. Volver")
 
-            opcion = input("Selecciona una opción (1-4): ").strip()
+            opcion = input("Selecciona una opción (1-3): ").strip()
 
             if opcion == "1":
                 nuevo = input("Nuevo nombre: ").strip()
@@ -324,70 +271,6 @@ class VistaTerminal:
                     self.gestor_roles.actualizar_usuario(self.usuario.cif, contrasena=nueva)
                     print("✔ Contraseña actualizada.")
             elif opcion == "3":
-                pregunta = input(
-                    f"Nueva pregunta [{self.usuario.pregunta or 'ninguna'}] (vacío para no cambiar, '-' para eliminar): "
-                ).strip()
-                respuesta = None
-                if pregunta == "-":
-                    pregunta = None
-                elif pregunta:
-                    respuesta = input("Respuesta: ").strip()
-                kwargs = {}
-                if pregunta == "-":
-                    kwargs["pregunta"] = None
-                    kwargs["respuesta"] = None
-                elif pregunta:
-                    kwargs["pregunta"] = pregunta
-                    if respuesta:
-                        kwargs["respuesta"] = respuesta
-                self.gestor_roles.actualizar_usuario(
-                    self.usuario.cif,
-                    **kwargs,
-                )
-                print("✔ Pregunta actualizada.")
-            elif opcion == "4":
-                break
-            else:
-                print("❌ Opción no válida.")
-
-    def menu_datos_curiosos(self, admin):
-        from services import datos_curiosos
-
-        while True:
-            print("\n📚 GESTIÓN DE DATOS CURIOSOS")
-            print("1. Listar datos")
-            print("2. Agregar dato")
-            print("3. Modificar dato")
-            print("4. Eliminar dato")
-            print("5. Volver")
-
-            opcion = input("Selecciona una opción (1-5): ").strip()
-
-            if opcion == "1":
-                lista = datos_curiosos.obtener_lista_datos()
-                if not lista:
-                    print("❌ No hay datos registrados.")
-                else:
-                    for i, dato in enumerate(lista, 1):
-                        print(f"{i}. {dato}")
-            elif opcion == "2":
-                nuevo = input("Nuevo dato: ").strip()
-                if nuevo:
-                    print(quitar_colores(datos_curiosos.agregar_dato(admin, nuevo)))
-            elif opcion == "3":
-                try:
-                    indice = int(input("Número de dato a modificar: ")) - 1
-                    nuevo = input("Nuevo texto: ").strip()
-                    print(quitar_colores(datos_curiosos.modificar_dato(admin, indice, nuevo)))
-                except ValueError:
-                    print("❌ Entrada inválida.")
-            elif opcion == "4":
-                try:
-                    indice = int(input("Número de dato a eliminar: ")) - 1
-                    print(quitar_colores(datos_curiosos.eliminar_dato(admin, indice)))
-                except ValueError:
-                    print("❌ Entrada inválida.")
-            elif opcion == "5":
                 break
             else:
                 print("❌ Opción no válida.")

@@ -257,7 +257,8 @@ class EditarUsuarioWindow(ScalingMixin, QWidget):
                 kwargs["respuesta"] = None
             else:
                 kwargs["pregunta"] = pregunta
-                kwargs["respuesta"] = respuesta or None
+                if respuesta:
+                    kwargs["respuesta"] = respuesta
         self.gestor_roles.actualizar_usuario(self.usuario.cif, **kwargs)
         if nombre:
             self.usuario.nombre = nombre
@@ -296,7 +297,7 @@ class UsuarioWindow(ScalingMixin, QWidget):
 
         if self.logout_callback:
             self.boton_logout = QPushButton("Cerrar sesión")
-            self.boton_logout.clicked.connect(self.logout_callback)
+            self.boton_logout.clicked.connect(self._logout)
             self.boton_logout.setProperty("base_height", 30)
             self.boton_logout.setProperty(
                 "base_width", self.boton_logout.sizeHint().width()
@@ -317,6 +318,12 @@ class UsuarioWindow(ScalingMixin, QWidget):
 
         self.setLayout(layout)
         self.apply_scaling()
+
+    def _logout(self):
+        """Cierra la ventana y delega el cierre de sesión."""
+        self.close()
+        if self.logout_callback:
+            self.logout_callback()
 
 class AyudaWindow(ScalingMixin, QWidget):
     """Ventana que muestra las opciones y comandos disponibles."""
@@ -1110,7 +1117,19 @@ class LoginWindow(ScalingMixin, QWidget):
         self.apply_scaling()
 
     def show(self):
-        """Muestra la ventana en pantalla completa y al frente."""
+        """Muestra la ventana en pantalla completa y al frente.
+
+        Al volver desde la ventana principal, recarga los datos de
+        usuarios y limpia los campos de entrada para evitar utilizar
+        credenciales obsoletas.
+        """
+        # Recargar usuarios por si hubo cambios mientras estaba abierta
+        # la ventana principal (por ejemplo, cambio de contraseña).
+        self.gestor_roles.cargar_usuarios(self.gestor_roles.ruta_archivo)
+        # Limpiar entradas para no mantener datos de la sesión previa
+        self.cif_input.clear()
+        self.pass_input.clear()
+
         super().showFullScreen()
         self.raise_()
         self.activateWindow()
