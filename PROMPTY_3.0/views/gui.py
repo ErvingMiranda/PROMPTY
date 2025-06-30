@@ -296,7 +296,7 @@ class UsuarioWindow(ScalingMixin, QWidget):
 
         if self.logout_callback:
             self.boton_logout = QPushButton("Cerrar sesión")
-            self.boton_logout.clicked.connect(self.logout_callback)
+            self.boton_logout.clicked.connect(self._logout)
             self.boton_logout.setProperty("base_height", 30)
             self.boton_logout.setProperty(
                 "base_width", self.boton_logout.sizeHint().width()
@@ -317,6 +317,12 @@ class UsuarioWindow(ScalingMixin, QWidget):
 
         self.setLayout(layout)
         self.apply_scaling()
+
+    def _logout(self):
+        """Cierra la ventana y delega el cierre de sesión."""
+        self.close()
+        if self.logout_callback:
+            self.logout_callback()
 
 class AyudaWindow(ScalingMixin, QWidget):
     """Ventana que muestra las opciones y comandos disponibles."""
