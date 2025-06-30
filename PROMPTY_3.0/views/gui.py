@@ -986,6 +986,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         self.label.setFont(fuente)
         self.command_input.setFont(fuente)
         self.text_output.setFont(fuente)
+        self.button_salir.setFont(fuente)
 
     def preguntar(self, mensaje):
         texto, ok = QInputDialog.getText(self, "PROMTY", mensaje)
@@ -1052,6 +1053,7 @@ class LoginWindow(ScalingMixin, QWidget):
         self.login_button.setFont(fuente)
         self.forgot_button.setFont(fuente)
         self.register_button.setFont(fuente)
+        self.exit_button.setFont(fuente)
 
     def setup_ui(self):
         layout = QVBoxLayout()
