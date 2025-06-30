@@ -23,16 +23,19 @@ def interpretar(texto):
     if texto_simple in saludos:
         return "saludo", None
 
+    if "administrador" in texto and "funciones" in texto:
+        return "modo_admin", None
+
     if "buscar" in texto:
         if "youtube" in texto:
             return "buscar_en_youtube", None
         elif "google" in texto or "navegador" in texto:
             # Si el usuario especifica google o navegador, se asume que
             # desea realizar la búsqueda directamente en ese destino.
-            return "buscar_en_navegador_directo", None
+            return "buscar_en_navegador", None
         else:
             # El usuario dijo "buscar" pero no indicó destino; se pregunta dónde.
-            return "buscar_en_navegador_interactivo", None
+            return "buscar_general", None
 
     if any(p in texto for p in [
         "musica",
@@ -59,7 +62,7 @@ def interpretar(texto):
     numero_comandos = {
         ("1", "uno"): "fecha_hora",
         ("2", "dos"): "abrir_con_opcion",
-        ("3", "tres"): "buscar_en_navegador_directo",
+        ("3", "tres"): "buscar_en_navegador",
         ("4", "cuatro"): "reproducir_musica",
         ("5", "cinco"): "dato_curioso",
         ("6", "seis"): "info_programa",
@@ -81,9 +84,9 @@ def interpretar(texto):
         ("youtube",): "buscar_en_youtube",
         # Si la palabra clave indica explícitamente "navegador" o "google",
         # se asume búsqueda directa en el navegador.
-        ("navegador", "google", "internet", "web", "explorador"): "buscar_en_navegador_directo",
+        ("navegador", "google", "internet", "web", "explorador"): "buscar_en_navegador",
         # Palabras genéricas para buscar sin destino definido.
-        ("buscar", "investigar", "consultar"): "buscar_en_navegador_interactivo",
+        ("buscar", "investigar", "consultar"): "buscar_general",
         (
             "musica",
             "música",
@@ -100,6 +103,14 @@ def interpretar(texto):
         ("curioso", "dato", "curiosidad", "sabias"): "dato_curioso",
         ("programa", "creador", "información", "informacion", "acerca", "sobre"): "info_programa",
         ("usuario", "perfil", "cuenta"): "editar_usuario",
+        (
+            "funciones de administrador",
+            "funciones del administrador",
+            "abre el administrador",
+            "abre las funciones de administrador",
+            "abrir administrador",
+            "abrir las funciones de administrador",
+        ): "modo_admin",
         ("ayuda", "opciones", "menu", "ayudar"): "ayuda",
         ("tree", "árbol", "arbol", "estructura", "directorios", "mapa"): "ver_arbol",
         ("salir", "cerrar", "adios", "terminar", "exit"): "salir",
