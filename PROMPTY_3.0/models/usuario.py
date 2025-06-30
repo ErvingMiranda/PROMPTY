@@ -3,11 +3,13 @@ from utils.helpers import hash_password
 
 
 class Usuario:
-    def __init__(self, cif, nombre, rol, contrasena):
+    def __init__(self, cif, nombre, rol, contrasena, pregunta=None, respuesta=None):
         self.cif = cif
         self.nombre = nombre
         self.rol = rol.lower()
         self.contrasena = contrasena
+        self.pregunta = pregunta
+        self.respuesta = respuesta
         self._permisos = Permisos()
 
     def es_admin(self):
@@ -26,6 +28,12 @@ class Usuario:
     def verificar_contrasena(self, clave_ingresada):
         """Verifica la contraseña comparando hashes."""
         return self.contrasena == hash_password(clave_ingresada)
+
+    def verificar_respuesta(self, respuesta):
+        """Comprueba la respuesta de seguridad, si existe."""
+        if self.respuesta is None:
+            return True
+        return self.respuesta == hash_password(respuesta)
 
     def __str__(self):
         rol_formateado = {

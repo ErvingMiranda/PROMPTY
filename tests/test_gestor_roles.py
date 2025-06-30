@@ -16,6 +16,8 @@ def crear_archivo_usuarios(tmp_path):
                 "nombre": "User1",
                 "rol": "admin",
                 "contrasena": helpers.hash_password("pass1"),
+                "pregunta": "Color?",
+                "respuesta": helpers.hash_password("verde"),
             }
         ]
     }
@@ -50,3 +52,18 @@ def test_registrar_usuario(monkeypatch, tmp_path):
     assert contrasena == "pass2"
     nuevo = gr.obtener_usuario_por_cif("2222")
     assert nuevo.nombre == "User2"
+
+
+def test_restablecer_contrasena_ok(tmp_path):
+    ruta = crear_archivo_usuarios(tmp_path)
+    gr = GestorRoles(ruta)
+    nueva = gr.restablecer_contrasena("1111", "verde")
+    assert nueva is not None
+    usuario = gr.obtener_usuario_por_cif("1111")
+    assert usuario.verificar_contrasena(nueva)
+
+
+def test_restablecer_contrasena_falla(tmp_path):
+    ruta = crear_archivo_usuarios(tmp_path)
+    gr = GestorRoles(ruta)
+    assert gr.restablecer_contrasena("1111", "azul") is None
