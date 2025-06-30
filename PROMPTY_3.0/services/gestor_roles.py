@@ -20,7 +20,17 @@ class GestorRoles:
         try:
             with ruta.open("r") as archivo:
                 datos = json.load(archivo)
-                self.usuarios = [Usuario(**u) for u in datos["usuarios"]]
+                self.usuarios = [
+                    Usuario(
+                        u.get("cif"),
+                        u.get("nombre"),
+                        u.get("rol"),
+                        u.get("contrasena"),
+                        u.get("pregunta"),
+                        u.get("respuesta"),
+                    )
+                    for u in datos["usuarios"]
+                ]
         except Exception as e:
             self.logger.error("Error al cargar usuarios: %s", e)
 
@@ -44,6 +54,8 @@ class GestorRoles:
                     "nombre": u.nombre,
                     "rol": u.rol,
                     "contrasena": u.contrasena,
+                    "pregunta": u.pregunta,
+                    "respuesta": u.respuesta,
                 }
                 for u in self.usuarios
             ]
@@ -54,7 +66,7 @@ class GestorRoles:
         except Exception as e:
             self.logger.error("Error al guardar usuarios: %s", e)
 
-    def registrar_usuario(self, nombre, rol, contrasena=None):
+    def registrar_usuario(self, nombre, rol, contrasena=None, pregunta=None, respuesta=None):
         """Registra un nuevo usuario y devuelve su CIF y contraseña."""
         from utils.helpers import generar_cif, generar_contrasena, hash_password
 
@@ -65,12 +77,21 @@ class GestorRoles:
         else:
             contrasena_plana = contrasena
         hashed = hash_password(contrasena_plana)
-        nuevo = Usuario(cif=cif, nombre=nombre, rol=rol, contrasena=hashed)
+        if respuesta is not None:
+            respuesta = hash_password(respuesta)
+        nuevo = Usuario(
+            cif=cif,
+            nombre=nombre,
+            rol=rol,
+            contrasena=hashed,
+            pregunta=pregunta,
+            respuesta=respuesta,
+        )
         self.usuarios.append(nuevo)
         self.guardar_usuarios()
         return cif, contrasena_plana
 
-    def actualizar_usuario(self, cif, nombre=None, contrasena=None, rol=None):
+    def actualizar_usuario(self, cif, nombre=None, contrasena=None, rol=None, pregunta=None, respuesta=None):
         usuario = self.obtener_usuario_por_cif(cif)
         if not usuario:
             return False
@@ -80,15 +101,21 @@ class GestorRoles:
             usuario.nombre = nombre
         if contrasena:
             usuario.contrasena = hash_password(contrasena)
+        if pregunta is not None:
+            usuario.pregunta = pregunta
+        if respuesta is not None:
+            usuario.respuesta = hash_password(respuesta)
         if rol:
             usuario.rol = rol.lower()
         self.guardar_usuarios()
         return True
 
-    def restablecer_contrasena(self, cif):
+    def restablecer_contrasena(self, cif, respuesta=None):
         """Genera y asigna una nueva contraseña para el usuario indicado."""
         usuario = self.obtener_usuario_por_cif(cif)
         if not usuario:
+            return None
+        if usuario.pregunta and not usuario.verificar_respuesta(respuesta or ""):
             return None
         from utils.helpers import generar_contrasena, hash_password
 

@@ -53,11 +53,19 @@ class VistaLogin:
         limpiar_pantalla()
         print("🔑 Recuperar contraseña")
         cif = input("CIF: ").strip()
-        nueva = self.gestor_roles.restablecer_contrasena(cif)
+        usuario = self.gestor_roles.obtener_usuario_por_cif(cif)
+        if not usuario:
+            print("❌ CIF no encontrado.")
+            input("Presiona Enter para continuar...")
+            return
+        respuesta = None
+        if usuario.pregunta:
+            respuesta = input(f"{usuario.pregunta}: ").strip()
+        nueva = self.gestor_roles.restablecer_contrasena(cif, respuesta)
         if nueva:
             print(f"Tu nueva contraseña temporal es: {nueva}")
         else:
-            print("❌ CIF no encontrado.")
+            print("❌ Respuesta incorrecta.")
         input("Presiona Enter para continuar...")
 
     def registrar_usuario(self):
@@ -73,7 +81,17 @@ class VistaLogin:
             print("Contraseña no puede estar vacía")
             input("Presiona Enter para continuar...")
             return
-        cif, _ = self.gestor_roles.registrar_usuario(nombre, "usuario", contrasena=clave)
+        pregunta = input("Pregunta de seguridad (opcional): ").strip()
+        respuesta = None
+        if pregunta:
+            respuesta = input("Respuesta: ").strip()
+        cif, _ = self.gestor_roles.registrar_usuario(
+            nombre,
+            "usuario",
+            contrasena=clave,
+            pregunta=pregunta or None,
+            respuesta=respuesta or None,
+        )
         print(f"Registro exitoso. Tu CIF es: {cif}")
         input("Presiona Enter para continuar...")
 

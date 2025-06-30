@@ -4,7 +4,9 @@
       "cif": "25010330",
       "nombre": "Erving",
       "rol": "admin",
-      "contrasena": "09f5d690dab14d3e86806267533f6e3439e521d467998f4edf351d5114ebceac"
+      "contrasena": "09f5d690dab14d3e86806267533f6e3439e521d467998f4edf351d5114ebceac",
+      "pregunta": "¿Color favorito del admin?",
+      "respuesta": "ec061fafb777f2943027f2deb3c17961556c386cad45065f343a74aea1177ad0"
     },
     {
       "cif": "25120411",
