@@ -57,7 +57,7 @@ uv run .\PROMPTY_3.0\main.py
 
 ```bash
 PROMPTY/
-├── Prompty1.0/        # Scripts iniciales (sin GUI)
+├── Prompty1.0/        # Scripts iniciales
 ├── PROMPTY_2.0/       # Primera versión modularizada
 ├── PROMPTY_2.5/       # Organización por capas: models, services, views
 ├── PROMPTY_3.0/       # Versión actual con GUI y todas las funciones
