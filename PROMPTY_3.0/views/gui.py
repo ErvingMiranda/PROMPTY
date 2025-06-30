@@ -765,10 +765,11 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         self.button_salir.setStyleSheet(
             "background-color: #ff6347; color: white; border-radius: 10px;"
         )
-        self.button_salir.setProperty("base_height", 40)
-        self.button_salir.setProperty(
-            "base_width", self.button_salir.sizeHint().width()
-        )
+        # Hacemos el botón de salida más grande por defecto
+        self.button_salir.setProperty("base_height", 60)
+        # Aumentamos también el ancho base para que sea más visible
+        base_width_salir = max(150, self.button_salir.sizeHint().width())
+        self.button_salir.setProperty("base_width", base_width_salir)
         self.button_salir.clicked.connect(self.close)
         main_layout.addWidget(self.button_salir, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -985,6 +986,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         self.label.setFont(fuente)
         self.command_input.setFont(fuente)
         self.text_output.setFont(fuente)
+        self.button_salir.setFont(fuente)
 
     def preguntar(self, mensaje):
         texto, ok = QInputDialog.getText(self, "PROMTY", mensaje)
@@ -1051,6 +1053,7 @@ class LoginWindow(ScalingMixin, QWidget):
         self.login_button.setFont(fuente)
         self.forgot_button.setFont(fuente)
         self.register_button.setFont(fuente)
+        self.exit_button.setFont(fuente)
 
     def setup_ui(self):
         layout = QVBoxLayout()
@@ -1089,8 +1092,10 @@ class LoginWindow(ScalingMixin, QWidget):
 
         self.exit_button = QPushButton("Salir")
         self.exit_button.clicked.connect(self.close)
-        self.exit_button.setProperty("base_height", 30)
-        self.exit_button.setProperty("base_width", self.exit_button.sizeHint().width())
+        # Botón de salida más grande para facilitar su pulsación
+        self.exit_button.setProperty("base_height", 50)
+        base_exit_width = max(120, self.exit_button.sizeHint().width())
+        self.exit_button.setProperty("base_width", base_exit_width)
         layout.addWidget(self.exit_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(layout)
