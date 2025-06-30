@@ -1147,8 +1147,24 @@ class LoginWindow(ScalingMixin, QWidget):
         )
         if not (ok and clave):
             return
+        pregunta, ok = QInputDialog.getText(
+            self, "Registro", "Pregunta de seguridad (opcional):"
+        )
+        if ok and pregunta.strip():
+            respuesta, ok = QInputDialog.getText(
+                self, "Registro", "Respuesta:", QLineEdit.EchoMode.Password
+            )
+            if not ok:
+                return
+        else:
+            pregunta = None
+            respuesta = None
         cif, _ = self.gestor_roles.registrar_usuario(
-            nombre.strip(), "usuario", contrasena=clave
+            nombre.strip(),
+            "usuario",
+            contrasena=clave,
+            pregunta=pregunta,
+            respuesta=respuesta,
         )
         QMessageBox.information(
             self,
@@ -1173,7 +1189,18 @@ class LoginWindow(ScalingMixin, QWidget):
         if not cif:
             QMessageBox.information(self, "Info", "Ingresa tu CIF para continuar")
             return
-        nueva = self.gestor_roles.restablecer_contrasena(cif)
+        usuario = self.gestor_roles.obtener_usuario_por_cif(cif)
+        if not usuario:
+            QMessageBox.warning(self, "Error", "CIF no encontrado")
+            return
+        respuesta = ""
+        if usuario.pregunta:
+            respuesta, ok = QInputDialog.getText(
+                self, "Seguridad", usuario.pregunta, QLineEdit.EchoMode.Password
+            )
+            if not ok:
+                return
+        nueva = self.gestor_roles.restablecer_contrasena(cif, respuesta)
         if nueva:
             QMessageBox.information(
                 self,
@@ -1181,7 +1208,7 @@ class LoginWindow(ScalingMixin, QWidget):
                 f"Tu nueva contraseña temporal es: {nueva}",
             )
         else:
-            QMessageBox.warning(self, "Error", "CIF no encontrado")
+            QMessageBox.warning(self, "Error", "Respuesta incorrecta")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

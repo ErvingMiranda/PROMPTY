@@ -1,7 +1,6 @@
 """Punto de entrada de PROMPTY 3.0."""
 
 import sys
-
 from PyQt6.QtWidgets import QApplication
 from utils.helpers import preguntar_modo_interfaz
 from views.gui import LoginWindow
