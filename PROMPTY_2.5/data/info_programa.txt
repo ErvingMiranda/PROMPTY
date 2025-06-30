@@ -1,0 +1,51 @@
+SOBRE LOS CREADORES DE PROMPTY
+PROMPTY fue desarrollado por un equipo de estudiantes comprometidos con la innovación, como proyecto para la asignatura de "Introducción a la Programación" en la Universidad Americana (UAM):
+
+Miembros del equipo:
+- Erving Miranda: Coordinador del proyecto y encargado del diseño general de funciones.
+- Owen Bravo: Encargado de pruebas del sistema.
+- Liang Zúñiga: Encargado de documentación y apoyo técnico.
+- María Carrasco: Responsable de diseño creativo y contenido informativo.
+
+SOBRE EL PROGRAMA
+PROMPTY 2.5 es un asistente virtual de escritorio desarrollado como proyecto final para el curso "Introducción a la Programación" en la Universidad Americana (UAM).
+
+Objetivo del programa:
+Desarrollar un asistente virtual en Python capaz de ejecutar tareas básicas mediante comandos por texto o voz, integrando una voz sintética natural, autenticación de usuarios, y una estructura modular profesional orientada a objetos. Esta versión está diseñada para permitir su futura integración con una interfaz gráfica.
+
+PROMPTY busca ofrecer una experiencia funcional y cercana a la de asistentes reales, permitiendo a los usuarios realizar acciones cotidianas como consultar la hora, abrir archivos, buscar en internet o recibir datos curiosos, todo con una estructura flexible y moderna.
+
+Funciones actuales:
+- Mostrar fecha y hora actual.
+- Abrir archivos o carpetas por ruta.
+- Realizar búsquedas en YouTube.
+- Compartir datos curiosos desde una lista interna.
+- Proporcionar información sobre el programa y sus creadores.
+- Recibir comandos por texto o voz.
+- Responder mediante voz sintética.
+- Iniciar sesión con distintos roles y permisos.
+
+PROCESO DE DESARROLLO
+PROMPTY está desarrollado en Python 3.13.3 utilizando librerías estándar como `datetime`, `os`, `webbrowser`, `random`, así como módulos como `speech_recognition` y `pyttsx3` para integrar entrada y salida por voz.
+
+A diferencia de versiones anteriores, PROMPTY 2.5 utiliza una estructura profesional basada en capas (data, models, services, views) y programación orientada a objetos. Esto permite que el código sea fácilmente reutilizable en una futura interfaz gráfica.
+
+Versión actual: PROMPTY 2.5
+
+Próxima versión: PROMPTY 3.0
+- Interfaz gráfica completa (Tkinter o Qt).
+- Mejora en las voces y configuración avanzada.
+- Gestión visual de comandos y usuarios.
+
+LICENCIA DE USO Y DERECHOS
+© 2025 PROMPTY 2.5 | Universidad Americana (UAM)
+
+Este software fue desarrollado exclusivamente con fines educativos y demostrativos.
+Todos los derechos pertenecen a los autores mencionados y a la Universidad Americana.
+
+LICENCIA:
+- Uso libre para propósitos académicos y personales.
+- No se permite su distribución comercial sin autorización del equipo creador.
+- Se autoriza la modificación del código siempre que se mantenga el crédito original.
+
+Cualquier uso indebido fuera del marco académico puede violar derechos de autor o políticas institucionales.
