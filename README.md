@@ -29,11 +29,16 @@
 ### Pasos
 
 ```bash
-# 1. Instalar Git (si no lo tenés)
+# 1. Instalar Git (si aún no lo tienes)
+# Comando con winget. Para otros métodos de instalación, consultar el link de arriba.
 winget install --id Git.Git -e
 
 # 2. Instalar UV
-pip install uv
+# Para macOS y Linux.
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Para Windows.
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 # 3. Clonar el repositorio
 git clone https://github.com/ErvingMiranda/PROMPTY.git
