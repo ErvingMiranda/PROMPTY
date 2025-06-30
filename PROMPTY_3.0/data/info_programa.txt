@@ -2,9 +2,9 @@ SOBRE LOS CREADORES DE PROMPTY
 PROMPTY fue desarrollado por un equipo de estudiantes comprometidos con la innovación, como proyecto para la asignatura de "Introducción a la Programación" en la Universidad Americana (UAM):
 
 Miembros del equipo:
-- Erving Miranda: Coordinador del proyecto y encargado del diseño general de funciones.
-- Owen Bravo: Encargado de pruebas del sistema.
-- Liang Zúñiga: Encargado de documentación y apoyo técnico.
+- Erving Miranda: Coordinador del proyecto y desarrollador principal.
+- Owen Bravo: Responsable de documentación y apoyo técnico.
+- Liang Zúñiga: Encargado de control de calidad (QA) y testeo.
 - María Carrasco: Responsable de diseño creativo y contenido informativo.
 
 SOBRE EL PROGRAMA
