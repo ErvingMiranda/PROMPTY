@@ -521,12 +521,14 @@ class AdminWindow(ScalingMixin, QWidget):
         if not hasattr(self, "ventana_datos"):
             self.ventana_datos = DatosCuriososWindow(self.usuario)
         self.parent._sincronizar_fuente(self.ventana_datos)
+        self.parent._sincronizar_modo(self.ventana_datos)
         self.ventana_datos.show()
 
     def abrir_gestion_usuarios(self):
         if self.ventana_usuarios is None:
             self.ventana_usuarios = GestionUsuariosWindow(self.gestor_roles)
         self.parent._sincronizar_fuente(self.ventana_usuarios)
+        self.parent._sincronizar_modo(self.ventana_usuarios)
         self.ventana_usuarios.show()
 
     def no_implementado(self):
@@ -765,10 +767,11 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         self.button_salir.setStyleSheet(
             "background-color: #ff6347; color: white; border-radius: 10px;"
         )
-        self.button_salir.setProperty("base_height", 40)
-        self.button_salir.setProperty(
-            "base_width", self.button_salir.sizeHint().width()
-        )
+        # Hacemos el botón de salida más grande por defecto
+        self.button_salir.setProperty("base_height", 60)
+        # Aumentamos también el ancho base para que sea más visible
+        base_width_salir = max(150, self.button_salir.sizeHint().width())
+        self.button_salir.setProperty("base_width", base_width_salir)
         self.button_salir.clicked.connect(self.close)
         main_layout.addWidget(self.button_salir, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -799,6 +802,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
                 logout_callback=self.cerrar_sesion,
             )
         self._sincronizar_fuente(self.ventana_usuario)
+        self._sincronizar_modo(self.ventana_usuario)
         self.ventana_usuario.show()
 
     def mostrar_editor_usuario(self):
@@ -807,12 +811,14 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
                 self.usuario, self.gestor_roles
             )
         self._sincronizar_fuente(self.ventana_editor_usuario)
+        self._sincronizar_modo(self.ventana_editor_usuario)
         self.ventana_editor_usuario.show()
 
     def ver_ayuda(self):
         if self.ventana_ayuda is None:
             self.ventana_ayuda = AyudaWindow(self.usuario)
         self._sincronizar_fuente(self.ventana_ayuda)
+        self._sincronizar_modo(self.ventana_ayuda)
         self.ventana_ayuda.show()
 
     def ver_configuracion(self):
@@ -824,6 +830,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
                 aplicar_fuente=self.actualizar_fuente,
             )
         self._sincronizar_fuente(self.ventana_configuracion)
+        self._sincronizar_modo(self.ventana_configuracion)
         self.ventana_configuracion.show()
 
     def ver_admin(self) -> bool:
@@ -858,6 +865,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
             )
 
         self._sincronizar_fuente(self.ventana_admin)
+        self._sincronizar_modo(self.ventana_admin)
         self.ventana_admin.show()
         return True
 
@@ -865,6 +873,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         if self.ventana_tree is None:
             self.ventana_tree = TreeWindow()
         self._sincronizar_fuente(self.ventana_tree)
+        self._sincronizar_modo(self.ventana_tree)
         self.ventana_tree.show()
 
     def activate_voice(self):
@@ -932,6 +941,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
             interactivos = {
                 "abrir_carpeta",
                 "abrir_con_opcion",
+                "abrir_archivo",
                 "buscar_general",
                 "buscar_en_youtube",
                 "buscar_en_navegador",
@@ -980,11 +990,36 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
             if hasattr(v, "ventana_datos"):
                 self._sincronizar_fuente(getattr(v, "ventana_datos"))
 
+    def _sincronizar_modo(self, ventana):
+        if ventana is not None:
+            ventana.setStyleSheet(
+                "background-color: #222; color: white;"
+                if self.dark_mode_enabled
+                else ""
+            )
+
+    def _actualizar_modo_ventanas(self):
+        ventanas = [
+            self.ventana_configuracion,
+            self.ventana_usuario,
+            self.ventana_editor_usuario,
+            self.ventana_ayuda,
+            self.ventana_admin,
+            self.ventana_tree,
+        ]
+        for v in ventanas:
+            self._sincronizar_modo(v)
+            if hasattr(v, "ventana_usuarios"):
+                self._sincronizar_modo(getattr(v, "ventana_usuarios"))
+            if hasattr(v, "ventana_datos"):
+                self._sincronizar_modo(getattr(v, "ventana_datos"))
+
     def on_apply_scaling(self, factor: float) -> None:
         fuente = QFont(self.font_family, int(self.base_font_size * factor))
         self.label.setFont(fuente)
         self.command_input.setFont(fuente)
         self.text_output.setFont(fuente)
+        self.button_salir.setFont(fuente)
 
     def preguntar(self, mensaje):
         texto, ok = QInputDialog.getText(self, "PROMTY", mensaje)
@@ -1010,6 +1045,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
             self.button_config.setIcon(QIcon(self.button_config.icon_file))
             self.button_tree.setIcon(QIcon(self.button_tree.icon_file))
 
+        self._actualizar_modo_ventanas()
         self.mensaje_timer.stop()
         self.mensaje_timer.singleShot(5000, lambda: self.label.setText(self.saludo))
 
@@ -1051,6 +1087,7 @@ class LoginWindow(ScalingMixin, QWidget):
         self.login_button.setFont(fuente)
         self.forgot_button.setFont(fuente)
         self.register_button.setFont(fuente)
+        self.exit_button.setFont(fuente)
 
     def setup_ui(self):
         layout = QVBoxLayout()
@@ -1089,8 +1126,10 @@ class LoginWindow(ScalingMixin, QWidget):
 
         self.exit_button = QPushButton("Salir")
         self.exit_button.clicked.connect(self.close)
-        self.exit_button.setProperty("base_height", 30)
-        self.exit_button.setProperty("base_width", self.exit_button.sizeHint().width())
+        # Botón de salida más grande para facilitar su pulsación
+        self.exit_button.setProperty("base_height", 50)
+        base_exit_width = max(120, self.exit_button.sizeHint().width())
+        self.exit_button.setProperty("base_width", base_exit_width)
         layout.addWidget(self.exit_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setLayout(layout)
