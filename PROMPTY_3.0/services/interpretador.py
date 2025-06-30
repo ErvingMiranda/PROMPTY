@@ -66,10 +66,10 @@ def interpretar(texto):
         ("4", "cuatro"): "reproducir_musica",
         ("5", "cinco"): "dato_curioso",
         ("6", "seis"): "info_programa",
-        ("7", "siete", "administrador", "modo admin"): "modo_admin",
+        ("7", "siete"): "modo_admin",
         ("8", "ocho"): "editar_usuario",
-        ("9", "nueve", "cerrar sesión", "cerrar sesion", "logout"): "cerrar_sesion",
-        ("10", "diez", "salir", "cerrar"): "salir",
+        ("9", "nueve"): "cerrar_sesion",
+        ("10", "diez"): "salir",
     }
 
     for claves, comando in numero_comandos.items():
@@ -111,10 +111,11 @@ def interpretar(texto):
             "abrir administrador",
             "abrir las funciones de administrador",
         ): "modo_admin",
+        ("admin", "administrador"): "modo_admin",
         ("ayuda", "opciones", "menu", "ayudar"): "ayuda",
         ("tree", "árbol", "arbol", "estructura", "directorios", "mapa"): "ver_arbol",
-        ("salir", "cerrar", "adios", "terminar", "exit"): "salir",
         ("cerrar sesión", "cerrar sesion", "logout"): "cerrar_sesion",
+        ("salir", "cerrar", "adios", "terminar", "exit"): "salir",
     }
 
     for palabras, comando in palabras_clave.items():
