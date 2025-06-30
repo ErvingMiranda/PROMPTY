@@ -932,9 +932,9 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
             interactivos = {
                 "abrir_carpeta",
                 "abrir_con_opcion",
-                "buscar_en_navegador_interactivo",
+                "buscar_general",
                 "buscar_en_youtube",
-                "buscar_en_navegador_directo",
+                "buscar_en_navegador",
                 "info_programa",
                 "reproducir_musica",
             }
