@@ -269,14 +269,21 @@ class VistaTerminal:
                     nueva_pregunta = None
                 elif nueva_pregunta:
                     nueva_respuesta = input("Nueva respuesta: ").strip()
-                self.gestor_roles.actualizar_usuario(
-                    cif,
-                    nombre=nuevo_nombre or None,
-                    contrasena=nueva_clave or None,
-                    rol=nuevo_rol or None,
-                    pregunta=nueva_pregunta if nueva_pregunta != "" else None,
-                    respuesta=nueva_respuesta,
-                )
+                kwargs = {}
+                if nuevo_nombre:
+                    kwargs["nombre"] = nuevo_nombre
+                if nueva_clave:
+                    kwargs["contrasena"] = nueva_clave
+                if nuevo_rol:
+                    kwargs["rol"] = nuevo_rol
+                if nueva_pregunta == "-":
+                    kwargs["pregunta"] = None
+                    kwargs["respuesta"] = None
+                elif nueva_pregunta:
+                    kwargs["pregunta"] = nueva_pregunta
+                    if nueva_respuesta:
+                        kwargs["respuesta"] = nueva_respuesta
+                self.gestor_roles.actualizar_usuario(cif, **kwargs)
                 print("✔ Usuario actualizado.")
             elif opcion == "3":
                 self.mostrar_tabla_usuarios()
@@ -325,10 +332,17 @@ class VistaTerminal:
                     pregunta = None
                 elif pregunta:
                     respuesta = input("Respuesta: ").strip()
+                kwargs = {}
+                if pregunta == "-":
+                    kwargs["pregunta"] = None
+                    kwargs["respuesta"] = None
+                elif pregunta:
+                    kwargs["pregunta"] = pregunta
+                    if respuesta:
+                        kwargs["respuesta"] = respuesta
                 self.gestor_roles.actualizar_usuario(
                     self.usuario.cif,
-                    pregunta=pregunta if pregunta != "" else None,
-                    respuesta=respuesta,
+                    **kwargs,
                 )
                 print("✔ Pregunta actualizada.")
             elif opcion == "4":

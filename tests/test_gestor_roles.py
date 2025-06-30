@@ -85,3 +85,14 @@ def test_eliminar_pregunta(tmp_path):
     u = gr.obtener_usuario_por_cif("1111")
     assert u.pregunta is None
     assert u.respuesta is None
+
+
+def test_respuesta_sin_cambio(tmp_path):
+    ruta = crear_archivo_usuarios(tmp_path)
+    gr = GestorRoles(ruta)
+    u = gr.obtener_usuario_por_cif("1111")
+    respuesta_original = u.respuesta
+    gr.actualizar_usuario("1111")
+    assert gr.obtener_usuario_por_cif("1111").respuesta == respuesta_original
+    gr.actualizar_usuario("1111", pregunta="Color?")
+    assert gr.obtener_usuario_por_cif("1111").respuesta == respuesta_original
