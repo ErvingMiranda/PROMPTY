@@ -18,8 +18,8 @@ class GestorComandos:
             "abrir_archivo": self._accion_abrir_archivo,
             "abrir_con_opcion": self._accion_abrir_con_opcion,
             "buscar_en_youtube": self._accion_buscar_en_youtube,
-            "buscar_en_navegador_interactivo": self._accion_buscar_en_navegador_interactivo,
-            "buscar_en_navegador_directo": self._accion_buscar_en_navegador_directo,
+            "buscar_general": self._accion_buscar_general,
+            "buscar_en_navegador": self._accion_buscar_en_navegador,
             "reproducir_musica": self._accion_reproducir_musica,
             "dato_curioso": self._accion_dato_curioso,
             "info_programa": self._accion_info_programa,
@@ -73,10 +73,10 @@ class GestorComandos:
             destino_predefinido="youtube", entrada_manual_func=manual
         )
 
-    def _accion_buscar_en_navegador_interactivo(self, args, entrada_func):
+    def _accion_buscar_general(self, args, entrada_func):
         return self.basicos.buscar_en_navegador_con_opcion(entrada_manual_func=entrada_func)
 
-    def _accion_buscar_en_navegador_directo(self, args, entrada_func):
+    def _accion_buscar_en_navegador(self, args, entrada_func):
         return self.basicos.buscar_en_navegador_con_opcion(
             destino_predefinido="navegador", entrada_manual_func=entrada_func
         )

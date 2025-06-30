@@ -21,11 +21,15 @@ class TestInterpretador(unittest.TestCase):
 
     def test_busquedas(self):
         self.assertEqual(interpretar('buscar receta en youtube')[0], 'buscar_en_youtube')
-        self.assertEqual(interpretar('buscar fotos en google')[0], 'buscar_en_navegador_directo')
-        self.assertEqual(interpretar('buscar un archivo')[0], 'buscar_en_navegador_interactivo')
+        self.assertEqual(interpretar('buscar fotos en google')[0], 'buscar_en_navegador')
+        self.assertEqual(interpretar('buscar un archivo')[0], 'buscar_general')
         self.assertEqual(interpretar('escuchar musica')[0], 'reproducir_musica')
         self.assertEqual(interpretar('poner cancion')[0], 'reproducir_musica')
         self.assertEqual(interpretar('oir canciones')[0], 'reproducir_musica')
+
+    def test_admin_frase(self):
+        resultado = interpretar('abre las funciones de administrador')[0]
+        self.assertEqual(resultado, 'modo_admin')
 
     def test_arbol(self):
         self.assertEqual(interpretar('tree')[0], 'ver_arbol')
