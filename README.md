@@ -66,7 +66,12 @@ PROMPTY/
 ├── PROMPTY_2.0/       # Primera versión modularizada
 ├── PROMPTY_2.5/       # Organización por capas: models, services, views
 ├── PROMPTY_3.0/       # Versión actual con GUI y todas las funciones
-└── README.md          # Este archivo
+├── tests/             # Pruebas unitarias y funcionales
+├── .gitignore         # Ignorar archivos y carpetas en Git
+├── LICENSE            # Licencia del proyecto
+├── README.md          # Este archivo
+├── pyproject.toml     # Configuración de dependencias y formato
+└── uv.lock            # Bloqueo de dependencias
 ```
 
 > Solo la carpeta `PROMPTY_3.0` contiene todas las funciones y es la versión recomendada.
