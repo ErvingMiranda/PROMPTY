@@ -12,37 +12,49 @@
       "cif": "25120411",
       "nombre": "Owen",
       "rol": "colaborador",
-      "contrasena": "040b8d73d9705d09346d273ac7e354ca930310ecc8e04388f11af00e3ce9c29e"
+      "contrasena": "040b8d73d9705d09346d273ac7e354ca930310ecc8e04388f11af00e3ce9c29e",
+      "pregunta": "¿Cuál es mi comida favorita?",
+      "respuesta": "fd957fc427401c7b0fdc08efc00e5deec23147613f9ad78ef62a2d53f31d60a5"
     },
     {
       "cif": "25120412",
       "nombre": "Liang",
       "rol": "colaborador",
-      "contrasena": "905ff601eea58014369895e3b9177e62ec97002d57422a505adac3462de4c585"
+      "contrasena": "905ff601eea58014369895e3b9177e62ec97002d57422a505adac3462de4c585",
+      "pregunta": null,
+      "respuesta": null
     },
     {
       "cif": "25120413",
       "nombre": "María",
       "rol": "colaborador",
-      "contrasena": "7428557649a482e5ae23a41b2264c7605bc19d389558b2cf26c2640eca59c7b7"
+      "contrasena": "7428557649a482e5ae23a41b2264c7605bc19d389558b2cf26c2640eca59c7b7",
+      "pregunta": null,
+      "respuesta": null
     },
     {
       "cif": "20250001",
       "nombre": "Carlos Iván Argüello",
       "rol": "usuario",
-      "contrasena": "8cde75a32ddaea3834f981092e64efa171103a1c044e3accb1346fac9f8c4eed"
+      "contrasena": "8cde75a32ddaea3834f981092e64efa171103a1c044e3accb1346fac9f8c4eed",
+      "pregunta": null,
+      "respuesta": null
     },
     {
       "cif": "09710839",
       "nombre": "JP_Zuniga",
       "rol": "usuario",
-      "contrasena": "78a9c981c906e0ecfe00a84d10b1c8d326fa5b5883dbb9c29dd15048d541b240"
+      "contrasena": "78a9c981c906e0ecfe00a84d10b1c8d326fa5b5883dbb9c29dd15048d541b240",
+      "pregunta": null,
+      "respuesta": null
     },
     {
       "cif": "31088963",
       "nombre": "Marco",
       "rol": "usuario",
-      "contrasena": "44a2fd8d104bb8b4c74f95704e8ff7bcb6706387bf24275a7220c47ab399f637"
+      "contrasena": "44a2fd8d104bb8b4c74f95704e8ff7bcb6706387bf24275a7220c47ab399f637",
+      "pregunta": null,
+      "respuesta": null
     }
   ]
 }
