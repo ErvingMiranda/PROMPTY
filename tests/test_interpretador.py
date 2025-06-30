@@ -31,6 +31,10 @@ class TestInterpretador(unittest.TestCase):
         resultado = interpretar('abre las funciones de administrador')[0]
         self.assertEqual(resultado, 'modo_admin')
 
+    def test_admin_solo(self):
+        self.assertEqual(interpretar('admin')[0], 'modo_admin')
+        self.assertEqual(interpretar('administrador')[0], 'modo_admin')
+
     def test_arbol(self):
         self.assertEqual(interpretar('tree')[0], 'ver_arbol')
         self.assertEqual(interpretar('árbol')[0], 'ver_arbol')
