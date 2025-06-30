@@ -257,7 +257,8 @@ class EditarUsuarioWindow(ScalingMixin, QWidget):
                 kwargs["respuesta"] = None
             else:
                 kwargs["pregunta"] = pregunta
-                kwargs["respuesta"] = respuesta or None
+                if respuesta:
+                    kwargs["respuesta"] = respuesta
         self.gestor_roles.actualizar_usuario(self.usuario.cif, **kwargs)
         if nombre:
             self.usuario.nombre = nombre
