@@ -5,6 +5,9 @@ from models.usuario import Usuario
 from utils.helpers import obtener_logger
 
 
+_SIN_CAMBIO = object()
+
+
 class GestorRoles:
     def __init__(self, ruta_archivo=None):
         if ruta_archivo is None:
@@ -91,21 +94,29 @@ class GestorRoles:
         self.guardar_usuarios()
         return cif, contrasena_plana
 
-    def actualizar_usuario(self, cif, nombre=None, contrasena=None, rol=None, pregunta=None, respuesta=None):
+    def actualizar_usuario(
+        self,
+        cif,
+        nombre=_SIN_CAMBIO,
+        contrasena=_SIN_CAMBIO,
+        rol=_SIN_CAMBIO,
+        pregunta=_SIN_CAMBIO,
+        respuesta=_SIN_CAMBIO,
+    ):
         usuario = self.obtener_usuario_por_cif(cif)
         if not usuario:
             return False
         from utils.helpers import hash_password
 
-        if nombre:
+        if nombre is not _SIN_CAMBIO:
             usuario.nombre = nombre
-        if contrasena:
+        if contrasena is not _SIN_CAMBIO:
             usuario.contrasena = hash_password(contrasena)
-        if pregunta is not None:
+        if pregunta is not _SIN_CAMBIO:
             usuario.pregunta = pregunta
-        if respuesta is not None:
-            usuario.respuesta = hash_password(respuesta)
-        if rol:
+        if respuesta is not _SIN_CAMBIO:
+            usuario.respuesta = hash_password(respuesta) if respuesta is not None else None
+        if rol is not _SIN_CAMBIO and rol:
             usuario.rol = rol.lower()
         self.guardar_usuarios()
         return True

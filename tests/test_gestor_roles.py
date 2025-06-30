@@ -67,3 +67,21 @@ def test_restablecer_contrasena_falla(tmp_path):
     ruta = crear_archivo_usuarios(tmp_path)
     gr = GestorRoles(ruta)
     assert gr.restablecer_contrasena("1111", "azul") is None
+
+
+def test_actualizar_pregunta(tmp_path):
+    ruta = crear_archivo_usuarios(tmp_path)
+    gr = GestorRoles(ruta)
+    gr.actualizar_usuario("1111", pregunta="Mascota?", respuesta="gato")
+    u = gr.obtener_usuario_por_cif("1111")
+    assert u.pregunta == "Mascota?"
+    assert u.verificar_respuesta("gato")
+
+
+def test_eliminar_pregunta(tmp_path):
+    ruta = crear_archivo_usuarios(tmp_path)
+    gr = GestorRoles(ruta)
+    gr.actualizar_usuario("1111", pregunta=None, respuesta=None)
+    u = gr.obtener_usuario_por_cif("1111")
+    assert u.pregunta is None
+    assert u.respuesta is None
