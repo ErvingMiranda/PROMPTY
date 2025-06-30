@@ -207,11 +207,22 @@ class EditarUsuarioWindow(ScalingMixin, QWidget):
         self.pass_edit = QLineEdit()
         self.pass_edit.setPlaceholderText("Nueva contraseña")
         self.pass_edit.setEchoMode(QLineEdit.EchoMode.Password)
+        self.pregunta_edit = QLineEdit(self.usuario.pregunta or "")
+        self.pregunta_edit.setPlaceholderText(
+            "Pregunta (vacío para no cambiar, '-' para eliminar)"
+        )
+        self.respuesta_edit = QLineEdit()
+        self.respuesta_edit.setPlaceholderText("Respuesta")
+        self.respuesta_edit.setEchoMode(QLineEdit.EchoMode.Password)
 
         layout.addWidget(QLabel("Nombre"))
         layout.addWidget(self.nombre_edit)
         layout.addWidget(QLabel("Contraseña"))
         layout.addWidget(self.pass_edit)
+        layout.addWidget(QLabel("Pregunta de seguridad"))
+        layout.addWidget(self.pregunta_edit)
+        layout.addWidget(QLabel("Respuesta"))
+        layout.addWidget(self.respuesta_edit)
 
         boton_guardar = QPushButton("Guardar")
         boton_guardar.clicked.connect(self.guardar)
@@ -233,11 +244,21 @@ class EditarUsuarioWindow(ScalingMixin, QWidget):
     def guardar(self):
         nombre = self.nombre_edit.text().strip()
         clave = self.pass_edit.text().strip()
-        self.gestor_roles.actualizar_usuario(
-            self.usuario.cif,
-            nombre=nombre or None,
-            contrasena=clave or None,
-        )
+        pregunta = self.pregunta_edit.text().strip()
+        respuesta = self.respuesta_edit.text().strip()
+        kwargs = {}
+        if nombre:
+            kwargs["nombre"] = nombre
+        if clave:
+            kwargs["contrasena"] = clave
+        if pregunta != "":
+            if pregunta == "-":
+                kwargs["pregunta"] = None
+                kwargs["respuesta"] = None
+            else:
+                kwargs["pregunta"] = pregunta
+                kwargs["respuesta"] = respuesta or None
+        self.gestor_roles.actualizar_usuario(self.usuario.cif, **kwargs)
         if nombre:
             self.usuario.nombre = nombre
         QMessageBox.information(self, "Usuario", "Datos actualizados")
@@ -450,11 +471,32 @@ class GestionUsuariosWindow(ScalingMixin, QWidget):
         )
         if not ok:
             return
+        nueva_pregunta, ok = QInputDialog.getText(
+            self,
+            "Modificar",
+            f"Pregunta de seguridad [{usuario.pregunta or 'ninguna'}] (vac\u00edo para no cambiar, '-' para eliminar):",
+        )
+        if not ok:
+            return
+        nueva_respuesta = ""
+        if nueva_pregunta == "-":
+            nueva_pregunta = None
+        elif nueva_pregunta:
+            nueva_respuesta, ok = QInputDialog.getText(
+                self,
+                "Modificar",
+                "Respuesta:",
+                QLineEdit.EchoMode.Password,
+            )
+            if not ok:
+                return
         self.gestor_roles.actualizar_usuario(
             usuario.cif,
             nombre=nuevo_nombre.strip() or None,
             contrasena=nueva_clave.strip() or None,
             rol=nuevo_rol,
+            pregunta=nueva_pregunta if nueva_pregunta != "" else None,
+            respuesta=nueva_respuesta,
         )
         QMessageBox.information(self, "Usuarios", "Usuario actualizado")
         self.cargar_usuarios()

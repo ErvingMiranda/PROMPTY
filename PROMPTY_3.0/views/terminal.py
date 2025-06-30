@@ -261,11 +261,21 @@ class VistaTerminal:
                 nuevo_nombre = input(f"Nuevo nombre [{usuario.nombre}]: ").strip()
                 nueva_clave = input("Nueva contraseña (dejar vacío para no cambiar): ").strip()
                 nuevo_rol = input(f"Nuevo rol [{usuario.rol}] (usuario/colaborador/admin): ").strip().lower()
+                nueva_pregunta = input(
+                    f"Nueva pregunta [{usuario.pregunta or 'ninguna'}] (vacío para no cambiar, '-' para eliminar): "
+                ).strip()
+                nueva_respuesta = None
+                if nueva_pregunta == "-":
+                    nueva_pregunta = None
+                elif nueva_pregunta:
+                    nueva_respuesta = input("Nueva respuesta: ").strip()
                 self.gestor_roles.actualizar_usuario(
                     cif,
                     nombre=nuevo_nombre or None,
                     contrasena=nueva_clave or None,
                     rol=nuevo_rol or None,
+                    pregunta=nueva_pregunta if nueva_pregunta != "" else None,
+                    respuesta=nueva_respuesta,
                 )
                 print("✔ Usuario actualizado.")
             elif opcion == "3":
@@ -290,9 +300,10 @@ class VistaTerminal:
             print("\n✏️ MODIFICAR MIS DATOS")
             print("1. Cambiar nombre")
             print("2. Cambiar contraseña")
-            print("3. Volver")
+            print("3. Cambiar pregunta de seguridad")
+            print("4. Volver")
 
-            opcion = input("Selecciona una opción (1-3): ").strip()
+            opcion = input("Selecciona una opción (1-4): ").strip()
 
             if opcion == "1":
                 nuevo = input("Nuevo nombre: ").strip()
@@ -306,6 +317,21 @@ class VistaTerminal:
                     self.gestor_roles.actualizar_usuario(self.usuario.cif, contrasena=nueva)
                     print("✔ Contraseña actualizada.")
             elif opcion == "3":
+                pregunta = input(
+                    f"Nueva pregunta [{self.usuario.pregunta or 'ninguna'}] (vacío para no cambiar, '-' para eliminar): "
+                ).strip()
+                respuesta = None
+                if pregunta == "-":
+                    pregunta = None
+                elif pregunta:
+                    respuesta = input("Respuesta: ").strip()
+                self.gestor_roles.actualizar_usuario(
+                    self.usuario.cif,
+                    pregunta=pregunta if pregunta != "" else None,
+                    respuesta=respuesta,
+                )
+                print("✔ Pregunta actualizada.")
+            elif opcion == "4":
                 break
             else:
                 print("❌ Opción no válida.")
