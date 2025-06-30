@@ -14,7 +14,7 @@
 - Reproducción de música desde YouTube Music
 - Acceso a datos curiosos integrados
 - Gestión de usuarios con permisos (usuario, colaborador, administrador)
-- Ventanas independientes para ayuda, configuración de voz e información del sistema
+- Ventanas independientes para ayuda, configuración de voz e información del usuario
 
 ---
 
