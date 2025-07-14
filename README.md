@@ -44,13 +44,10 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 git clone https://github.com/ErvingMiranda/PROMPTY.git
 cd PROMPTY
 
-# 4. Cambiar a la rama principal del proyecto
-git checkout 3.0
-
-# 5. Instalar dependencias
+# 4. Instalar dependencias
 uv sync
 
-# 6. Ejecutar PROMPTY
+# 5. Ejecutar PROMPTY
 uv run .\PROMPTY_3.0\main.py
 ```
 
