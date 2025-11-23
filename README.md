@@ -15,6 +15,8 @@
 - Acceso a datos curiosos integrados
 - Gestión de usuarios con permisos (usuario, colaborador, administrador)
 - Ventanas independientes para ayuda, configuración de voz e información del usuario
+- Nuevo modo "inteligente" conectado a modelos de IA gratuitos (Hugging Face Inference API)
+- Servidor HTTP opcional para reutilizar PROMPTY como servicio en otras apps
 
 ---
 
@@ -52,6 +54,65 @@ uv run .\PROMPTY_3.0\main.py
 ```
 
 > ⚠️ Asegúrate de usar Python 3.10 o superior. Python 3.13 es recomendado para compatibilidad total.
+
+---
+
+## 🧠 Activar el modo inteligente (IA gratuita)
+
+PROMPTY puede conectarse a cualquier modelo disponible en la [Hugging Face Inference API](https://huggingface.co/inference-api) —incluidas alternativas gratuitas como **Mistral 7B Instruct**—, lo que añade razonamiento natural cuando se ingresan comandos no soportados.
+
+1. Crea una cuenta en Hugging Face y genera un token personal (es gratuito y ofrece suficientes tokens para pruebas).
+2. Define la variable de entorno antes de iniciar PROMPTY:
+
+```bash
+export HUGGING_FACE_API_TOKEN="hf_xxx"
+# Opcional: cambia de modelo si lo deseas
+export PROMPTY_IA_MODEL="mistralai/Mistral-7B-Instruct-v0.3"
+```
+
+3. Ejecuta PROMPTY normalmente (por GUI o terminal). Cuando escribas o digas algo fuera de los comandos predefinidos, la IA responderá usando el modelo remoto.
+
+Variables extra disponibles:
+
+| Variable | Descripción |
+| --- | --- |
+| `PROMPTY_IA_BASE_URL` | Endpoint personalizado (por ejemplo, si alojas tu propio modelo o llamas a Gemini vía proxy compatible). |
+| `PROMPTY_IA_TIMEOUT` | Tiempo máximo de espera en segundos (por defecto 45). |
+| `PROMPTY_IA_MAX_TOKENS` | Límite de tokens generados por respuesta (320 por defecto). |
+| `PROMPTY_IA_TEMPERATURE` | Control de creatividad del modelo. |
+
+---
+
+## 🔌 Convertir a servicio/API para MyPlanU
+
+La carpeta `PROMPTY_3.0/api` expone un servidor FastAPI listo para integrarse desde MyPlanU (C# MAUI + SQLite) u otros clientes.
+
+```bash
+# Requiere haber ejecutado `uv sync` previamente
+uv run uvicorn PROMPTY_3_0.api.server:app --reload --port 8000
+```
+
+Endpoints principales:
+
+| Método | Ruta | Descripción |
+| --- | --- | --- |
+| `GET /health` | Verifica que el servicio esté activo. |
+| `POST /api/chat` | Envía un mensaje y recibe la respuesta de la IA. |
+
+Ejemplo de consumo desde cualquier cliente HTTP:
+
+```bash
+curl -X POST http://localhost:8000/api/chat \
+     -H "Content-Type: application/json" \
+     -d '{
+            "mensaje": "Genera un resumen del plan semanal",
+            "historial": [
+                {"rol": "usuario", "contenido": "Necesito organizar tareas"}
+            ]
+        }'
+```
+
+La respuesta JSON contiene `respuesta` (texto generado) y `exito` (bandera booleana). Desde MyPlanU basta con realizar esta petición HTTP para reutilizar las capacidades de PROMPTY como microservicio.
 
 ---
 
