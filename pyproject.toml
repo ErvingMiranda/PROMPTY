@@ -4,6 +4,8 @@ version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
     "colorama>=0.4.6",
+    "fastapi>=0.111.0",
+    "httpx>=0.27.0",
     "pathspec>=0.12.1",
     "pyaudio>=0.2.14",
     "pyqt6>=6.9.1",
@@ -11,4 +13,5 @@ dependencies = [
     "pyttsx3>=2.98",
     "speechrecognition>=3.14.3",
     "num2words>=0.5.13",
+    "uvicorn>=0.30.0",
 ]

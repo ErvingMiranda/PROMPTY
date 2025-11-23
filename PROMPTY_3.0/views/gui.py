@@ -34,6 +34,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 from services.asistente_voz import ServicioVoz
+from services.ai_client import AsistenteIA
 from services.gestor_comandos import GestorComandos
 from services.gestor_roles import GestorRoles
 from services.autenticacion import ServicioAutenticacion
@@ -712,6 +713,7 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         self.auth_service = ServicioAutenticacion(self.gestor_roles)
         self.servicio_voz = ServicioVoz(usuario, verificar_admin_callback=self.gestor_roles.autenticar)
         self.gestor_comandos = GestorComandos(usuario)
+        self.asistente_ia = AsistenteIA()
         self.setWindowTitle("PROMTY - Asistente de Voz")
         self.setGeometry(100, 100, 400, 600)
         self.base_width = 400
@@ -985,6 +987,8 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         elif comando == "ver_arbol":
             self.ver_arbol_programa()
             respuesta = "Mostrando estructura del proyecto..."
+        elif comando == "comando_no_reconocido":
+            respuesta = self.asistente_ia.responder(texto)
         else:
             # Llamadas que requieren interacción del usuario
             interactivos = {
