@@ -2,15 +2,18 @@ import re
 
 
 def interpretar(texto):
-    """Devuelve (comando, argumentos) a partir de una cadena.
+    """Devuelve (comando, argumentos, palabra_clave) a partir de una cadena.
 
-    Si no se reconoce la orden, el comando será "comando_no_reconocido"
-    y los argumentos serán None.
+    Si no se reconoce la orden, el comando será "comando_no_reconocido",
+    los argumentos serán None y la palabra clave será None.
     """
     texto = texto.lower().strip()
     texto = texto.replace("en el", "en")  # Normaliza "buscar en el navegador" → "buscar en navegador"
 
     texto_simple = re.sub(r"[!.,?]", "", texto).strip()
+
+    def resultado(comando, palabra_clave=None):
+        return comando, None, palabra_clave
     saludos = [
         "hola",
         "hola prompty",
@@ -21,21 +24,21 @@ def interpretar(texto):
         "como estas",
     ]
     if texto_simple in saludos:
-        return "saludo", None
+        return resultado("saludo", texto_simple)
 
     if "administrador" in texto and "funciones" in texto:
-        return "modo_admin", None
+        return resultado("modo_admin", "funciones de administrador")
 
     if "buscar" in texto:
         if "youtube" in texto:
-            return "buscar_en_youtube", None
+            return resultado("buscar_en_youtube", "youtube")
         elif "google" in texto or "navegador" in texto:
             # Si el usuario especifica google o navegador, se asume que
             # desea realizar la búsqueda directamente en ese destino.
-            return "buscar_en_navegador", None
+            return resultado("buscar_en_navegador", "navegador")
         else:
             # El usuario dijo "buscar" pero no indicó destino; se pregunta dónde.
-            return "buscar_general", None
+            return resultado("buscar_general", "buscar")
 
     if any(p in texto for p in [
         "musica",
@@ -45,19 +48,19 @@ def interpretar(texto):
         "canción",
         "canciones",
     ]):
-        return "reproducir_musica", None
+        return resultado("reproducir_musica", "musica")
 
     if "dia" in texto_simple or "hoy" in texto_simple:
-        return "dia_fecha", None
+        return resultado("dia_fecha", "dia")
 
     if re.search(r"\bfecha\b", texto) and re.search(r"\bhora\b", texto):
-        return "fecha_hora", None
+        return resultado("fecha_hora", "fecha y hora")
     if re.search(r"\bfecha\b", texto):
-        return "fecha", None
+        return resultado("fecha", "fecha")
     if re.search(r"\bhora\b", texto):
-        return "hora", None
+        return resultado("hora", "hora")
     if re.search(r"\btiempo\b", texto):
-        return "fecha_hora", None
+        return resultado("fecha_hora", "tiempo")
 
     numero_comandos = {
         ("1", "uno"): "fecha_hora",
@@ -74,7 +77,7 @@ def interpretar(texto):
 
     for claves, comando in numero_comandos.items():
         if texto in claves:
-            return comando, None
+            return resultado(comando, texto)
 
     palabras_clave = {
         ("tiempo",): "fecha_hora",
@@ -119,7 +122,8 @@ def interpretar(texto):
     }
 
     for palabras, comando in palabras_clave.items():
-        if any(p in texto for p in palabras):
-            return comando, None
+        coincidencia = next((p for p in palabras if p in texto), None)
+        if coincidencia:
+            return resultado(comando, coincidencia)
 
-    return "comando_no_reconocido", None
+    return resultado("comando_no_reconocido")

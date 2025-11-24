@@ -32,7 +32,10 @@ class VistaTerminal:
             self.asistente_voz.hablar(quitar_colores("Hola. Estoy listo para ayudarte."))
 
         while True:
-            comando, argumentos, texto_original = self.obtener_instruccion()
+            comando, argumentos, texto_original, palabra_clave = self.obtener_instruccion()
+
+            if self._confirmar_o_usar_ia(comando, palabra_clave, texto_original):
+                continue
 
             if comando == "modo_admin":
                 self.menu_admin()
@@ -137,8 +140,36 @@ class VistaTerminal:
         else:
             entrada = ""
 
-        comando, argumentos = interpretar(entrada)
-        return comando, argumentos, entrada
+        comando, argumentos, palabra_clave = interpretar(entrada)
+        return comando, argumentos, entrada, palabra_clave
+
+    def _confirmar_o_usar_ia(self, comando, palabra_clave, texto_original):
+        """Pregunta al usuario si desea ejecutar el comando o usar la IA."""
+        if comando in ["comando_no_reconocido", "saludo"]:
+            return False
+
+        clave = palabra_clave or comando
+        mensaje = (
+            f"🔎 Detecté la palabra clave '{clave}', que activa el comando predeterminado "
+            f"""'{comando}'. Si prefieres una respuesta específica con el servicio de IA, escribe 'ia'."""
+        )
+        print(mensaje)
+        if self.modo_respuesta in ["voz", "ambos"]:
+            self.asistente_voz.hablar(quitar_colores(mensaje))
+
+        decision = input(
+            "Pulsa Enter para ejecutar el comando o escribe 'ia' para una respuesta con IA: "
+        ).strip().lower()
+
+        if decision == "ia":
+            respuesta = self.asistente_ia.responder(texto_original)
+            print(respuesta)
+            if self.modo_respuesta in ["voz", "ambos"]:
+                self.asistente_voz.hablar(quitar_colores(respuesta))
+            return True
+
+        print("✅ Ejecutaré el comando predeterminado. Si necesitas otra cosa, dímelo.")
+        return False
 
     def salir_programa(self):
         mensaje = "👋 Hasta luego. Fue un placer ayudarte."
