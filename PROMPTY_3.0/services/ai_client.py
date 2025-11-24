@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 import os
+from pathlib import Path
 from threading import Lock
 from typing import Any, Dict, List, Optional
 
@@ -16,6 +18,9 @@ _SYSTEM_PROMPT = (
     "Puedes razonar y proponer acciones pero nunca inventes datos ni enlaces que no existan."
 )
 
+DEFAULT_BASE_URL = "https://router.huggingface.co"
+CONFIG_LOCAL_PATH = Path(__file__).resolve().parent.parent / "config_local.json"
+
 
 @dataclass
 class IAConfig:
@@ -23,29 +28,55 @@ class IAConfig:
 
     api_token: Optional[str] = None
     model_id: str = "mistralai/Mistral-7B-Instruct-v0.3"
-    base_url: Optional[str] = None
+    base_url: Optional[str] = DEFAULT_BASE_URL
     timeout: float = 45.0
     max_new_tokens: int = 320
     temperature: float = 0.4
 
     @property
     def endpoint(self) -> str:
-        if self.base_url:
-            return self.base_url.rstrip("/")
-        return f"https://router.huggingface.co/hf-inference/models/{self.model_id}"
+        base = (self.base_url or DEFAULT_BASE_URL).rstrip("/")
+        if base.endswith("/v1/chat"):
+            return f"{base}/completions"
+        if base.endswith("/v1"):
+            return f"{base}/chat/completions"
+        return f"{base}/v1/chat/completions"
+
+    @classmethod
+    def _load_local_config(cls) -> Dict[str, Any]:
+        if not CONFIG_LOCAL_PATH.exists():
+            return {}
+        try:
+            with CONFIG_LOCAL_PATH.open("r", encoding="utf-8") as handler:
+                data = json.load(handler)
+            if isinstance(data, dict):
+                return data
+        except (OSError, ValueError):
+            pass
+        return {}
 
     @classmethod
     def from_env(cls) -> "IAConfig":
-        token = (
+        local_config = cls._load_local_config()
+        token = local_config.get("api_token") if isinstance(local_config, dict) else None
+        model = local_config.get("model_id") if isinstance(local_config, dict) else None
+        base_url = local_config.get("base_url") if isinstance(local_config, dict) else None
+        timeout = local_config.get("timeout") if isinstance(local_config, dict) else None
+        max_new_tokens = (
+            local_config.get("max_new_tokens") if isinstance(local_config, dict) else None
+        )
+        temperature = local_config.get("temperature") if isinstance(local_config, dict) else None
+
+        token = token or (
             os.getenv("PROMPTY_IA_TOKEN")
             or os.getenv("HUGGING_FACE_API_TOKEN")
             or os.getenv("HF_API_TOKEN")
         )
-        model = os.getenv("PROMPTY_IA_MODEL") or cls.model_id
-        base_url = os.getenv("PROMPTY_IA_BASE_URL")
-        timeout = float(os.getenv("PROMPTY_IA_TIMEOUT", cls.timeout))
-        max_new_tokens = int(os.getenv("PROMPTY_IA_MAX_TOKENS", cls.max_new_tokens))
-        temperature = float(os.getenv("PROMPTY_IA_TEMPERATURE", cls.temperature))
+        model = model or os.getenv("PROMPTY_IA_MODEL") or cls.model_id
+        base_url = base_url or os.getenv("PROMPTY_IA_BASE_URL") or DEFAULT_BASE_URL
+        timeout = float(timeout or os.getenv("PROMPTY_IA_TIMEOUT", cls.timeout))
+        max_new_tokens = int(max_new_tokens or os.getenv("PROMPTY_IA_MAX_TOKENS", cls.max_new_tokens))
+        temperature = float(temperature or os.getenv("PROMPTY_IA_TEMPERATURE", cls.temperature))
         return cls(
             api_token=token,
             model_id=model,
@@ -76,29 +107,42 @@ class ServicioIA:
             headers["Authorization"] = f"Bearer {self.config.api_token}"
         return headers
 
-    def _build_prompt(self, mensaje: str, historial: Optional[List[Dict[str, str]]]) -> str:
-        bloques = [_SYSTEM_PROMPT, "\nHistorial de la conversación:\n"]
+    def _build_messages(self, mensaje: str, historial: Optional[List[Dict[str, str]]]) -> List[Dict[str, str]]:
+        mensajes: List[Dict[str, str]] = [
+            {"role": "system", "content": _SYSTEM_PROMPT}
+        ]
         if historial:
             for turno in historial:
-                rol = turno.get("rol") or turno.get("role") or "usuario"
+                rol = (turno.get("rol") or turno.get("role") or "usuario").lower()
                 contenido = turno.get("contenido") or turno.get("content") or ""
-                prefijo = "Usuario" if rol.startswith("u") else "PROMPTY"
-                bloques.append(f"{prefijo}: {contenido}\n")
-        bloques.append(f"Usuario: {mensaje}\nPROMPTY:")
-        return "".join(bloques)
+                role = "assistant" if rol.startswith("a") else "user"
+                mensajes.append({"role": role, "content": contenido})
+        mensajes.append({"role": "user", "content": mensaje})
+        return mensajes
 
     def _build_payload(self, mensaje: str, historial: Optional[List[Dict[str, str]]]) -> Dict[str, Any]:
-        prompt = self._build_prompt(mensaje, historial)
         return {
-            "inputs": prompt,
-            "parameters": {
-                "max_new_tokens": self.config.max_new_tokens,
-                "temperature": self.config.temperature,
-                "return_full_text": False,
-            },
+            "model": self.config.model_id,
+            "messages": self._build_messages(mensaje, historial),
+            "temperature": self.config.temperature,
+            "max_tokens": self.config.max_new_tokens,
         }
 
     def _extraer_texto(self, data: Any) -> Optional[str]:
+        if isinstance(data, dict):
+            if "choices" in data and isinstance(data["choices"], list):
+                for choice in data["choices"]:
+                    mensaje = choice.get("message") if isinstance(choice, dict) else None
+                    if isinstance(mensaje, dict) and "content" in mensaje:
+                        return str(mensaje.get("content", "")).strip()
+                    delta = choice.get("delta") if isinstance(choice, dict) else None
+                    if isinstance(delta, dict) and "content" in delta:
+                        return str(delta.get("content", "")).strip()
+            if "generated_text" in data:
+                return str(data["generated_text"]).strip()
+            if "error" in data:
+                return f"❌ {data['error']}"
+
         if isinstance(data, list) and data:
             candidato = data[0]
             if isinstance(candidato, dict):
@@ -106,11 +150,6 @@ class ServicioIA:
                     return candidato["generated_text"].strip()
                 if "error" in candidato:
                     return f"❌ {candidato['error']}"
-        if isinstance(data, dict):
-            if "generated_text" in data:
-                return data["generated_text"].strip()
-            if "error" in data:
-                return f"❌ {data['error']}"
         return None
 
     def consultar(
@@ -120,9 +159,10 @@ class ServicioIA:
         if not mensaje:
             return "❌ No recibí ningún mensaje para enviar a la IA.", False
 
-        if not self.config.api_token and not self.config.base_url:
+        if not self.config.api_token:
             return (
-                "⚠️ Para habilitar el modo inteligente define la variable de entorno "
+                "⚠️ Para habilitar el modo inteligente coloca tu token en 'config_local.json' "
+                f"({CONFIG_LOCAL_PATH}) o define la variable de entorno "
                 "'HUGGING_FACE_API_TOKEN' (puedes obtener un token gratuito en huggingface.co).",
                 False,
             )
