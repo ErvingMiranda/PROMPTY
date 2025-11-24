@@ -68,21 +68,46 @@ class GestorComandos:
         return self.basicos.abrir_con_opcion(entrada_manual_func=entrada_func)
 
     def _accion_buscar_en_youtube(self, args, entrada_func):
-        manual = entrada_func if not args else None
+        termino = self._obtener_termino(args)
+        url = self._obtener_url(args)
+        manual = entrada_func if not (termino or url) else None
         return self.basicos.buscar_en_navegador_con_opcion(
-            destino_predefinido="youtube", entrada_manual_func=manual
+            destino_predefinido="youtube",
+            entrada_manual_func=manual,
+            termino=termino,
+            url=url,
         )
 
     def _accion_buscar_general(self, args, entrada_func):
-        return self.basicos.buscar_en_navegador_con_opcion(entrada_manual_func=entrada_func)
+        termino = self._obtener_termino(args)
+        url = self._obtener_url(args)
+        manual = entrada_func if not (termino or url) else None
+        return self.basicos.buscar_en_navegador_con_opcion(
+            entrada_manual_func=manual,
+            termino=termino,
+            url=url,
+        )
 
     def _accion_buscar_en_navegador(self, args, entrada_func):
+        termino = self._obtener_termino(args)
+        url = self._obtener_url(args)
+        manual = entrada_func if not (termino or url) else None
         return self.basicos.buscar_en_navegador_con_opcion(
-            destino_predefinido="navegador", entrada_manual_func=entrada_func
+            destino_predefinido="navegador",
+            entrada_manual_func=manual,
+            termino=termino,
+            url=url,
         )
 
     def _accion_reproducir_musica(self, args, entrada_func):
-        return self.basicos.reproducir_musica(entrada_manual_func=entrada_func)
+        termino = self._obtener_termino(args)
+        url = self._obtener_url(args)
+        manual = entrada_func if not (termino or url) else None
+        return self.basicos.reproducir_musica(
+            entrada_manual_func=manual,
+            termino=termino,
+            url=url,
+        )
 
     def _accion_dato_curioso(self, args, entrada_func):
         return self.basicos.mostrar_dato_curioso()
@@ -92,3 +117,15 @@ class GestorComandos:
 
     def _accion_saludo(self, args, entrada_func):
         return self.basicos.responder_saludo()
+
+    def _obtener_termino(self, args):
+        if isinstance(args, dict):
+            return args.get("termino")
+        if isinstance(args, str):
+            return args
+        return None
+
+    def _obtener_url(self, args):
+        if isinstance(args, dict):
+            return args.get("url")
+        return None

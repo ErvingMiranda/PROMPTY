@@ -56,3 +56,25 @@ def test_reproducir_musica(monkeypatch):
     entrada = lambda msg="": next(vals)
     assert cb.reproducir_musica(entrada) == "🌐 Buscando: cancion"
     assert opened["url"] == "https://music.youtube.com/search?q=cancion"
+
+
+def test_reproducir_musica_directo(monkeypatch):
+    opened = {}
+    monkeypatch.setattr(comandos_basicos.shutil, "which", lambda _: None)
+    monkeypatch.setattr(comandos_basicos.webbrowser, "open", lambda url: opened.setdefault("url", url))
+
+    cb = comandos_basicos.ComandosBasicos()
+    resultado = cb.reproducir_musica(termino="lofi hip hop")
+    assert resultado.startswith("🌐 Reproduciendo:")
+    assert opened["url"] == "https://music.youtube.com/search?q=lofi+hip+hop"
+
+
+def test_buscar_con_termino_directo(monkeypatch):
+    opened = {}
+    monkeypatch.setattr(comandos_basicos.shutil, "which", lambda _: None)
+    monkeypatch.setattr(comandos_basicos.webbrowser, "open", lambda url: opened.setdefault("url", url))
+
+    cb = comandos_basicos.ComandosBasicos()
+    resultado = cb.buscar_en_navegador_con_opcion(destino_predefinido="youtube", termino="perritos divertidos")
+    assert resultado.startswith("🌐 Buscando 'perritos divertidos' en YouTube.")
+    assert opened["url"] == "https://www.youtube.com/results?search_query=perritos+divertidos"
