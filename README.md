@@ -62,12 +62,12 @@ uv run .\PROMPTY_3.0\main.py
 PROMPTY puede conectarse a cualquier modelo disponible en la [Hugging Face Inference API](https://huggingface.co/inference-api) —incluidas alternativas gratuitas como **Mistral 7B Instruct**—, lo que añade razonamiento natural cuando se ingresan comandos no soportados.
 Desde la versión 3.0 usamos el endpoint OpenAI-style `https://router.huggingface.co/v1/chat/completions`, compatible con los *Inference Providers* actuales.
 
-1. Crea un archivo `PROMPTY_3.0/config_local.json` (excluido del repositorio) con tu token y modelo:
+1. Crea un archivo `PROMPTY_3.0/config_local.json` (excluido del repositorio) con tu token y modelo. Puedes copiar `PROMPTY_3.0/config_local.example.json` como base:
 
 ```json
 {
   "api_token": "hf_xxx",
-  "model_id": "mistralai/Mistral-7B-Instruct-v0.3",
+ "model_id": "mistralai/Mistral-7B-Instruct-v0.3",
   "base_url": "https://router.huggingface.co"
 }
 ```
