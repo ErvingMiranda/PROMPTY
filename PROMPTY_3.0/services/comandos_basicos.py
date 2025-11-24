@@ -120,6 +120,20 @@ class ComandosBasicos:
             return f"https://music.youtube.com/search?q={busqueda.replace(' ', '+')}"
         return None
 
+    def _normalizar_destino(self, destino):
+        """Mapea sinónimos a destinos conocidos."""
+
+        destino = (destino or "").strip().lower()
+        equivalencias = {
+            "google": "navegador",
+            "web": "navegador",
+            "internet": "navegador",
+            "music": "musica",
+            "música": "musica",
+            "yt": "youtube",
+        }
+        return equivalencias.get(destino, destino or "navegador")
+
     def abrir_url(self, url, mensaje=None):
         """Abre la URL indicada y devuelve un mensaje apropiado."""
         if not re.match(r"^https?://", url):
@@ -135,8 +149,16 @@ class ComandosBasicos:
         except Exception as e:
             return f"❌ Error al abrir el navegador: {e}"
 
-    def reproducir_musica(self, entrada_manual_func=None):
+    def reproducir_musica(self, entrada_manual_func=None, termino=None, url=None):
         """Abre una búsqueda o URL en YouTube Music."""
+
+        if termino or url:
+            destino_url = url or self.construir_url(termino, "musica")
+            if not destino_url:
+                return "❌ No pude preparar la reproducción solicitada."
+            mensaje = f"Reproduciendo: {termino}" if termino else None
+            return self.abrir_url(destino_url, mensaje)
+
         entrada = entrada_manual_func or input
 
         opcion = entrada(
@@ -159,15 +181,26 @@ class ComandosBasicos:
 
         return self.abrir_url(url, mensaje)
 
-    def buscar_en_navegador_con_opcion(self, destino_predefinido=None, entrada_manual_func=None):
+    def buscar_en_navegador_con_opcion(self, destino_predefinido=None, entrada_manual_func=None, termino=None, url=None):
         entrada = entrada_manual_func or input
+        destino = self._normalizar_destino(destino_predefinido)
+
+        if termino or url:
+            if destino not in ["youtube", "navegador", "musica"]:
+                destino = "navegador"
+            destino_url = url or self.construir_url(termino, destino)
+            if not destino_url:
+                return "❌ No pude preparar la búsqueda solicitada."
+            nombre = "YouTube" if destino == "youtube" else ("YouTube Music" if destino == "musica" else "tu navegador")
+            mensaje = f"Buscando '{termino}' en {nombre}." if termino else None
+            return self.abrir_url(destino_url, mensaje)
 
         if not destino_predefinido:
-            destino = entrada(
-                "¿Dónde deseas buscar? (youtube, navegador o musica): "
-            ).strip().lower()
+            destino = self._normalizar_destino(
+                entrada("¿Dónde deseas buscar? (youtube, navegador o musica): ").strip().lower()
+            )
         else:
-            destino = destino_predefinido
+            destino = self._normalizar_destino(destino_predefinido)
 
         if destino not in ["youtube", "navegador", "musica"]:
             return "❌ Opción inválida."

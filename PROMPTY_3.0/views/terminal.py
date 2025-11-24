@@ -21,6 +21,7 @@ class VistaTerminal:
         self.gestor_comandos = GestorComandos(usuario)
         self.asistente_ia = AsistenteIA()
         self.modo_respuesta = "texto"
+        self.canal_actual = "texto"
 
     def iniciar(self):
         self.elegir_modo_respuesta()
@@ -33,9 +34,6 @@ class VistaTerminal:
 
         while True:
             comando, argumentos, texto_original, palabra_clave = self.obtener_instruccion()
-
-            if self._confirmar_o_usar_ia(comando, palabra_clave, texto_original):
-                continue
 
             if comando == "modo_admin":
                 self.menu_admin()
@@ -66,9 +64,13 @@ class VistaTerminal:
 
             if comando == "comando_no_reconocido":
                 respuesta = self.asistente_ia.responder(texto_original)
-                print(respuesta)
-                if self.modo_respuesta in ["voz", "ambos"]:
-                    self.asistente_voz.hablar(quitar_colores(respuesta))
+                self._responder(respuesta)
+                continue
+
+            if comando == "saludo":
+                respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos)
+                self._responder(respuesta)
+                self._registrar_historial(texto_original, respuesta)
                 continue
 
             # Comandos que requieren entrada
@@ -80,15 +82,18 @@ class VistaTerminal:
                 "buscar_en_navegador",
                 "reproducir_musica",
             ]
+            self._anunciar_accion(comando, argumentos, palabra_clave)
             if comando in comandos_interactivos:
-                respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos, entrada_manual_func=input)
+                respuesta = self.gestor_comandos.ejecutar_comando(
+                    comando,
+                    argumentos,
+                    entrada_manual_func=self._obtener_funcion_entrada(),
+                )
             else:
                 respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos)
 
-            if self.modo_respuesta in ["texto", "ambos"]:
-                print(respuesta)
-            if self.modo_respuesta in ["voz", "ambos"]:
-                self.asistente_voz.hablar(quitar_colores(respuesta))
+            self._responder(respuesta)
+            self._registrar_historial(texto_original, respuesta)
 
             input("\nPresiona Enter para continuar...")
             limpiar_pantalla()
@@ -120,20 +125,24 @@ class VistaTerminal:
     def obtener_instruccion(self):
         if self.modo_respuesta == "texto":
             entrada = input("⌨️ Escribe tu comando: ").lower()
+            self.canal_actual = "texto"
         elif self.modo_respuesta == "voz":
             self.asistente_voz.hablar("Estoy escuchando...")
             entrada = self.asistente_voz.escuchar()
             print(f"🗣️ Entendí: {entrada}")
+            self.canal_actual = "voz"
         elif self.modo_respuesta == "ambos":
             while True:
                 tipo = input("¿Quieres escribir (t) o hablar (v)?: ").strip().lower()
                 if tipo == "t":
                     entrada = input("⌨️ Escribe tu comando: ").lower()
+                    self.canal_actual = "texto"
                     break
                 elif tipo == "v":
                     self.asistente_voz.hablar("Estoy escuchando...")
                     entrada = self.asistente_voz.escuchar()
                     print(f"🗣️ Entendí: {entrada}")
+                    self.canal_actual = "voz"
                     break
                 else:
                     print("❌ Opción no válida. Intenta de nuevo.")
@@ -143,40 +152,57 @@ class VistaTerminal:
         comando, argumentos, palabra_clave = interpretar(entrada)
         return comando, argumentos, entrada, palabra_clave
 
-    def _confirmar_o_usar_ia(self, comando, palabra_clave, texto_original):
-        """Pregunta al usuario si desea ejecutar el comando o usar la IA."""
-        if comando in ["comando_no_reconocido", "saludo"]:
-            return False
-
-        clave = palabra_clave or comando
-        mensaje = (
-            f"🔎 Detecté la palabra clave '{clave}', que activa el comando predeterminado "
-            f"""'{comando}'. Si prefieres una respuesta específica con el servicio de IA, escribe 'ia'."""
-        )
-        print(mensaje)
-        if self.modo_respuesta in ["voz", "ambos"]:
-            self.asistente_voz.hablar(quitar_colores(mensaje))
-
-        decision = input(
-            "Pulsa Enter para ejecutar el comando o escribe 'ia' para una respuesta con IA: "
-        ).strip().lower()
-
-        if decision == "ia":
-            respuesta = self.asistente_ia.responder(texto_original)
-            print(respuesta)
-            if self.modo_respuesta in ["voz", "ambos"]:
-                self.asistente_voz.hablar(quitar_colores(respuesta))
-            return True
-
-        print("✅ Ejecutaré el comando predeterminado. Si necesitas otra cosa, dímelo.")
-        return False
-
     def salir_programa(self):
         mensaje = "👋 Hasta luego. Fue un placer ayudarte."
         print(mensaje)
         if self.modo_respuesta in ["voz", "ambos"]:
             self.asistente_voz.hablar(quitar_colores(mensaje))
         return "exit"
+
+    def _responder(self, mensaje: str):
+        if self.modo_respuesta in ["texto", "ambos"]:
+            print(mensaje)
+        if self.modo_respuesta in ["voz", "ambos"]:
+            self.asistente_voz.hablar(quitar_colores(mensaje))
+
+    def _registrar_historial(self, entrada, respuesta):
+        """Añade la interacción al historial de IA para conversaciones fluidas."""
+
+        if not entrada or not respuesta:
+            return
+        self.asistente_ia.historial.append({"rol": "usuario", "contenido": entrada})
+        self.asistente_ia.historial.append({"rol": "asistente", "contenido": quitar_colores(respuesta)})
+
+    def _anunciar_accion(self, comando, argumentos, palabra_clave):
+        """Comunica la acción detectada con un tono conversacional."""
+
+        termino = None
+        if isinstance(argumentos, dict):
+            termino = argumentos.get("termino")
+        if comando in ["buscar_en_youtube", "buscar_en_navegador", "buscar_general"] and termino:
+            destino = "YouTube" if comando == "buscar_en_youtube" else "el navegador"
+            self._responder(f"🚀 Entendido. Buscaré '{termino}' en {destino}.")
+        if comando == "reproducir_musica" and termino:
+            self._responder(f"🎵 Claro, reproduzco '{termino}' en YouTube Music.")
+
+    def _obtener_funcion_entrada(self):
+        """Devuelve una función para solicitar datos por voz o texto según el canal activo."""
+
+        if self.canal_actual == "voz":
+            def entrada_voz(mensaje=""):
+                mensaje_limpio = quitar_colores(mensaje)
+                if mensaje_limpio:
+                    self.asistente_voz.hablar(mensaje_limpio)
+                respuesta = self.asistente_voz.escuchar()
+                print(f"🗣️ Entendí: {respuesta}")
+                return (respuesta or "").strip().lower()
+
+            return entrada_voz
+
+        def entrada_texto(mensaje=""):
+            return input(quitar_colores(mensaje)).strip()
+
+        return entrada_texto
 
     def mostrar_bienvenida(self):
         print(f"{Fore.CYAN}¡Hola! Soy PROMPTY 3.0, tu asistente virtual de escritorio.{Style.RESET_ALL}")
