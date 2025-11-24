@@ -963,8 +963,11 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
     def ejecutar_comando_desde_texto(self, texto):
         self.servicio_voz.detener()
         # Obtener la acción y limpiar la salida previa
-        comando, argumentos = interpretar(texto)
+        comando, argumentos, palabra_clave = interpretar(texto)
         self.text_output.clear()
+
+        if self._confirmar_o_usar_ia(comando, palabra_clave, texto):
+            return
 
         if comando == "editar_usuario":
             self.mostrar_editor_usuario()
@@ -1014,6 +1017,39 @@ class PROMTYWindow(ScalingMixin, QMainWindow):
         texto_limpio = quitar_colores(respuesta)
         self.text_output.append(texto_limpio)
         self.servicio_voz.hablar(texto_limpio)
+
+    def _confirmar_o_usar_ia(self, comando, palabra_clave, texto_original):
+        """Ofrece al usuario ejecutar el comando o recibir una respuesta de IA."""
+        if comando in {"comando_no_reconocido", "saludo"}:
+            return False
+
+        clave = palabra_clave or comando
+        mensaje = (
+            f"Detecté la palabra clave '{clave}', que activa el comando predeterminado "
+            f"""'{comando}'. ¿Prefieres ejecutar el comando o que responda con el servicio de IA?"""
+        )
+
+        dialogo = QMessageBox(self)
+        dialogo.setWindowTitle("Confirmar acción")
+        dialogo.setText(mensaje)
+        ejecutar_btn = dialogo.addButton("Ejecutar comando", QMessageBox.ButtonRole.AcceptRole)
+        ia_btn = dialogo.addButton("Usar IA", QMessageBox.ButtonRole.ActionRole)
+        dialogo.addButton(QMessageBox.StandardButton.Cancel)
+
+        dialogo.exec()
+        decision = dialogo.clickedButton()
+
+        if decision == ia_btn:
+            respuesta = self.asistente_ia.responder(texto_original)
+            self.mostrar_respuesta(respuesta)
+            return True
+
+        if decision is None or decision == dialogo.button(QMessageBox.StandardButton.Cancel):
+            self.text_output.append("Operación cancelada. Indícame cómo ayudarte.")
+            return True
+
+        self.text_output.append("✅ Ejecutaré el comando predeterminado.")
+        return False
 
     def actualizar_fuente(self, familia, tamano):
         self.font_family = familia

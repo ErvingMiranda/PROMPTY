@@ -59,5 +59,10 @@ class TestInterpretador(unittest.TestCase):
     def test_desconocido(self):
         self.assertEqual(interpretar('xyz')[0], 'comando_no_reconocido')
 
+    def test_palabra_clave_reportada(self):
+        comando, _, palabra = interpretar('buscar receta en youtube')
+        self.assertEqual(comando, 'buscar_en_youtube')
+        self.assertEqual(palabra, 'youtube')
+
 if __name__ == '__main__':
     unittest.main()
