@@ -4,6 +4,7 @@ from pathlib import Path
 
 from colorama import Fore, Style
 from services.asistente_voz import ServicioVoz
+from services.ai_client import AsistenteIA
 from services.gestor_comandos import GestorComandos
 from services.gestor_roles import GestorRoles
 from services.autenticacion import ServicioAutenticacion
@@ -18,6 +19,7 @@ class VistaTerminal:
         self.auth_service = ServicioAutenticacion(self.gestor_roles)
         self.asistente_voz = ServicioVoz(usuario, verificar_admin_callback=self.gestor_roles.autenticar)
         self.gestor_comandos = GestorComandos(usuario)
+        self.asistente_ia = AsistenteIA()
         self.modo_respuesta = "texto"
 
     def iniciar(self):
@@ -30,7 +32,7 @@ class VistaTerminal:
             self.asistente_voz.hablar(quitar_colores("Hola. Estoy listo para ayudarte."))
 
         while True:
-            comando, argumentos = self.obtener_instruccion()
+            comando, argumentos, texto_original = self.obtener_instruccion()
 
             if comando == "modo_admin":
                 self.menu_admin()
@@ -60,13 +62,10 @@ class VistaTerminal:
                 continue
 
             if comando == "comando_no_reconocido":
-                mensaje = (
-                    "❌ Comando no reconocido. "
-                    "Puedes consultar las opciones disponibles escribiendo 'ayuda'."
-                )
-                print(mensaje)
+                respuesta = self.asistente_ia.responder(texto_original)
+                print(respuesta)
                 if self.modo_respuesta in ["voz", "ambos"]:
-                    self.asistente_voz.hablar(quitar_colores(mensaje))
+                    self.asistente_voz.hablar(quitar_colores(respuesta))
                 continue
 
             # Comandos que requieren entrada
@@ -138,7 +137,8 @@ class VistaTerminal:
         else:
             entrada = ""
 
-        return interpretar(entrada)
+        comando, argumentos = interpretar(entrada)
+        return comando, argumentos, entrada
 
     def salir_programa(self):
         mensaje = "👋 Hasta luego. Fue un placer ayudarte."
