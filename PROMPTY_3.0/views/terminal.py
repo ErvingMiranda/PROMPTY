@@ -21,6 +21,7 @@ class VistaTerminal:
         self.gestor_comandos = GestorComandos(usuario)
         self.asistente_ia = AsistenteIA()
         self.modo_respuesta = "texto"
+        self.canal_actual = "texto"
 
     def iniciar(self):
         self.elegir_modo_respuesta()
@@ -83,7 +84,11 @@ class VistaTerminal:
             ]
             self._anunciar_accion(comando, argumentos, palabra_clave)
             if comando in comandos_interactivos:
-                respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos, entrada_manual_func=input)
+                respuesta = self.gestor_comandos.ejecutar_comando(
+                    comando,
+                    argumentos,
+                    entrada_manual_func=self._obtener_funcion_entrada(),
+                )
             else:
                 respuesta = self.gestor_comandos.ejecutar_comando(comando, argumentos)
 
@@ -120,20 +125,24 @@ class VistaTerminal:
     def obtener_instruccion(self):
         if self.modo_respuesta == "texto":
             entrada = input("⌨️ Escribe tu comando: ").lower()
+            self.canal_actual = "texto"
         elif self.modo_respuesta == "voz":
             self.asistente_voz.hablar("Estoy escuchando...")
             entrada = self.asistente_voz.escuchar()
             print(f"🗣️ Entendí: {entrada}")
+            self.canal_actual = "voz"
         elif self.modo_respuesta == "ambos":
             while True:
                 tipo = input("¿Quieres escribir (t) o hablar (v)?: ").strip().lower()
                 if tipo == "t":
                     entrada = input("⌨️ Escribe tu comando: ").lower()
+                    self.canal_actual = "texto"
                     break
                 elif tipo == "v":
                     self.asistente_voz.hablar("Estoy escuchando...")
                     entrada = self.asistente_voz.escuchar()
                     print(f"🗣️ Entendí: {entrada}")
+                    self.canal_actual = "voz"
                     break
                 else:
                     print("❌ Opción no válida. Intenta de nuevo.")
@@ -175,6 +184,25 @@ class VistaTerminal:
             self._responder(f"🚀 Entendido. Buscaré '{termino}' en {destino}.")
         if comando == "reproducir_musica" and termino:
             self._responder(f"🎵 Claro, reproduzco '{termino}' en YouTube Music.")
+
+    def _obtener_funcion_entrada(self):
+        """Devuelve una función para solicitar datos por voz o texto según el canal activo."""
+
+        if self.canal_actual == "voz":
+            def entrada_voz(mensaje=""):
+                mensaje_limpio = quitar_colores(mensaje)
+                if mensaje_limpio:
+                    self.asistente_voz.hablar(mensaje_limpio)
+                respuesta = self.asistente_voz.escuchar()
+                print(f"🗣️ Entendí: {respuesta}")
+                return (respuesta or "").strip().lower()
+
+            return entrada_voz
+
+        def entrada_texto(mensaje=""):
+            return input(quitar_colores(mensaje)).strip()
+
+        return entrada_texto
 
     def mostrar_bienvenida(self):
         print(f"{Fore.CYAN}¡Hola! Soy PROMPTY 3.0, tu asistente virtual de escritorio.{Style.RESET_ALL}")

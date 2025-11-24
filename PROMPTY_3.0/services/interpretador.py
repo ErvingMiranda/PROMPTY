@@ -6,7 +6,7 @@ def _extraer_busqueda(texto: str) -> Tuple[Optional[str], Optional[str]]:
     """Identifica la búsqueda solicitada y su posible destino."""
 
     patron = re.search(
-        r"buscar(?:me|nos|le)?\s+(?P<termino>.+?)(?:\s+en\s+(?P<destino>youtube|google|navegador|internet|web|musica|música|music))?$",
+        r"b[uú]sca(?:r)?(?:me|nos|le)?\s+(?P<termino>.+?)(?:\s+en\s+(?P<destino>youtube|google|navegador|internet|web|musica|música|music))?$",
         texto,
     )
     if patron:
@@ -28,6 +28,12 @@ def _extraer_reproduccion(texto: str) -> Optional[str]:
     return None
 
 
+def _normalizar_texto(texto: str) -> str:
+    """Convierte a minúsculas y recorta espacios innecesarios."""
+
+    return texto.lower().strip()
+
+
 def interpretar(texto):
     """Devuelve (comando, argumentos, palabra_clave) a partir de una cadena.
 
@@ -35,7 +41,7 @@ def interpretar(texto):
     los argumentos serán None y la palabra clave será None.
     """
 
-    texto = texto.lower().strip()
+    texto = _normalizar_texto(texto)
     texto = texto.replace("en el", "en")  # Normaliza "buscar en el navegador" → "buscar en navegador"
 
     texto_simple = re.sub(r"[!.,?]", "", texto).strip()
