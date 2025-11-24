@@ -32,7 +32,7 @@ class IAConfig:
     def endpoint(self) -> str:
         if self.base_url:
             return self.base_url.rstrip("/")
-        return f"https://api-inference.huggingface.co/models/{self.model_id}"
+        return f"https://router.huggingface.co/hf-inference/models/{self.model_id}"
 
     @classmethod
     def from_env(cls) -> "IAConfig":

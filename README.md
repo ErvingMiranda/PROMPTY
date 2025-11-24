@@ -60,6 +60,7 @@ uv run .\PROMPTY_3.0\main.py
 ## 🧠 Activar el modo inteligente (IA gratuita)
 
 PROMPTY puede conectarse a cualquier modelo disponible en la [Hugging Face Inference API](https://huggingface.co/inference-api) —incluidas alternativas gratuitas como **Mistral 7B Instruct**—, lo que añade razonamiento natural cuando se ingresan comandos no soportados.
+Por defecto se usa el router público (`https://router.huggingface.co/hf-inference/models/...`).
 
 1. Crea una cuenta en Hugging Face y genera un token personal (es gratuito y ofrece suficientes tokens para pruebas).
 2. Define la variable de entorno antes de iniciar PROMPTY:

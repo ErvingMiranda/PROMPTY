@@ -26,6 +26,12 @@ def test_config_from_env(monkeypatch):
     assert config.temperature == 0.75
 
 
+def test_default_endpoint_uses_router_domain():
+    config = IAConfig()
+
+    assert config.endpoint == "https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-Instruct-v0.3"
+
+
 def test_build_payload_includes_historial():
     config = IAConfig(api_token="token", model_id="demo-model")
     servicio = ServicioIA(config=config, client=None)
