@@ -64,5 +64,15 @@ class TestInterpretador(unittest.TestCase):
         self.assertEqual(comando, 'buscar_en_youtube')
         self.assertEqual(palabra, 'youtube')
 
+    def test_frases_conversacionales(self):
+        comando, args, palabra = interpretar('búscame gatitos adorables en YouTube')
+        self.assertEqual(comando, 'buscar_en_youtube')
+        self.assertEqual(palabra, 'youtube')
+        self.assertEqual(args.get('termino'), 'gatitos adorables')
+
+        comando, args, _ = interpretar('pon la canción imagine dragons')
+        self.assertEqual(comando, 'reproducir_musica')
+        self.assertEqual(args.get('termino'), 'la canción imagine dragons')
+
 if __name__ == '__main__':
     unittest.main()

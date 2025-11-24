@@ -1,4 +1,31 @@
 import re
+from typing import Dict, Optional, Tuple
+
+
+def _extraer_busqueda(texto: str) -> Tuple[Optional[str], Optional[str]]:
+    """Identifica la búsqueda solicitada y su posible destino."""
+
+    patron = re.search(
+        r"buscar(?:me|nos|le)?\s+(?P<termino>.+?)(?:\s+en\s+(?P<destino>youtube|google|navegador|internet|web|musica|música|music))?$",
+        texto,
+    )
+    if patron:
+        termino = patron.group("termino")
+        destino = patron.group("destino")
+        return termino.strip(), (destino or "").strip()
+    return None, None
+
+
+def _extraer_reproduccion(texto: str) -> Optional[str]:
+    """Detecta peticiones de reproducción de música con lenguaje natural."""
+
+    patron = re.search(
+        r"(?:pon|ponme|reproduce|toca|coloca|escuchar|quiero escuchar|pone)\s+(?P<cancion>.+)",
+        texto,
+    )
+    if patron:
+        return patron.group("cancion").strip()
+    return None
 
 
 def interpretar(texto):
@@ -7,13 +34,15 @@ def interpretar(texto):
     Si no se reconoce la orden, el comando será "comando_no_reconocido",
     los argumentos serán None y la palabra clave será None.
     """
+
     texto = texto.lower().strip()
     texto = texto.replace("en el", "en")  # Normaliza "buscar en el navegador" → "buscar en navegador"
 
     texto_simple = re.sub(r"[!.,?]", "", texto).strip()
 
-    def resultado(comando, palabra_clave=None):
-        return comando, None, palabra_clave
+    def resultado(comando, palabra_clave=None, argumentos: Optional[Dict[str, str]] = None):
+        return comando, argumentos, palabra_clave
+
     saludos = [
         "hola",
         "hola prompty",
@@ -28,6 +57,37 @@ def interpretar(texto):
 
     if "administrador" in texto and "funciones" in texto:
         return resultado("modo_admin", "funciones de administrador")
+
+    termino_busqueda, destino_busqueda = _extraer_busqueda(texto)
+    if termino_busqueda:
+        destino_busqueda = destino_busqueda or ""
+        if "youtube" in destino_busqueda:
+            return resultado(
+                "buscar_en_youtube",
+                "youtube",
+                {"termino": termino_busqueda},
+            )
+        if destino_busqueda in ("google", "navegador", "internet", "web"):
+            return resultado(
+                "buscar_en_navegador",
+                destino_busqueda or "navegador",
+                {"termino": termino_busqueda},
+            )
+        if destino_busqueda in ("musica", "música", "music"):
+            return resultado(
+                "reproducir_musica",
+                destino_busqueda,
+                {"termino": termino_busqueda},
+            )
+        return resultado(
+            "buscar_general",
+            "buscar",
+            {"termino": termino_busqueda},
+        )
+
+    cancion = _extraer_reproduccion(texto)
+    if cancion:
+        return resultado("reproducir_musica", "musica", {"termino": cancion})
 
     if "buscar" in texto:
         if "youtube" in texto:
