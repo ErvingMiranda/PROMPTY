@@ -27,6 +27,28 @@ class TestInterpretador(unittest.TestCase):
         self.assertEqual(interpretar('poner cancion')[0], 'reproducir_musica')
         self.assertEqual(interpretar('oir canciones')[0], 'reproducir_musica')
 
+    def test_busqueda_sin_termino_con_destino(self):
+        comando, args, destino = interpretar('buscar en youtube')
+        self.assertEqual(comando, 'buscar_en_youtube')
+        self.assertIsNone(args)
+        self.assertEqual(destino, 'youtube')
+
+        comando, args, destino = interpretar('buscar en google')
+        self.assertEqual(comando, 'buscar_en_navegador')
+        self.assertIsNone(args)
+        self.assertEqual(destino, 'navegador')
+
+    def test_busqueda_destino_con_termino_en_cola(self):
+        comando, args, destino = interpretar('buscar en youtube recetas faciles')
+        self.assertEqual(comando, 'buscar_en_youtube')
+        self.assertEqual(destino, 'youtube')
+        self.assertEqual(args.get('termino'), 'recetas faciles')
+
+        comando, args, destino = interpretar('buscar en google clima madrid')
+        self.assertEqual(comando, 'buscar_en_navegador')
+        self.assertEqual(destino, 'google')
+        self.assertEqual(args.get('termino'), 'clima madrid')
+
     def test_admin_frase(self):
         resultado = interpretar('abre las funciones de administrador')[0]
         self.assertEqual(resultado, 'modo_admin')

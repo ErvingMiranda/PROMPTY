@@ -65,6 +65,18 @@ def interpretar(texto):
         return resultado("modo_admin", "funciones de administrador")
 
     termino_busqueda, destino_busqueda = _extraer_busqueda(texto)
+
+    if termino_busqueda and not destino_busqueda:
+        destino_detectado = re.match(
+            r"en\s+(youtube|google|navegador|internet|web|musica|música|music)\b(?:\s+(?P<resto>.+))?$",
+            termino_busqueda,
+        )
+        if destino_detectado:
+            destino_busqueda = destino_detectado.group(1)
+            termino_busqueda = destino_detectado.group("resto")
+            if termino_busqueda:
+                termino_busqueda = termino_busqueda.strip()
+
     if termino_busqueda:
         destino_busqueda = destino_busqueda or ""
         if "youtube" in destino_busqueda:
