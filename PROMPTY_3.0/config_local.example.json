@@ -1,0 +1,8 @@
+{
+  "api_token": "hf_your_token_here",
+  "model_id": "mistralai/Mistral-7B-Instruct-v0.3",
+  "base_url": "https://router.huggingface.co",
+  "timeout": 45.0,
+  "max_new_tokens": 320,
+  "temperature": 0.4
+}

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from colorama import Fore, Style
 from services.asistente_voz import ServicioVoz
-from services.ai_client import AsistenteIA
+from ai import AsistenteIA
 from services.gestor_comandos import GestorComandos
 from services.gestor_roles import GestorRoles
 from services.autenticacion import ServicioAutenticacion
