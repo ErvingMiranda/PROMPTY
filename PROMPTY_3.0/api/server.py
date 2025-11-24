@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 
-from services.ai_client import ServicioIA
+from ai import ServicioIA
 
 app = FastAPI(
     title="PROMPTY AI Service",
