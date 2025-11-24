@@ -67,7 +67,7 @@ Desde la versión 3.0 usamos el endpoint OpenAI-style `https://router.huggingfac
 ```json
 {
   "api_token": "hf_xxx",
- "model_id": "mistralai/Mistral-7B-Instruct-v0.3",
+  "model_id": "mistralai/Mistral-7B-Instruct-v0.3",
   "base_url": "https://router.huggingface.co"
 }
 ```
