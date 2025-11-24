@@ -1,5 +1,4 @@
-"""Cliente para conectarse con modelos de IA externos (Hugging Face por defecto)."""
-
+"""Cliente HTTP que delega llamadas al proveedor de IA."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -11,6 +10,7 @@ from typing import Any, Dict, List, Optional
 
 import httpx
 
+from .config import CONFIG_LOCAL_PATH, IAConfig
 
 _SYSTEM_PROMPT = (
     "Eres PROMPTY, un asistente de escritorio en español. "
@@ -192,21 +192,3 @@ class ServicioIA:
             return "⚠️ La IA no envió contenido útil.", False
 
         return texto.strip(), True
-
-
-class AsistenteIA:
-    """Gestiona el historial de conversación y delega la consulta al servicio."""
-
-    def __init__(self, servicio: Optional[ServicioIA] = None):
-        self.servicio = servicio or ServicioIA()
-        self.historial: List[Dict[str, str]] = []
-
-    def reiniciar_historial(self) -> None:
-        self.historial.clear()
-
-    def responder(self, mensaje: str) -> str:
-        texto, exito = self.servicio.consultar(mensaje, self.historial)
-        if exito:
-            self.historial.append({"rol": "usuario", "contenido": mensaje.strip()})
-            self.historial.append({"rol": "asistente", "contenido": texto})
-        return texto

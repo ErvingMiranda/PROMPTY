@@ -72,6 +72,8 @@ Desde la versión 3.0 usamos el endpoint OpenAI-style `https://router.huggingfac
 }
 ```
 
+> La integración de IA vive ahora en `PROMPTY_3.0/ai/` (separada de `services/`) para facilitar su mantenimiento.
+
 2. Si prefieres variables de entorno (o como *fallback* si el archivo no existe), puedes definirlas antes de iniciar PROMPTY:
 
 ```bash
