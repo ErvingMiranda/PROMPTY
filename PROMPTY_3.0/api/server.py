@@ -78,7 +78,7 @@ async def chat(req: ChatRequest) -> ChatResponse:
 
     try:
         respuesta, exito = await run_in_threadpool(
-            servicio_ia.consultar, mensaje, historial
+            servicio_ia.consultar_lite, mensaje, historial
         )
         return ChatResponse(respuesta=respuesta, exito=exito)
     except Exception as exc:  # pragma: no cover - se devuelve error controlado
@@ -93,7 +93,7 @@ async def chat(req: ChatRequest) -> ChatResponse:
 async def chat_inteligente(request: SmartChatRequest) -> SmartChatResponse:
     try:
         respuesta, _ = await run_in_threadpool(
-            servicio_ia.consultar,
+            servicio_ia.consultar_lite,
             request.mensaje,
             [
                 {"rol": h.rol, "contenido": h.contenido} for h in request.historial or []
@@ -109,7 +109,7 @@ async def command(request: CommandRequest) -> CommandResponse:
     """Responde usando la IA sin ejecutar acciones locales."""
 
     respuesta_ia, exito = await run_in_threadpool(
-        servicio_ia.consultar, request.texto, None
+        servicio_ia.consultar_lite, request.texto, None
     )
     return CommandResponse(
         comando="sin_ejecucion",
