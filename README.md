@@ -110,6 +110,7 @@ Endpoints principales:
 | --- | --- | --- |
 | `GET /health` | Verifica que el servicio esté activo. |
 | `POST /api/chat` | Envía un mensaje y recibe la respuesta de la IA. |
+| `POST /api/command` | Interpreta un texto, ejecuta comandos soportados y delega en la IA como fallback. |
 
 Ejemplo de consumo desde cualquier cliente HTTP:
 
@@ -125,6 +126,24 @@ curl -X POST http://localhost:8000/api/chat \
 ```
 
 La respuesta JSON contiene `respuesta` (texto generado) y `exito` (bandera booleana). Desde MyPlanU basta con realizar esta petición HTTP para reutilizar las capacidades de PROMPTY como microservicio.
+
+Nueva ruta de comandos (ejecuta acciones locales y sólo llama a la IA si el comando no está soportado):
+
+```bash
+curl -X POST http://localhost:8000/api/command \
+     -H "Content-Type: application/json" \
+     -d '{
+            "texto": "búscame vídeos de prompty en YouTube",
+            "forzar_ejecucion": true
+        }'
+```
+
+Parámetros:
+
+* `texto` (string): frase a interpretar por el motor de comandos.
+* `forzar_ejecucion` (bool, opcional): cuando es `true`, omite confirmaciones interactivas siempre que sea posible y ejecuta la acción directamente.
+
+Si el texto corresponde a una búsqueda en YouTube o al navegador, el servicio abre la URL correspondiente, por ejemplo redirigiendo a la página de resultados de YouTube con el término solicitado. Si no se reconoce el comando, se usa el mismo `ServicioIA` que en `/api/chat` como respuesta de respaldo.
 
 ---
 
