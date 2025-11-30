@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
+import logging
+from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.concurrency import run_in_threadpool
@@ -11,6 +12,7 @@ from pydantic import BaseModel, Field
 from ai import ServicioIA
 from prompty_core import ACCIONES_DISPONIBLES
 from prompty_core.comandos import abrir_youtube, obtener_hora_actual
+from core.interpretador_api import interpretar_mensaje_api
 from services.gestor_comandos import GestorComandos
 from services.interpretador import interpretar
 
@@ -25,21 +27,25 @@ app = FastAPI(
 
 servicio_ia = ServicioIA()
 gestor_comandos = GestorComandos()
+logger = logging.getLogger(__name__)
 
 
 class MensajeHistorial(BaseModel):
-    rol: str = Field(..., pattern="^(usuario|asistente|user|assistant)$")
+    rol: Literal["usuario", "asistente"]
     contenido: str = Field(..., min_length=1)
 
 
 class ChatRequest(BaseModel):
     mensaje: str = Field(..., min_length=1)
-    historial: Optional[List[MensajeHistorial]] = None
+    historial: List[MensajeHistorial] = Field(default_factory=list)
 
 
 class ChatResponse(BaseModel):
-    respuesta: str
     exito: bool
+    respuesta: str
+    accion: Optional[str] = None
+    parametros: Optional[Dict[str, Any]] = None
+    origen: Literal["interprete", "ia"]
 
 
 class SmartChatRequest(BaseModel):
@@ -71,15 +77,37 @@ async def healthcheck() -> dict:
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest) -> ChatResponse:
     try:
-        respuesta, exito = await run_in_threadpool(
-            servicio_ia.consultar, request.mensaje, [
-                {"rol": h.rol, "contenido": h.contenido} for h in request.historial or []
-            ]
+        interpretacion = await run_in_threadpool(
+            interpretar_mensaje_api, request.mensaje
         )
     except Exception as exc:  # pragma: no cover - FastAPI convertirá en JSON
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
-    return ChatResponse(respuesta=respuesta, exito=exito)
+    if interpretacion.accion:
+        return ChatResponse(
+            exito=True,
+            respuesta=interpretacion.texto_respuesta,
+            accion=interpretacion.accion,
+            parametros=interpretacion.parametros or {},
+            origen="interprete",
+        )
+
+    logger.info("[API] Mensaje enviado a IA externa")
+
+    try:
+        respuesta, exito = await run_in_threadpool(
+            servicio_ia.consultar,
+            request.mensaje,
+            [{"rol": h.rol, "contenido": h.contenido} for h in request.historial],
+        )
+    except Exception as exc:  # pragma: no cover - FastAPI convertirá en JSON
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+    return ChatResponse(
+        exito=exito,
+        respuesta=respuesta,
+        origen="ia",
+    )
 
 
 @app.post("/api/chat-inteligente", response_model=SmartChatResponse)
