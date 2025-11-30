@@ -1,4 +1,10 @@
-"""API REST ligera para consumir las capacidades inteligentes de PROMPTY."""
+"""API REST ligera para consumir las capacidades inteligentes de PROMPTY.
+
+Esta API expone PROMPTY Lite: solo ofrece conversación con IA y nunca ejecuta
+acciones locales. El PROMPTY completo (aplicación de escritorio) mantiene las
+funciones de automatización como abrir YouTube, gestionar carpetas o lanzar
+programas. Aquí solo se delegan consultas textuales a la IA.
+"""
 
 from __future__ import annotations
 
