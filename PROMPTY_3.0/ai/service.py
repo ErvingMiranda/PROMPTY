@@ -1,4 +1,11 @@
-"""Cliente HTTP que delega llamadas al proveedor de IA."""
+"""Cliente HTTP para PROMPTY Lite.
+
+Este módulo se usa desde el servidor/API (PROMPTY Lite) únicamente para
+mantener una conversación textual. En esta edición no se ejecutan acciones
+locales ni comandos del sistema; las capacidades completas (abrir YouTube,
+gestionar carpetas, lanzar programas, etc.) siguen viviendo en el PROMPTY de
+escritorio y sus módulos de automatización.
+"""
 from __future__ import annotations
 
 import json
@@ -68,6 +75,10 @@ _DEFAULT_JSON_RESPONSE = {
 
 class ServicioIA:
     """Encapsula las llamadas HTTP hacia el proveedor de IA."""
+
+    # Este cliente HTTP se usa desde la API de PROMPTY Lite: solo conversa y
+    # nunca ejecuta acciones locales. Las acciones reales siguen viviendo en los
+    # módulos del PROMPTY de escritorio que interactúan con el sistema operativo.
 
     def __init__(self, config: Optional[IAConfig] = None, client: Optional[httpx.Client] = None):
         self.config = config or IAConfig.from_env()
