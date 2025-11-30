@@ -25,6 +25,14 @@ servicio_ia = ServicioIA()
 logger = logging.getLogger(__name__)
 
 
+async def _consultar_api_lite(
+    mensaje: str, historial: Optional[List[Dict[str, str]]] = None
+) -> tuple[str, bool]:
+    """Envía la solicitud a la IA Lite sin disparar acciones locales."""
+
+    return await run_in_threadpool(servicio_ia.consultar_lite, mensaje, historial)
+
+
 class MensajeHistorial(BaseModel):
     rol: Literal["usuario", "asistente"]
     contenido: str = Field(..., min_length=1)
@@ -77,9 +85,7 @@ async def chat(req: ChatRequest) -> ChatResponse:
     historial = req.historial
 
     try:
-        respuesta, exito = await run_in_threadpool(
-            servicio_ia.consultar_lite, mensaje, historial
-        )
+        respuesta, exito = await _consultar_api_lite(mensaje, historial)
         return ChatResponse(respuesta=respuesta, exito=exito)
     except Exception as exc:  # pragma: no cover - se devuelve error controlado
         logger.exception("Error procesando /api/chat: %s", exc)
@@ -92,8 +98,7 @@ async def chat(req: ChatRequest) -> ChatResponse:
 @app.post("/api/chat-inteligente", response_model=SmartChatResponse)
 async def chat_inteligente(request: SmartChatRequest) -> SmartChatResponse:
     try:
-        respuesta, _ = await run_in_threadpool(
-            servicio_ia.consultar_lite,
+        respuesta, _ = await _consultar_api_lite(
             request.mensaje,
             [
                 {"rol": h.rol, "contenido": h.contenido} for h in request.historial or []
@@ -108,9 +113,7 @@ async def chat_inteligente(request: SmartChatRequest) -> SmartChatResponse:
 async def command(request: CommandRequest) -> CommandResponse:
     """Responde usando la IA sin ejecutar acciones locales."""
 
-    respuesta_ia, exito = await run_in_threadpool(
-        servicio_ia.consultar_lite, request.texto, None
-    )
+    respuesta_ia, exito = await _consultar_api_lite(request.texto, None)
     return CommandResponse(
         comando="sin_ejecucion",
         resultado=respuesta_ia,

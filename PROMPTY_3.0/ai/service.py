@@ -143,7 +143,7 @@ class ServicioIA:
                     return f"❌ {candidato['error']}"
         return None
 
-    def _consultar_modelo(
+    def _consultar_conversacion(
         self, mensaje: str, historial: Optional[List[Dict[str, str]]], system_prompt: str
     ) -> tuple[str, bool]:
         mensaje = (mensaje or "").strip()
@@ -184,20 +184,10 @@ class ServicioIA:
 
         return texto.strip(), True
 
-    def consultar(
-        self, mensaje: str, historial: Optional[List[Dict[str, str]]] = None
-    ) -> tuple[str, bool]:
-        return self._consultar_modelo(mensaje, historial, _CHAT_SYSTEM_PROMPT)
-
-    def consultar_lite(
-        self, mensaje: str, historial: Optional[List[Dict[str, str]]] = None
-    ) -> tuple[str, bool]:
-        return self._consultar_modelo(mensaje, historial, _SYSTEM_PROMPT)
-
-    def consultar_inteligente(
+    def _consultar_automatizacion(
         self, mensaje: str, historial: Optional[List[Dict[str, str]]] = None
     ) -> Dict[str, Any]:
-        texto, exito = self._consultar_modelo(
+        texto, exito = self._consultar_conversacion(
             mensaje, historial, _AUTOMATION_SYSTEM_PROMPT
         )
         if not exito:
@@ -226,3 +216,18 @@ class ServicioIA:
             "parametros": parametros,
             "respuesta_usuario": respuesta_usuario,
         }
+
+    def consultar(
+        self, mensaje: str, historial: Optional[List[Dict[str, str]]] = None
+    ) -> tuple[str, bool]:
+        return self._consultar_conversacion(mensaje, historial, _CHAT_SYSTEM_PROMPT)
+
+    def consultar_lite(
+        self, mensaje: str, historial: Optional[List[Dict[str, str]]] = None
+    ) -> tuple[str, bool]:
+        return self._consultar_conversacion(mensaje, historial, _SYSTEM_PROMPT)
+
+    def consultar_inteligente(
+        self, mensaje: str, historial: Optional[List[Dict[str, str]]] = None
+    ) -> Dict[str, Any]:
+        return self._consultar_automatizacion(mensaje, historial)
