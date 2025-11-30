@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import FastAPI, HTTPException
@@ -12,7 +11,6 @@ from pydantic import BaseModel, Field
 from ai import ServicioIA
 from prompty_core import ACCIONES_DISPONIBLES
 from prompty_core.comandos import abrir_youtube, obtener_hora_actual
-from core.interpretador_api import interpretar_mensaje_api
 from services.gestor_comandos import GestorComandos
 from services.interpretador import interpretar
 
@@ -27,7 +25,6 @@ app = FastAPI(
 
 servicio_ia = ServicioIA()
 gestor_comandos = GestorComandos()
-logger = logging.getLogger(__name__)
 
 
 class MensajeHistorial(BaseModel):
@@ -36,16 +33,14 @@ class MensajeHistorial(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    mensaje: str = Field(..., min_length=1)
-    historial: List[MensajeHistorial] = Field(default_factory=list)
+    mensaje: str
+    historial: Optional[List[Dict[str, str]]] = None
 
 
 class ChatResponse(BaseModel):
-    exito: bool
     respuesta: str
     accion: Optional[str] = None
-    parametros: Optional[Dict[str, Any]] = None
-    origen: Literal["interprete", "ia"]
+    argumentos: Dict[str, Any] = Field(default_factory=dict)
 
 
 class SmartChatRequest(BaseModel):
@@ -69,44 +64,84 @@ class CommandResponse(BaseModel):
     origen: str
 
 
+def detectar_intencion(
+    mensaje: str, historial: Optional[List[Dict[str, str]]] = None
+) -> tuple[Optional[str], Dict[str, Any]]:
+    """
+    Devuelve (accion, argumentos) a partir del mensaje del usuario
+    y, si es necesario, usando el último mensaje del asistente.
+    Acciones soportadas:
+      - "decir_hora"
+      - "abrir_youtube"
+      - None (solo charla)
+    """
+
+    texto = (mensaje or "").lower()
+
+    if "hora" in texto or "qué hora es" in texto or "dime la hora" in texto:
+        return "decir_hora", {}
+
+    if "youtube" in texto or "video" in texto or "videos" in texto:
+        return "abrir_youtube", {"query": mensaje}
+
+    if texto.strip() in ("sí", "si", "dale", "ok") and historial:
+        ultimo_asistente = next(
+            (m for m in reversed(historial) if m.get("rol") == "asistente"),
+            None,
+        )
+        if ultimo_asistente:
+            contenido = (ultimo_asistente.get("contenido") or "").lower()
+            if "youtube" in contenido:
+                return "abrir_youtube", {"query": "búsqueda en youtube"}
+            if "hora actual" in contenido:
+                return "decir_hora", {}
+
+    return None, {}
+
+
+async def llamar_modelo(
+    system_prompt: str, mensaje: str, historial: Optional[List[Dict[str, str]]]
+) -> str:
+    texto_modelo, _ = await run_in_threadpool(
+        servicio_ia._consultar_modelo,  # noqa: SLF001 - uso interno controlado
+        mensaje,
+        historial,
+        system_prompt,
+    )
+    return texto_modelo
+
+
 @app.get("/health")
 async def healthcheck() -> dict:
     return {"status": "ok"}
 
 
 @app.post("/api/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest) -> ChatResponse:
-    try:
-        interpretacion = await run_in_threadpool(
-            interpretar_mensaje_api, request.mensaje
-        )
-    except Exception as exc:  # pragma: no cover - FastAPI convertirá en JSON
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+async def chat(req: ChatRequest) -> ChatResponse:
+    mensaje = req.mensaje
 
-    if interpretacion.accion:
-        return ChatResponse(
-            exito=True,
-            respuesta=interpretacion.texto_respuesta,
-            accion=interpretacion.accion,
-            parametros=interpretacion.parametros or {},
-            origen="interprete",
-        )
+    accion, argumentos = detectar_intencion(mensaje, req.historial)
 
-    logger.info("[API] Mensaje enviado a IA externa")
+    system_prompt = (
+        "Eres PROMPTY, un asistente virtual de planificación integrado en otra aplicación.\n"
+        "Tu misión es responder en español con mensajes breves y claros.\n"
+        "NO digas la hora tú mismo, ni abras YouTube, ni ejecutes acciones reales.\n"
+        "Si el usuario pregunta la hora, responde algo como: "
+        "'Te digo la hora actual en la aplicación.' sin inventar la hora.\n"
+        "Si el usuario pide YouTube, responde algo como: "
+        "'Puedo abrir YouTube para buscar eso en tu dispositivo.'\n"
+        "El programa cliente se encargará de ejecutar los comandos basándose en la acción."
+    )
 
     try:
-        respuesta, exito = await run_in_threadpool(
-            servicio_ia.consultar,
-            request.mensaje,
-            [{"rol": h.rol, "contenido": h.contenido} for h in request.historial],
-        )
+        texto_modelo = await llamar_modelo(system_prompt, mensaje, req.historial)
     except Exception as exc:  # pragma: no cover - FastAPI convertirá en JSON
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
     return ChatResponse(
-        exito=exito,
-        respuesta=respuesta,
-        origen="ia",
+        respuesta=texto_modelo,
+        accion=accion,
+        argumentos=argumentos,
     )
 
 
