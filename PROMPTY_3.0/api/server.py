@@ -17,6 +17,12 @@ from pydantic import BaseModel, Field
 
 from ai import ServicioIA
 
+_LITE_LIMITATION_MESSAGE = (
+    "En esta versión (PROMPTY Lite) no puedo abrir aplicaciones ni ver tu sistema. "
+    "Pero si estás usando el PROMPTY completo en tu computadora, podés usar el "
+    "comando correspondiente para abrir YouTube o la carpeta que necesitás."
+)
+
 app = FastAPI(
     title="PROMPTY AI Service",
     description=(
@@ -37,6 +43,55 @@ async def _consultar_api_lite(
     """Envía la solicitud a la IA Lite sin disparar acciones locales."""
 
     return await run_in_threadpool(servicio_ia.consultar_lite, mensaje, historial)
+
+
+def _requiere_accion_local(contenido: Optional[str]) -> bool:
+    """Detecta de forma básica peticiones que requieren acceso al sistema local."""
+
+    if not contenido:
+        return False
+
+    texto = contenido.lower()
+    patrones_directos = [
+        "abrí youtube",
+        "abre youtube",
+        "abrir youtube",
+        "mostrame la hora",
+        "mostrar la hora",
+        "mostrarme la hora",
+        "abrí una carpeta",
+        "abre una carpeta",
+        "abrir una carpeta",
+    ]
+
+    if any(patron in texto for patron in patrones_directos):
+        return True
+
+    if "youtube" in texto and "abr" in texto:
+        return True
+    if "carpeta" in texto and "abr" in texto:
+        return True
+    if "hora" in texto and any(gatil in texto for gatil in ("qué", "que", "dime", "di", "mostrar")):
+        return True
+
+    return False
+
+
+def _es_peticion_de_accion_local(
+    mensaje: str, historial: Optional[List[Dict[str, str]]]
+) -> bool:
+    if _requiere_accion_local(mensaje):
+        return True
+
+    if historial:
+        for turno in historial:
+            rol = (turno.get("rol") or turno.get("role") or "").lower()
+            if rol.startswith("u") and _requiere_accion_local(
+                turno.get("contenido") or turno.get("content")
+            ):
+                return True
+
+    return False
 
 
 class MensajeHistorial(BaseModel):
@@ -90,6 +145,9 @@ async def chat(req: ChatRequest) -> ChatResponse:
     mensaje = req.mensaje
     historial = req.historial
 
+    if _es_peticion_de_accion_local(mensaje, historial):
+        return ChatResponse(respuesta=_LITE_LIMITATION_MESSAGE, exito=True)
+
     try:
         respuesta, exito = await _consultar_api_lite(mensaje, historial)
         return ChatResponse(respuesta=respuesta, exito=exito)
@@ -103,6 +161,15 @@ async def chat(req: ChatRequest) -> ChatResponse:
 
 @app.post("/api/chat-inteligente", response_model=SmartChatResponse)
 async def chat_inteligente(request: SmartChatRequest) -> SmartChatResponse:
+    if _es_peticion_de_accion_local(
+        request.mensaje,
+        [
+            {"rol": h.rol, "contenido": h.contenido}
+            for h in (request.historial or [])
+        ],
+    ):
+        return SmartChatResponse(respuesta=_LITE_LIMITATION_MESSAGE)
+
     try:
         respuesta, _ = await _consultar_api_lite(
             request.mensaje,
@@ -118,6 +185,14 @@ async def chat_inteligente(request: SmartChatRequest) -> SmartChatResponse:
 @app.post("/api/command", response_model=CommandResponse)
 async def command(request: CommandRequest) -> CommandResponse:
     """Responde usando la IA sin ejecutar acciones locales."""
+
+    if _es_peticion_de_accion_local(request.texto, None):
+        return CommandResponse(
+            comando="sin_ejecucion",
+            resultado=_LITE_LIMITATION_MESSAGE,
+            exito=True,
+            origen="ia-lite",
+        )
 
     respuesta_ia, exito = await _consultar_api_lite(request.texto, None)
     return CommandResponse(
