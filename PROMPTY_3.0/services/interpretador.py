@@ -1,6 +1,11 @@
 import re
 from typing import Dict, Optional, Tuple
 
+from services.comandos_basicos import ComandosBasicos
+
+
+_basicos = ComandosBasicos()
+
 
 def _extraer_busqueda(texto: str) -> Tuple[Optional[str], Optional[str]]:
     """Identifica la búsqueda solicitada y su posible destino."""
@@ -205,3 +210,146 @@ def interpretar(texto):
             return resultado(comando, coincidencia)
 
     return resultado("comando_no_reconocido")
+
+
+def _normalizar_argumento(argumento: Optional[str]) -> Optional[str]:
+    if isinstance(argumento, str):
+        argumento = argumento.strip()
+        return argumento or None
+    return None
+
+
+def _entrada_silenciosa(_: str = "") -> str:
+    """Devuelve cadena vacía para evitar prompts interactivos en API."""
+
+    return ""
+
+
+def obtener_hora() -> str:
+    return _basicos.mostrar_hora()
+
+
+def obtener_fecha() -> str:
+    return _basicos.mostrar_fecha()
+
+
+def obtener_fecha_hora() -> str:
+    return _basicos.mostrar_fecha_hora()
+
+
+def abrir_navegador(busqueda: Optional[str] = None, url: Optional[str] = None) -> str:
+    termino = _normalizar_argumento(busqueda)
+    return _basicos.buscar_en_navegador_con_opcion(
+        destino_predefinido="navegador",
+        entrada_manual_func=_entrada_silenciosa,
+        termino=termino,
+        url=url,
+    )
+
+
+def buscar_youtube(busqueda: Optional[str] = None, url: Optional[str] = None) -> str:
+    termino = _normalizar_argumento(busqueda)
+    return _basicos.buscar_en_navegador_con_opcion(
+        destino_predefinido="youtube",
+        entrada_manual_func=_entrada_silenciosa,
+        termino=termino,
+        url=url,
+    )
+
+
+def reproducir_musica(busqueda: Optional[str] = None, url: Optional[str] = None) -> str:
+    termino = _normalizar_argumento(busqueda)
+    return _basicos.reproducir_musica(
+        entrada_manual_func=_entrada_silenciosa,
+        termino=termino,
+        url=url,
+    )
+
+
+def abrir_carpeta(ruta: Optional[str] = None) -> str:
+    ruta_normalizada = _normalizar_argumento(ruta)
+    if ruta_normalizada:
+        return _basicos.abrir_carpeta(ruta_normalizada)
+    return _basicos.abrir_con_opcion(tipo="carpeta", entrada_manual_func=_entrada_silenciosa)
+
+
+def abrir_archivo(ruta: Optional[str] = None) -> str:
+    ruta_normalizada = _normalizar_argumento(ruta)
+    if ruta_normalizada:
+        return _basicos.abrir_carpeta(ruta_normalizada)
+    return _basicos.abrir_con_opcion(
+        tipo="archivo",
+        entrada_manual_func=_entrada_silenciosa,
+    )
+
+
+def dato_curioso() -> str:
+    return _basicos.mostrar_dato_curioso()
+
+
+def informacion(opcion: Optional[str] = None) -> str:
+    seleccion = _normalizar_argumento(opcion) or "2"
+    return _basicos.info_sistema(entrada_manual_func=lambda _: seleccion)
+
+
+def salir() -> str:
+    return "👋 Hasta pronto."
+
+
+def interpretar_intencion_local(texto: str) -> Tuple[Optional[str], Optional[str]]:
+    """Usa el interpretador clásico para mapear el mensaje a una intención y argumento."""
+
+    comando, argumentos, palabra_clave = interpretar(texto)
+
+    if comando in {"hora", "fecha", "fecha_hora", "dia_fecha"}:
+        return comando, None
+    if comando in {"buscar_en_youtube", "buscar_general", "buscar_en_navegador"}:
+        if isinstance(argumentos, dict):
+            return comando, argumentos.get("termino")
+        return comando, palabra_clave
+    if comando == "reproducir_musica":
+        if isinstance(argumentos, dict):
+            return comando, argumentos.get("termino")
+        return comando, palabra_clave
+    if comando in {"abrir_carpeta", "abrir_archivo", "abrir_con_opcion"}:
+        return comando, palabra_clave
+    if comando in {"dato_curioso", "info_programa", "salir", "saludo"}:
+        return comando, None
+    return None, None
+
+
+def ejecutar_intencion(intencion: Optional[str], argumento: Optional[str] = None) -> Tuple[str, bool]:
+    """Ejecuta la intención solicitada y devuelve el texto y si fue exitosa."""
+
+    accion = (intencion or "").strip().lower()
+    texto: str
+
+    if accion in {"hora"}:
+        texto = obtener_hora()
+    elif accion in {"fecha"}:
+        texto = obtener_fecha()
+    elif accion in {"fecha_hora", "dia_fecha"}:
+        texto = obtener_fecha_hora()
+    elif accion in {"abrir_navegador", "buscar_en_navegador", "buscar_general"}:
+        texto = abrir_navegador(argumento)
+    elif accion in {"buscar_youtube", "buscar_en_youtube"}:
+        texto = buscar_youtube(argumento)
+    elif accion == "reproducir_musica":
+        texto = reproducir_musica(argumento)
+    elif accion in {"abrir_carpeta"}:
+        texto = abrir_carpeta(argumento)
+    elif accion in {"abrir_archivo", "abrir_con_opcion"}:
+        texto = abrir_archivo(argumento)
+    elif accion in {"dato_curioso"}:
+        texto = dato_curioso()
+    elif accion in {"informacion", "info_programa"}:
+        texto = informacion(argumento)
+    elif accion in {"salir"}:
+        texto = salir()
+    elif accion in {"saludo"}:
+        texto = _basicos.responder_saludo()
+    else:
+        texto = "❌ No pude reconocer la acción solicitada."
+
+    exito = not texto.strip().startswith("❌")
+    return texto, exito
