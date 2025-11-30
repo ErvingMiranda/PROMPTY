@@ -1,14 +1,13 @@
 """Cliente HTTP que delega llamadas al proveedor de IA."""
 from __future__ import annotations
 
-from dataclasses import dataclass
 import json
-import os
-from pathlib import Path
 from threading import Lock
 from typing import Any, Dict, List, Optional
 
 import httpx
+
+from prompty_core.comandos import ACCIONES_DISPONIBLES
 
 from .config import CONFIG_LOCAL_PATH, IAConfig
 
@@ -23,73 +22,18 @@ _SYSTEM_PROMPT = (
     "Actúa siempre de forma clara y concisa, sin inventar datos ni enlaces que no existan."
 )
 
-DEFAULT_BASE_URL = "https://router.huggingface.co"
-CONFIG_LOCAL_PATH = Path(__file__).resolve().parent.parent / "config_local.json"
-
-
-@dataclass
-class IAConfig:
-    """Configuración necesaria para conectarse al proveedor de IA."""
-
-    api_token: Optional[str] = None
-    model_id: str = "mistralai/Mistral-7B-Instruct-v0.3"
-    base_url: Optional[str] = DEFAULT_BASE_URL
-    timeout: float = 45.0
-    max_new_tokens: int = 320
-    temperature: float = 0.4
-
-    @property
-    def endpoint(self) -> str:
-        base = (self.base_url or DEFAULT_BASE_URL).rstrip("/")
-        if base.endswith("/v1/chat"):
-            return f"{base}/completions"
-        if base.endswith("/v1"):
-            return f"{base}/chat/completions"
-        return f"{base}/v1/chat/completions"
-
-    @classmethod
-    def _load_local_config(cls) -> Dict[str, Any]:
-        if not CONFIG_LOCAL_PATH.exists():
-            return {}
-        try:
-            with CONFIG_LOCAL_PATH.open("r", encoding="utf-8") as handler:
-                data = json.load(handler)
-            if isinstance(data, dict):
-                return data
-        except (OSError, ValueError):
-            pass
-        return {}
-
-    @classmethod
-    def from_env(cls) -> "IAConfig":
-        local_config = cls._load_local_config()
-        token = local_config.get("api_token") if isinstance(local_config, dict) else None
-        model = local_config.get("model_id") if isinstance(local_config, dict) else None
-        base_url = local_config.get("base_url") if isinstance(local_config, dict) else None
-        timeout = local_config.get("timeout") if isinstance(local_config, dict) else None
-        max_new_tokens = (
-            local_config.get("max_new_tokens") if isinstance(local_config, dict) else None
-        )
-        temperature = local_config.get("temperature") if isinstance(local_config, dict) else None
-
-        token = token or (
-            os.getenv("PROMPTY_IA_TOKEN")
-            or os.getenv("HUGGING_FACE_API_TOKEN")
-            or os.getenv("HF_API_TOKEN")
-        )
-        model = model or os.getenv("PROMPTY_IA_MODEL") or cls.model_id
-        base_url = base_url or os.getenv("PROMPTY_IA_BASE_URL") or DEFAULT_BASE_URL
-        timeout = float(timeout or os.getenv("PROMPTY_IA_TIMEOUT", cls.timeout))
-        max_new_tokens = int(max_new_tokens or os.getenv("PROMPTY_IA_MAX_TOKENS", cls.max_new_tokens))
-        temperature = float(temperature or os.getenv("PROMPTY_IA_TEMPERATURE", cls.temperature))
-        return cls(
-            api_token=token,
-            model_id=model,
-            base_url=base_url,
-            timeout=timeout,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-        )
+_ACTION_SYSTEM_PROMPT = (
+    "Eres PROMPTY, un asistente local que decide qué acción ejecutar en el equipo. "
+    "Analiza la solicitud del usuario y responde únicamente con JSON válido siguiendo esta estructura: "
+    '{"accion": "<accion>", "parametros": {}, "respuesta_usuario": "<mensaje>"}. '
+    "Las acciones permitidas son: "
+    f"{', '.join(ACCIONES_DISPONIBLES)}. "
+    "Usa 'abrir_youtube' cuando debas abrir YouTube con una búsqueda (parametros: {\"query\": \"texto\"}). "
+    "Usa 'decir_hora' cuando pidan la hora (parametros vacío: {}). "
+    "Cuando no proceda acción alguna devuelve 'accion': 'ninguna'. "
+    "No inventes acciones nuevas, no añadas texto fuera del JSON, evita explicaciones adicionales y no uses Markdown. "
+    "La clave 'respuesta_usuario' debe contener un mensaje amable y breve en español para mostrar al usuario."
+)
 
 
 class ServicioIA:
@@ -112,9 +56,14 @@ class ServicioIA:
             headers["Authorization"] = f"Bearer {self.config.api_token}"
         return headers
 
-    def _build_messages(self, mensaje: str, historial: Optional[List[Dict[str, str]]]) -> List[Dict[str, str]]:
+    def _build_messages(
+        self,
+        mensaje: str,
+        historial: Optional[List[Dict[str, str]]],
+        system_prompt: str,
+    ) -> List[Dict[str, str]]:
         mensajes: List[Dict[str, str]] = [
-            {"role": "system", "content": _SYSTEM_PROMPT}
+            {"role": "system", "content": system_prompt}
         ]
         if historial:
             for turno in historial:
@@ -125,10 +74,15 @@ class ServicioIA:
         mensajes.append({"role": "user", "content": mensaje})
         return mensajes
 
-    def _build_payload(self, mensaje: str, historial: Optional[List[Dict[str, str]]]) -> Dict[str, Any]:
+    def _build_payload(
+        self,
+        mensaje: str,
+        historial: Optional[List[Dict[str, str]]],
+        system_prompt: str,
+    ) -> Dict[str, Any]:
         return {
             "model": self.config.model_id,
-            "messages": self._build_messages(mensaje, historial),
+            "messages": self._build_messages(mensaje, historial, system_prompt),
             "temperature": self.config.temperature,
             "max_tokens": self.config.max_new_tokens,
         }
@@ -157,8 +111,8 @@ class ServicioIA:
                     return f"❌ {candidato['error']}"
         return None
 
-    def consultar(
-        self, mensaje: str, historial: Optional[List[Dict[str, str]]] = None
+    def _consultar_modelo(
+        self, mensaje: str, historial: Optional[List[Dict[str, str]]], system_prompt: str
     ) -> tuple[str, bool]:
         mensaje = (mensaje or "").strip()
         if not mensaje:
@@ -172,7 +126,7 @@ class ServicioIA:
                 False,
             )
 
-        payload = self._build_payload(mensaje, historial)
+        payload = self._build_payload(mensaje, historial, system_prompt)
         try:
             respuesta = self._get_client().post(
                 self.config.endpoint,
@@ -197,3 +151,47 @@ class ServicioIA:
             return "⚠️ La IA no envió contenido útil.", False
 
         return texto.strip(), True
+
+    def consultar(
+        self, mensaje: str, historial: Optional[List[Dict[str, str]]] = None
+    ) -> tuple[str, bool]:
+        return self._consultar_modelo(mensaje, historial, _SYSTEM_PROMPT)
+
+    def decidir_accion(
+        self, mensaje: str, historial: Optional[List[Dict[str, str]]] = None
+    ) -> Dict[str, Any]:
+        texto, exito = self._consultar_modelo(mensaje, historial, _ACTION_SYSTEM_PROMPT)
+        if not exito:
+            return {
+                "accion": "ninguna",
+                "parametros": {},
+                "respuesta_usuario": texto,
+                "exito": False,
+            }
+
+        try:
+            data = json.loads(texto)
+        except ValueError:
+            return {
+                "accion": "ninguna",
+                "parametros": {},
+                "respuesta_usuario": texto,
+                "exito": False,
+            }
+
+        accion = str(data.get("accion", "ninguna") or "ninguna").strip()
+        if accion not in ACCIONES_DISPONIBLES:
+            accion = "ninguna"
+        parametros = data.get("parametros") if isinstance(data, dict) else {}
+        if not isinstance(parametros, dict):
+            parametros = {}
+        respuesta_usuario = str(data.get("respuesta_usuario") or "").strip()
+        if not respuesta_usuario:
+            respuesta_usuario = "Aquí tienes la respuesta solicitada."
+
+        return {
+            "accion": accion,
+            "parametros": parametros,
+            "respuesta_usuario": respuesta_usuario,
+            "exito": True,
+        }
