@@ -11,7 +11,7 @@ from prompty_core.comandos import ACCIONES_DISPONIBLES
 
 from .config import CONFIG_LOCAL_PATH, IAConfig
 
-_SYSTEM_PROMPT = (
+_CHAT_SYSTEM_PROMPT = (
     "PROMPTY es un asistente virtual de escritorio desarrollado en Python. "
     "Su función principal es ayudar a los usuarios a realizar tareas cotidianas como abrir archivos, "
     "mostrar la hora, buscar en YouTube y ofrecer datos curiosos, respondiendo tanto por texto como por voz. "
@@ -22,18 +22,41 @@ _SYSTEM_PROMPT = (
     "Actúa siempre de forma clara y concisa, sin inventar datos ni enlaces que no existan."
 )
 
-_ACTION_SYSTEM_PROMPT = (
-    "Eres PROMPTY, un asistente local que decide qué acción ejecutar en el equipo. "
-    "Analiza la solicitud del usuario y responde únicamente con JSON válido siguiendo esta estructura: "
-    '{"accion": "<accion>", "parametros": {}, "respuesta_usuario": "<mensaje>"}. '
-    "Las acciones permitidas son: "
-    f"{', '.join(ACCIONES_DISPONIBLES)}. "
-    "Usa 'abrir_youtube' cuando debas abrir YouTube con una búsqueda (parametros: {\"query\": \"texto\"}). "
-    "Usa 'decir_hora' cuando pidan la hora (parametros vacío: {}). "
-    "Cuando no proceda acción alguna devuelve 'accion': 'ninguna'. "
-    "No inventes acciones nuevas, no añadas texto fuera del JSON, evita explicaciones adicionales y no uses Markdown. "
-    "La clave 'respuesta_usuario' debe contener un mensaje amable y breve en español para mostrar al usuario."
-)
+_SYSTEM_PROMPT = """
+Eres PROMPTY, un asistente de escritorio en español.
+
+Tu misión es:
+1) Interpretar lo que quiere el usuario.
+2) Decidir si se debe ejecutar una acción local.
+3) Responder SIEMPRE en JSON, con este formato EXACTO:
+
+{
+  "accion": "ninguna" | "abrir_youtube" | "decir_hora",
+  "parametros": {},
+  "respuesta_usuario": "texto a mostrar al usuario"
+}
+
+Reglas importantes:
+- NO agregues texto fuera del JSON.
+- Si el usuario quiere buscar algo en YouTube:
+    accion = "abrir_youtube"
+    parametros = {"query": "<texto a buscar>"}
+- Si el usuario pregunta la hora:
+    accion = "decir_hora"
+    parametros = {}
+- Si solo conversa:
+    accion = "ninguna"
+- No inventes acciones que no estén en esta lista.
+"""
+
+_DEFAULT_JSON_RESPONSE = {
+    "accion": "ninguna",
+    "parametros": {},
+    "respuesta_usuario": (
+        "Tuve un problema interpretando la respuesta de la IA. "
+        "¿Podrías repetir lo que necesitas?"
+    ),
+}
 
 
 class ServicioIA:
@@ -60,7 +83,7 @@ class ServicioIA:
         self,
         mensaje: str,
         historial: Optional[List[Dict[str, str]]],
-        system_prompt: str,
+        system_prompt: str = _CHAT_SYSTEM_PROMPT,
     ) -> List[Dict[str, str]]:
         mensajes: List[Dict[str, str]] = [
             {"role": "system", "content": system_prompt}
@@ -78,11 +101,13 @@ class ServicioIA:
         self,
         mensaje: str,
         historial: Optional[List[Dict[str, str]]],
-        system_prompt: str,
+        system_prompt: str = _CHAT_SYSTEM_PROMPT,
     ) -> Dict[str, Any]:
         return {
             "model": self.config.model_id,
-            "messages": self._build_messages(mensaje, historial, system_prompt),
+            "messages": self._build_messages(
+                mensaje, historial, system_prompt or _CHAT_SYSTEM_PROMPT
+            ),
             "temperature": self.config.temperature,
             "max_tokens": self.config.max_new_tokens,
         }
@@ -155,43 +180,35 @@ class ServicioIA:
     def consultar(
         self, mensaje: str, historial: Optional[List[Dict[str, str]]] = None
     ) -> tuple[str, bool]:
-        return self._consultar_modelo(mensaje, historial, _SYSTEM_PROMPT)
+        return self._consultar_modelo(mensaje, historial, _CHAT_SYSTEM_PROMPT)
 
-    def decidir_accion(
+    def consultar_inteligente(
         self, mensaje: str, historial: Optional[List[Dict[str, str]]] = None
     ) -> Dict[str, Any]:
-        texto, exito = self._consultar_modelo(mensaje, historial, _ACTION_SYSTEM_PROMPT)
+        texto, exito = self._consultar_modelo(mensaje, historial, _SYSTEM_PROMPT)
         if not exito:
-            return {
-                "accion": "ninguna",
-                "parametros": {},
-                "respuesta_usuario": texto,
-                "exito": False,
-            }
+            fallback = dict(_DEFAULT_JSON_RESPONSE)
+            fallback["respuesta_usuario"] = texto or fallback["respuesta_usuario"]
+            return fallback
 
         try:
             data = json.loads(texto)
         except ValueError:
-            return {
-                "accion": "ninguna",
-                "parametros": {},
-                "respuesta_usuario": texto,
-                "exito": False,
-            }
+            return dict(_DEFAULT_JSON_RESPONSE)
 
         accion = str(data.get("accion", "ninguna") or "ninguna").strip()
-        if accion not in ACCIONES_DISPONIBLES:
-            accion = "ninguna"
         parametros = data.get("parametros") if isinstance(data, dict) else {}
         if not isinstance(parametros, dict):
             parametros = {}
         respuesta_usuario = str(data.get("respuesta_usuario") or "").strip()
         if not respuesta_usuario:
-            respuesta_usuario = "Aquí tienes la respuesta solicitada."
+            respuesta_usuario = _DEFAULT_JSON_RESPONSE["respuesta_usuario"]
+
+        if accion not in ACCIONES_DISPONIBLES:
+            accion = "ninguna"
 
         return {
             "accion": accion,
             "parametros": parametros,
             "respuesta_usuario": respuesta_usuario,
-            "exito": True,
         }
