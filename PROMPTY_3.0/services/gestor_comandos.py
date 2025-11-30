@@ -29,6 +29,11 @@ class GestorComandos:
     def establecer_usuario(self, usuario):
         self.usuario_actual = usuario
 
+    def admite_comando(self, clave_comando: str) -> bool:
+        """Indica si el gestor tiene una acción asociada al comando solicitado."""
+
+        return clave_comando in self._acciones
+
     def ejecutar_comando(self, clave_comando, argumentos=None, entrada_manual_func=None):
         """Ejecuta el comando indicado y devuelve el mensaje de respuesta."""
         return self.ejecutar_logica(clave_comando, argumentos, entrada_manual_func)
