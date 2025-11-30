@@ -17,7 +17,19 @@ _CHAT_SYSTEM_PROMPT = (
     "directamente al usuario con la información solicitada."
 )
 
-_SYSTEM_PROMPT = """
+_SYSTEM_PROMPT = (
+    "Eres PROMPTY Lite, una versión limitada de un asistente de escritorio en español. "
+    "Tu función es mantener una conversación clara y útil con el usuario, "
+    "dando explicaciones y pasos concretos en menos de 200 palabras. "
+    "No tienes acceso al sistema operativo, no puedes abrir aplicaciones, "
+    "no puedes ver la hora real ni manejar archivos o carpetas. "
+    "Si el usuario te pide hacer algo que requiera acceso al sistema, "
+    "explícale que esta versión solo puede dar indicaciones y recomiéndale "
+    "usar la versión completa de PROMPTY instalada en su computadora. "
+    "Nunca finjas que ejecutas acciones reales; solo describe lo que el usuario podría hacer."
+)
+
+_AUTOMATION_SYSTEM_PROMPT = """
 Eres PROMPTY, un asistente de escritorio en español.
 
 Tu misión es:
@@ -177,10 +189,17 @@ class ServicioIA:
     ) -> tuple[str, bool]:
         return self._consultar_modelo(mensaje, historial, _CHAT_SYSTEM_PROMPT)
 
+    def consultar_lite(
+        self, mensaje: str, historial: Optional[List[Dict[str, str]]] = None
+    ) -> tuple[str, bool]:
+        return self._consultar_modelo(mensaje, historial, _SYSTEM_PROMPT)
+
     def consultar_inteligente(
         self, mensaje: str, historial: Optional[List[Dict[str, str]]] = None
     ) -> Dict[str, Any]:
-        texto, exito = self._consultar_modelo(mensaje, historial, _SYSTEM_PROMPT)
+        texto, exito = self._consultar_modelo(
+            mensaje, historial, _AUTOMATION_SYSTEM_PROMPT
+        )
         if not exito:
             fallback = dict(_DEFAULT_JSON_RESPONSE)
             fallback["respuesta_usuario"] = texto or fallback["respuesta_usuario"]
