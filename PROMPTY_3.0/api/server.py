@@ -33,8 +33,8 @@ class MensajeHistorial(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    mensaje: str
-    historial: Optional[List[Dict[str, str]]] = None
+    Mensaje: str
+    Historial: Optional[List[Dict[str, str]]] = None
 
 
 class ChatResponse(BaseModel):
@@ -118,9 +118,10 @@ async def healthcheck() -> dict:
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest) -> ChatResponse:
-    mensaje = req.mensaje
+    mensaje = req.Mensaje
+    historial = req.Historial
 
-    accion, argumentos = detectar_intencion(mensaje, req.historial)
+    accion, argumentos = detectar_intencion(mensaje, historial)
 
     system_prompt = (
         "Eres PROMPTY, un asistente virtual de planificación integrado en otra aplicación.\n"
@@ -134,7 +135,7 @@ async def chat(req: ChatRequest) -> ChatResponse:
     )
 
     try:
-        texto_modelo = await llamar_modelo(system_prompt, mensaje, req.historial)
+        texto_modelo = await llamar_modelo(system_prompt, mensaje, historial)
     except Exception as exc:  # pragma: no cover - FastAPI convertirá en JSON
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
