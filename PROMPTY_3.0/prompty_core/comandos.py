@@ -1,6 +1,7 @@
 """Acciones reutilizables para ejecutar comandos locales de PROMPTY."""
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Dict, Optional
 
 from services.comandos_basicos import ComandosBasicos
@@ -28,16 +29,20 @@ def _extraer_query(parametros: Optional[Dict[str, Any]]) -> Optional[str]:
     return None
 
 
-def _accion_abrir_youtube(parametros: Optional[Dict[str, Any]]) -> str:
-    query = _extraer_query(parametros)
-    if not query:
+def abrir_youtube(query: str) -> str:
+    termino = (query or "").strip()
+    if not termino:
         return "❌ No se especificó qué buscar en YouTube."
     return _comandos.buscar_en_navegador_con_opcion(
-        destino_predefinido="youtube", termino=query
+        destino_predefinido="youtube", termino=termino
     )
 
 
-def _accion_decir_hora(_: Optional[Dict[str, Any]]) -> str:
+def obtener_hora_actual() -> str:
+    return datetime.now().strftime("%H:%M")
+
+
+def decir_hora(_: Optional[Dict[str, Any]] = None) -> str:
     return _comandos.mostrar_hora()
 
 
@@ -49,8 +54,11 @@ def ejecutar_accion(accion: str, parametros: Optional[Dict[str, Any]] = None) ->
         accion_normalizada = "ninguna"
 
     if accion_normalizada == "abrir_youtube":
-        return _accion_abrir_youtube(parametros)
+        query = _extraer_query(parametros)
+        if not query:
+            return "❌ No se especificó qué buscar en YouTube."
+        return abrir_youtube(query)
     if accion_normalizada == "decir_hora":
-        return _accion_decir_hora(parametros)
+        return decir_hora(parametros)
 
     return "No hay acciones para ejecutar."

@@ -9,7 +9,8 @@ from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 
 from ai import ServicioIA
-from prompty_core import ACCIONES_DISPONIBLES, ejecutar_accion
+from prompty_core import ACCIONES_DISPONIBLES
+from prompty_core.comandos import abrir_youtube, obtener_hora_actual
 from services.gestor_comandos import GestorComandos
 from services.interpretador import interpretar
 
@@ -47,10 +48,7 @@ class SmartChatRequest(BaseModel):
 
 
 class SmartChatResponse(BaseModel):
-    accion: str
-    respuesta_usuario: str
-    resultado_accion: Optional[str] = None
-    exito: bool
+    respuesta: str
 
 
 class CommandRequest(BaseModel):
@@ -88,7 +86,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
 async def chat_inteligente(request: SmartChatRequest) -> SmartChatResponse:
     try:
         decision = await run_in_threadpool(
-            servicio_ia.decidir_accion,
+            servicio_ia.consultar_inteligente,
             request.mensaje,
             [
                 {"rol": h.rol, "contenido": h.contenido} for h in request.historial or []
@@ -97,44 +95,35 @@ async def chat_inteligente(request: SmartChatRequest) -> SmartChatResponse:
     except Exception as exc:  # pragma: no cover - FastAPI convertirá en JSON
         raise HTTPException(status_code=500, detail=str(exc)) from exc
 
-    accion = decision.get("accion") if isinstance(decision, dict) else "ninguna"
+    accion = str(decision.get("accion") if isinstance(decision, dict) else "ninguna").strip()
     parametros = decision.get("parametros") if isinstance(decision, dict) else {}
+    if not isinstance(parametros, dict):
+        parametros = {}
     respuesta_usuario = str(
         (decision.get("respuesta_usuario") if isinstance(decision, dict) else "") or ""
     ).strip()
-    decision_valida = bool(decision.get("exito", True)) if isinstance(decision, dict) else False
 
     if accion not in ACCIONES_DISPONIBLES:
         accion = "ninguna"
 
-    resultado_accion: Optional[str] = None
-    exito = decision_valida
-
-    if accion != "ninguna":
-        try:
-            resultado_accion = await run_in_threadpool(
-                ejecutar_accion, accion, parametros
-            )
-        except Exception as exc:  # pragma: no cover - seguridad adicional
-            resultado_accion = f"❌ No pude completar la acción: {exc}"
-
-        if isinstance(resultado_accion, str) and resultado_accion.strip():
-            exito = exito and not resultado_accion.strip().startswith("❌")
-            if respuesta_usuario:
-                respuesta_usuario = f"{respuesta_usuario}\n{resultado_accion}" \
-                    if resultado_accion else respuesta_usuario
-            else:
-                respuesta_usuario = resultado_accion
-
     if not respuesta_usuario:
-        respuesta_usuario = "Aquí tienes la respuesta solicitada."
+        respuesta_usuario = (
+            "Tuve un problema interpretando la respuesta de la IA. "
+            "¿Podrías repetir lo que necesitas?"
+        )
 
-    return SmartChatResponse(
-        accion=accion,
-        respuesta_usuario=respuesta_usuario,
-        resultado_accion=resultado_accion,
-        exito=exito,
-    )
+    if accion == "abrir_youtube":
+        query = str(parametros.get("query", "")).strip()
+        if query:
+            await run_in_threadpool(abrir_youtube, query)
+    elif accion == "decir_hora":
+        hora_actual = obtener_hora_actual()
+        if "{hora}" in respuesta_usuario:
+            respuesta_usuario = respuesta_usuario.replace("{hora}", hora_actual)
+        elif "hora" not in respuesta_usuario.lower():
+            respuesta_usuario = f"{respuesta_usuario} Son las {hora_actual}."
+
+    return SmartChatResponse(respuesta=respuesta_usuario)
 
 
 @app.post("/api/command", response_model=CommandResponse)
